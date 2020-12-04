@@ -1,0 +1,35 @@
+{
+  "name": "bluetooth-le-example",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Bluetooth LE Example",
+  "license": "MIT",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "stencil build",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test.watch": "stencil test --spec --e2e --watch",
+    "clean": "rimraf www",
+    "bas:android": "npm run clean && npm run build && npx cap sync android",
+    "bas:ios": "npm run clean && npm run build && npx cap sync ios",
+    "generate": "stencil generate",
+    "serve": "serve -s www"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^2.4.4",
+    "@capacitor/cli": "^2.4.4",
+    "@capacitor/core": "^2.4.4",
+    "@capacitor/ios": "^2.4.4",
+    "@ionic/core": "^5.5.1",
+    "@stencil/core": "^2.3.0",
+    "@types/jest": "^26.0.16",
+    "capacitor-bluetooth-le": "file:..",
+    "jest": "^26.6.3",
+    "rimraf": "^3.0.2",
+    "serve": "^11.3.2"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,21 @@
+{
+  "appId": "com.wespiapps.bluetoothle.example",
+  "appName": "BLE Example",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    },
+    "BluetoothLe": {
+      "displayStrings": {
+        "scanning": "Am Scannen...",
+        "cancel": "Abbrechen",
+        "availableDevices": "Verfügbare Geräte",
+        "noDeviceFound": "Kein Gerät gefunden"
+      }
+    }
+  },
+  "cordova": {}
+}
