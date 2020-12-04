@@ -76,45 +76,6 @@ public class MainActivity extends BridgeActivity {
 
 ```
 
-And configure the project to use Kotlin (the plugin is written in Kotlin):
-
-`./android/build.gradle`:
-
-```diff
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-buildscript {
-+   ext.kotlin_version = '1.4.20'
-
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
-        classpath 'com.google.gms:google-services:4.3.3'
-+       classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-apply from: "variables.gradle"
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-
-```
-
 ## Configuration
 
 You can configure the strings that are displayed in the device selection dialog on iOS and Android:
