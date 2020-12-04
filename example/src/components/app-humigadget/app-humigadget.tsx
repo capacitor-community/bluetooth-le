@@ -91,6 +91,36 @@ export class AppHumigadget {
       },
     },
     {
+      label: 'request device (filter test or with name)',
+      action: async () => {
+        const result = await BleClient.requestDevice({
+          name: 'zyx',
+          services: [
+            numberToUUID(0x1810),
+            numberToUUID(0x1822),
+            numberToUUID(0x1823),
+          ],
+        });
+        this.device = result;
+        return result;
+      },
+    },
+    {
+      label: 'request device (filter test or with name 2)',
+      action: async () => {
+        const result = await BleClient.requestDevice({
+          name: 'zyx2',
+          services: [
+            numberToUUID(0x1810),
+            numberToUUID(0x1822),
+            numberToUUID(0x1823),
+          ],
+        });
+        this.device = result;
+        return result;
+      },
+    },
+    {
       label: 'connect',
       action: () => {
         return BleClient.connect(this.device?.deviceId);

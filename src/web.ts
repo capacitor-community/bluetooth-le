@@ -30,19 +30,22 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async requestDevice(options: RequestBleDeviceOptions): Promise<BleDevice> {
-    let filters: BluetoothRequestDeviceFilter[] | undefined = undefined;
-    if (options?.name || options?.services?.length) {
-      filters = [
-        {
-          services: options?.services,
-          name: options?.name,
-        },
-      ];
+    let filters: BluetoothRequestDeviceFilter[] = [];
+    for (let service of options?.services ?? []) {
+      filters.push({
+        services: [service],
+        name: options?.name,
+      });
+    }
+    if (options?.name && filters.length === 0) {
+      filters.push({
+        name: options.name,
+      });
     }
     const device = await navigator.bluetooth.requestDevice({
-      filters,
+      filters: filters.length ? filters : undefined,
       optionalServices: options?.optionalServices,
-      acceptAllDevices: filters === undefined,
+      acceptAllDevices: filters.length === 0,
     });
     const { id, name, uuids } = device;
     this.deviceMap.set(id, device);

@@ -58,10 +58,14 @@ class BluetoothLe : Plugin() {
         val filters: ArrayList<ScanFilter> = ArrayList()
 
         val services = call.getArray("services", JSArray()).toList<String>()
+        val name = call.getString("name", null)
         try {
             for (service in services) {
                 val filter = ScanFilter.Builder()
                 filter.setServiceUuid(ParcelUuid.fromString(service))
+                if (name != null) {
+                    filter.setDeviceName(name)
+                }
                 filters.add(filter.build())
             }
         } catch (e: IllegalArgumentException) {
@@ -69,8 +73,7 @@ class BluetoothLe : Plugin() {
             return null
         }
 
-        val name = call.getString("name", null)
-        if (name != null) {
+        if (name != null && filters.isEmpty()) {
             val filter = ScanFilter.Builder()
             filter.setDeviceName(name)
             filters.add(filter.build())
