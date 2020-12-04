@@ -8,23 +8,25 @@ export interface BleClientInterface {
   /**
    * Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable or disabled on this device.
    * On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
+   * For an example, see [usage](#usage).
    */
   initialize(): Promise<void>;
 
   /**
    * Request a peripheral BLE device to interact with. This will scan for available devices according to the filters provided in the options and show a dialog to pick a device.
+   * For an example, see [usage](#usage).
    * @param options Device filters, see [RequestBleDeviceOptions](#RequestBleDeviceOptions)
    */
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
 
   /**
-   * Connect to a peripheral BLE device.
+   * Connect to a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice))
    */
   connect(deviceId: string): Promise<void>;
 
   /**
-   * Disconnect from a peripheral BLE device.
+   * Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice))
    */
   disconnect(deviceId: string): Promise<void>;

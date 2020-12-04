@@ -164,7 +164,7 @@ import { BleClient } from 'capacitor-bluetooth-le';
 
 // DO NOT use this
 import { Plugins } from '@capacitor/core';
-const { Bluetooth } = Plugins;
+const { BluetoothLe } = Plugins;
 ```
 
 Here is an example of how to use the plugin. It shows how to read the heart rate from a BLE heart rate monitor such as the Polar H10.
@@ -269,6 +269,7 @@ initialize() => Promise<void>
 
 Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable or disabled on this device.
 On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
+For an example, see [usage](#usage).
 
 ---
 
@@ -279,6 +280,7 @@ requestDevice(options?: RequestBleDeviceOptions | undefined) => Promise<BleDevic
 ```
 
 Request a peripheral BLE device to interact with. This will scan for available devices according to the filters provided in the options and show a dialog to pick a device.
+For an example, see [usage](#usage).
 
 | Param         | Type                                                                        | Description                                                             |
 | ------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -294,7 +296,7 @@ Request a peripheral BLE device to interact with. This will scan for available d
 connect(deviceId: string) => Promise<void>
 ```
 
-Connect to a peripheral BLE device.
+Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
 | Param          | Type                | Description                                                                 |
 | -------------- | ------------------- | --------------------------------------------------------------------------- |
@@ -308,7 +310,7 @@ Connect to a peripheral BLE device.
 disconnect(deviceId: string) => Promise<void>
 ```
 
-Disconnect from a peripheral BLE device.
+Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
 
 | Param          | Type                | Description                                                                 |
 | -------------- | ------------------- | --------------------------------------------------------------------------- |
