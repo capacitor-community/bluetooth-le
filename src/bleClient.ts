@@ -2,7 +2,7 @@ import { Capacitor, PluginListenerHandle, Plugins } from '@capacitor/core';
 import { dataViewToHexString, hexStringToDataView } from './conversion';
 import { BleDevice, ReadResult, RequestBleDeviceOptions } from './definitions';
 
-const { Bluetooth } = Plugins;
+const { BluetoothLe } = Plugins;
 
 export interface BleClientInterface {
   /**
@@ -86,20 +86,20 @@ class BleClientClass implements BleClientInterface {
   notifyListeners = new Map<string, PluginListenerHandle>();
 
   async initialize(): Promise<void> {
-    await Bluetooth.initialize();
+    await BluetoothLe.initialize();
   }
 
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
-    const device = await Bluetooth.requestDevice(options);
+    const device = await BluetoothLe.requestDevice(options);
     return device;
   }
 
   async connect(deviceId: string): Promise<void> {
-    await Bluetooth.connect({ deviceId });
+    await BluetoothLe.connect({ deviceId });
   }
 
   async disconnect(deviceId: string): Promise<void> {
-    await Bluetooth.disconnect({ deviceId });
+    await BluetoothLe.disconnect({ deviceId });
   }
 
   private convertValue(value: ReadResult['value']): DataView {
@@ -116,7 +116,7 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
   ): Promise<DataView> {
-    const result = await Bluetooth.read({
+    const result = await BluetoothLe.read({
       deviceId,
       service,
       characteristic,
@@ -135,7 +135,7 @@ class BleClientClass implements BleClientInterface {
       // on native we can only write strings
       writeValue = dataViewToHexString(value);
     }
-    await Bluetooth.write({
+    await BluetoothLe.write({
       deviceId,
       service,
       characteristic,
@@ -150,11 +150,11 @@ class BleClientClass implements BleClientInterface {
     callback: (value: DataView) => void,
   ): Promise<void> {
     const key = `notification|${deviceId}|${service}|${characteristic}`;
-    const listener = Bluetooth.addListener(key, (event: ReadResult) => {
+    const listener = BluetoothLe.addListener(key, (event: ReadResult) => {
       callback(this.convertValue(event?.value));
     });
     this.notifyListeners.set(key, listener);
-    await Bluetooth.startNotifications({
+    await BluetoothLe.startNotifications({
       deviceId,
       service,
       characteristic,
@@ -169,7 +169,7 @@ class BleClientClass implements BleClientInterface {
     const key = `notification|${service}|${characteristic}`;
     this.notifyListeners.get(key)?.remove();
     this.notifyListeners.delete(key);
-    await Bluetooth.stopNotifications({
+    await BluetoothLe.stopNotifications({
       deviceId,
       service,
       characteristic,
