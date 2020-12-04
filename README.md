@@ -84,7 +84,7 @@ And configure the project to use Kotlin (the plugin is written in Kotlin):
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-+   ext.kotlin_version = '1.4.20-RC'
++   ext.kotlin_version = '1.4.20'
 
     repositories {
         google()
