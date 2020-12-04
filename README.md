@@ -67,7 +67,7 @@ public class MainActivity extends BridgeActivity {
           {
             // Additional plugins you've installed go here
             // Ex: add(TotallyAwesomePlugin.class);
-+            add(BluetoothLe.class);
++           add(BluetoothLe.class);
           }
         }
       );
