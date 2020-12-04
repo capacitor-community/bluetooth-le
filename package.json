@@ -1,7 +1,7 @@
 {
   "name": "capacitor-bluetooth-le",
   "version": "0.0.1",
-  "description": "Bluetooth Low Energy Plugin for Capacitor",
+  "description": "Capacitor Bluetooth Low Energy Plugin",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -9,29 +9,36 @@
     "lint": "npm run prettier -- --check && npm run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
+    "docgen": "docgen --api BleClientInterface --output-readme README.md",
     "build": "npm run clean && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "jest"
   },
-  "author": "Patrick Wespi",
+  "author": "pwespi",
   "license": "MIT",
   "devDependencies": {
-    "@capacitor/android": "^2.4.4",
-    "@capacitor/core": "^2.4.4",
-    "@capacitor/ios": "^2.4.4",
-    "@ionic/prettier-config": "^1.0.0",
-    "@ionic/swiftlint-config": "^1.0.0",
-    "@rollup/plugin-node-resolve": "^8.1.0",
-    "prettier": "^2.0.5",
-    "prettier-plugin-java": "^0.8.0",
-    "rimraf": "^3.0.0",
-    "rollup": "^2.21.0",
+    "@capacitor/android": "^2.4.3",
+    "@capacitor/core": "^2.4.3",
+    "@capacitor/docgen": "^0.0.10",
+    "@capacitor/ios": "^2.4.3",
+    "@ionic/prettier-config": "^1.0.1",
+    "@ionic/swiftlint-config": "^1.1.2",
+    "@rollup/plugin-node-resolve": "^10.0.0",
+    "@types/jest": "^26.0.15",
+    "@types/web-bluetooth": "^0.0.9",
+    "jest": "^26.6.3",
+    "prettier": "^2.2.1",
+    "prettier-plugin-java": "^1.0.1",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.34.0",
     "swiftlint": "^1.0.1",
-    "typescript": "~3.8.3"
+    "ts-jest": "^26.4.4",
+    "typescript": "~4.1.2"
   },
   "peerDependencies": {
-    "@capacitor/core": "^2.4.4"
+    "@capacitor/core": "^2.4.3"
   },
   "files": [
     "dist/",
