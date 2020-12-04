@@ -24,7 +24,7 @@ Below is an index of all the methods available.
 
 ```
 // TODO (plugin is not yet published on npm)
-npm install @pwespi/capacitor-bluetooth
+npm install capacitor-bluetooth-le
 npx cap sync
 ```
 
@@ -52,7 +52,7 @@ On Android, register the plugin in your main activity:
 `./android/app/src/main/java/<PATH>/MainActivity.java`:
 
 ```diff
-+ import com.wespiapps.plugins.bluetooth.Bluetooth;
++ import com.wespiapps.plugins.capacitorbluetoothle.BluetoothLe;
 
 public class MainActivity extends BridgeActivity {
 
@@ -67,7 +67,7 @@ public class MainActivity extends BridgeActivity {
           {
             // Additional plugins you've installed go here
             // Ex: add(TotallyAwesomePlugin.class);
-+            add(Bluetooth.class);
++            add(BluetoothLe.class);
           }
         }
       );
@@ -125,7 +125,7 @@ You can configure the strings that are displayed in the device selection dialog 
 {
   "...": "other configuration",
   "plugins": {
-    "Bluetooth": {
+    "BluetoothLe": {
       "displayStrings": {
         "scanning": "Am Scannen...",
         "cancel": "Abbrechen",
@@ -142,7 +142,7 @@ The default values are:
 ```JSON
 {
   "plugins": {
-    "Bluetooth": {
+    "BluetoothLe": {
       "displayStrings": {
         "scanning": "Scanning...",
         "cancel": "Cancel",
@@ -160,7 +160,7 @@ Do not use the plugin class directly. There is a wrapper class `BleClient` which
 
 ```typescript
 // Import the wrapper class directly
-import { BleClient } from '@pwespi/capacitor-bluetooth';
+import { BleClient } from 'capacitor-bluetooth-le';
 
 // DO NOT use this
 import { Plugins } from '@capacitor/core';
@@ -174,7 +174,7 @@ import {
   BleClient,
   numbersToDataView,
   numberToUUID,
-} from '@pwespi/capacitor-bluetooth';
+} from 'capacitor-bluetooth-le';
 
 const HEART_RATE_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
 const HEART_RATE_MEASUREMENT_CHARACTERISTIC =
@@ -451,7 +451,7 @@ buffer as needed.
 All UUIDs have to be provided in 128 bit format as string (lowercase), e.g. `'0000180d-0000-1000-8000-00805f9b34fb'`. There is a helper function to convert 16 bit UUID numbers to string:
 
 ```typescript
-import { numberToUUID } from '@pwespi/capacitor-bluetooth';
+import { numberToUUID } from 'capacitor-bluetooth-le';
 
 const HEART_RATE_SERVICE = numberToUUID(0x180d);
 // '0000180d-0000-1000-8000-00805f9b34fb'
