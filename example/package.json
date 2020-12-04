@@ -19,13 +19,13 @@
     "serve": "serve -s www"
   },
   "devDependencies": {
-    "@capacitor/android": "^2.4.3",
-    "@capacitor/cli": "^2.4.3",
-    "@capacitor/core": "^2.4.3",
-    "@capacitor/ios": "^2.4.3",
+    "@capacitor/android": "^2.4.4",
+    "@capacitor/cli": "^2.4.4",
+    "@capacitor/core": "^2.4.4",
+    "@capacitor/ios": "^2.4.4",
     "@ionic/core": "^5.5.1",
     "@stencil/core": "^2.3.0",
-    "@types/jest": "^26.0.15",
+    "@types/jest": "^26.0.16",
     "capacitor-bluetooth-le": "file:..",
     "jest": "^26.6.3",
     "rimraf": "^3.0.2",
