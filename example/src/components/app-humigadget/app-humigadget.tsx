@@ -21,6 +21,8 @@ export class AppHumigadget {
 
   GENERIC_SERVICE = numberToUUID(0x1800);
   DEVICE_NAME_CHARACTERISTIC = numberToUUID(0x2a00);
+  DEVICE_INFORMATION_SERVICE = numberToUUID(0x180a);
+  MANUFACTURER_NAME_CHARACTERISTIC = numberToUUID(0x2a29);
   BATTERY_SERVICE = numberToUUID(0x180f);
   BATTERY_CHARACTERISTIC = numberToUUID(0x2a19);
   TEMPERATURE_SERVICE = '00002234-b38d-4985-720e-0f993a68ee41';
@@ -37,6 +39,7 @@ export class AppHumigadget {
         const result = await BleClient.requestDevice({
           optionalServices: [
             this.GENERIC_SERVICE,
+            this.DEVICE_INFORMATION_SERVICE,
             this.BATTERY_SERVICE,
             this.TEMPERATURE_SERVICE,
             this.HUMIDITY_SERVICE,
@@ -75,6 +78,17 @@ export class AppHumigadget {
           this.device?.deviceId,
           this.GENERIC_SERVICE,
           this.DEVICE_NAME_CHARACTERISTIC,
+        );
+        return dataViewToText(result);
+      },
+    },
+    {
+      label: 'read manufacturer name',
+      action: async () => {
+        const result = await BleClient.read(
+          this.device?.deviceId,
+          this.DEVICE_INFORMATION_SERVICE,
+          this.MANUFACTURER_NAME_CHARACTERISTIC,
         );
         return dataViewToText(result);
       },
