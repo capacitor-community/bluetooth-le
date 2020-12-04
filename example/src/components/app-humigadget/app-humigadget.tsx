@@ -56,9 +56,34 @@ export class AppHumigadget {
           name: 'Smart Humigadget',
           optionalServices: [
             this.GENERIC_SERVICE,
+            this.DEVICE_INFORMATION_SERVICE,
             this.BATTERY_SERVICE,
             this.TEMPERATURE_SERVICE,
             this.HUMIDITY_SERVICE,
+          ],
+        });
+        this.device = result;
+        return result;
+      },
+    },
+    {
+      label: 'request device (filter test and)',
+      action: async () => {
+        const result = await BleClient.requestDevice({
+          services: [numberToUUID(0x1810), numberToUUID(0x1822)],
+        });
+        this.device = result;
+        return result;
+      },
+    },
+    {
+      label: 'request device (filter test or)',
+      action: async () => {
+        const result = await BleClient.requestDevice({
+          services: [
+            numberToUUID(0x1810),
+            numberToUUID(0x1822),
+            numberToUUID(0x1823),
           ],
         });
         this.device = result;
