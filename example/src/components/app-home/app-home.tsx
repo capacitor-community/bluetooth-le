@@ -16,6 +16,7 @@ export class AppHome {
   @State() result: string;
   @State() notification1: string;
   @State() notification2: string;
+  @State() heartRate: [string, number][] = [];
 
   DEVICE_ID = 'E5:A3:06:72:5B:E9';
   HEART_RATE_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
@@ -117,11 +118,17 @@ export class AppHome {
     {
       label: 'start notifications HR',
       action: () => {
+        this.heartRate = [];
         return BleClient.startNotifications(
           this.device?.deviceId,
           this.HEART_RATE_SERVICE,
           this.HEART_RATE_MEASUREMENT_CHARACTERISTIC,
-          value => this.showResult(value, Target.NOTIFICATION_1),
+          value => {
+            const timestamp = new Date().toLocaleTimeString();
+            this.heartRate.push([timestamp, this.parseHeartRate(value)]);
+            console.log(timestamp);
+            this.showResult(value, Target.NOTIFICATION_1);
+          },
         );
       },
     },
@@ -252,6 +259,18 @@ export class AppHome {
     }
   }
 
+  parseHeartRate(value: DataView): number {
+    const flags = value.getUint8(0);
+    const rate16Bits = flags & 0x1;
+    let heartRate: number;
+    if (rate16Bits) {
+      heartRate = value.getUint16(1, true);
+    } else {
+      heartRate = value.getUint8(1);
+    }
+    return heartRate;
+  }
+
   render() {
     return [
       <ion-header>
@@ -269,6 +288,11 @@ export class AppHome {
           <ion-button onClick={() => this.runAction(action.action)}>
             {action.label}
           </ion-button>
+        ))}
+        {this.heartRate.map(hr => (
+          <div>
+            {hr[0]}: {hr[1]}
+          </div>
         ))}
       </ion-content>,
     ];
