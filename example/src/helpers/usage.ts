@@ -17,10 +17,12 @@ const POLAR_PMD_CONTROL_POINT = 'fb005c81-02e7-f387-1cad-8acd2d8df0c8';
 export async function main() {
   try {
     await BleClient.initialize();
+
     const device = await BleClient.requestDevice({
       services: [HEART_RATE_SERVICE],
       optionalServices: [BATTERY_SERVICE],
     });
+
     await BleClient.connect(device.deviceId);
     console.log('connected to device', device);
 

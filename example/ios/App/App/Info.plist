@@ -78,7 +78,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
-		<string></string>
 	</array>
 </dict>
 </plist>

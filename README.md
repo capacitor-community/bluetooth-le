@@ -28,7 +28,11 @@ npm install capacitor-bluetooth-le
 npx cap sync
 ```
 
+### iOS
+
 On iOS, add the `NSBluetoothAlwaysUsageDescription` to `Info.plist`, otherwise the app will crash when trying to use Bluetooth (see [here](https://developer.apple.com/documentation/corebluetooth)).
+
+If the app needs to use Bluetooth while it is in the background, you also have to add `bluetooth-central` to `UIBackgroundModes` (for details see [here](https://developer.apple.com/documentation/bundleresources/information_property_list/uibackgroundmodes)).
 
 `./ios/App/App/Info.plist`:
 
@@ -42,10 +46,16 @@ On iOS, add the `NSBluetoothAlwaysUsageDescription` to `Info.plist`, otherwise t
   ...
 +	<key>NSBluetoothAlwaysUsageDescription</key>
 +	<string>Uses Bluetooth to connect and interact with peripheral BLE devices.</string>
++	<key>UIBackgroundModes</key>
++	<array>
++		<string>bluetooth-central</string>
++	</array>
 </dict>
 </plist>
 
 ```
+
+### Android
 
 On Android, register the plugin in your main activity:
 
@@ -117,7 +127,7 @@ The default values are:
 
 ## Usage
 
-Do not use the plugin class directly. There is a wrapper class `BleClient` which makes events and method arguments easier to work with.
+It is recommended to not use the plugin class directly. There is a wrapper class `BleClient` which makes events and method arguments easier to work with.
 
 ```typescript
 // Import the wrapper class directly
@@ -150,10 +160,12 @@ const POLAR_PMD_CONTROL_POINT = 'fb005c81-02e7-f387-1cad-8acd2d8df0c8';
 export async function main() {
   try {
     await BleClient.initialize();
+
     const device = await BleClient.requestDevice({
       services: [HEART_RATE_SERVICE],
       optionalServices: [BATTERY_SERVICE],
     });
+
     await BleClient.connect(device.deviceId);
     console.log('connected to device', device);
 
