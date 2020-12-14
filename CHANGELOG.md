@@ -1,3 +1,7 @@
+## 0.0.3 (2020-12-14)
+
+- fix dependencies
+
 ## 0.0.2 (2020-12-14)
 
 - update readme and add code of conduct and contributing

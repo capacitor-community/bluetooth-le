@@ -18,6 +18,9 @@
   },
   "author": "pwespi",
   "license": "MIT",
+  "dependencies": {
+    "@types/web-bluetooth": "^0.0.9"
+  },
   "devDependencies": {
     "@capacitor/android": "^2.4.5",
     "@capacitor/core": "^2.4.5",
@@ -27,7 +30,6 @@
     "@ionic/swiftlint-config": "^1.1.2",
     "@rollup/plugin-node-resolve": "^10.0.0",
     "@types/jest": "^26.0.19",
-    "@types/web-bluetooth": "^0.0.9",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "prettier-plugin-java": "^1.0.1",
