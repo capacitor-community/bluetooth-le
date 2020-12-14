@@ -1,4 +1,4 @@
-import { dataViewToNumbers } from 'capacitor-bluetooth-le';
+import { dataViewToNumbers } from '@capacitor-community/bluetooth-le';
 
 export enum Target {
   RESULT = 0,

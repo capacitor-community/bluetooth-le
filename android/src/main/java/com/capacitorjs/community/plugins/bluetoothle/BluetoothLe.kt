@@ -1,4 +1,4 @@
-package com.wespiapps.plugins.capacitorbluetoothle
+package com.capacitorjs.community.plugins.bluetoothle
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter

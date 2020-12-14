@@ -24,7 +24,7 @@ Below is an index of all the methods available.
 
 ```
 // TODO (plugin is not yet published on npm)
-npm install capacitor-bluetooth-le
+npm install @capacitor-community/bluetooth-le
 npx cap sync
 ```
 
@@ -62,7 +62,7 @@ On Android, register the plugin in your main activity:
 `./android/app/src/main/java/<PATH>/MainActivity.java`:
 
 ```diff
-+ import com.wespiapps.plugins.capacitorbluetoothle.BluetoothLe;
++ import com.capacitorjs.community.plugins.bluetoothle.BluetoothLe;
 
 public class MainActivity extends BridgeActivity {
 
@@ -131,7 +131,7 @@ It is recommended to not use the plugin class directly. There is a wrapper class
 
 ```typescript
 // Import the wrapper class directly
-import { BleClient } from 'capacitor-bluetooth-le';
+import { BleClient } from '@capacitor-community/bluetooth-le';
 
 // DO NOT use this
 import { Plugins } from '@capacitor/core';
@@ -145,7 +145,7 @@ import {
   BleClient,
   numbersToDataView,
   numberToUUID,
-} from 'capacitor-bluetooth-le';
+} from '@capacitor-community/bluetooth-le';
 
 const HEART_RATE_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
 const HEART_RATE_MEASUREMENT_CHARACTERISTIC =
@@ -426,7 +426,7 @@ buffer as needed.
 All UUIDs have to be provided in 128 bit format as string (lowercase), e.g. `'0000180d-0000-1000-8000-00805f9b34fb'`. There is a helper function to convert 16 bit UUID numbers to string:
 
 ```typescript
-import { numberToUUID } from 'capacitor-bluetooth-le';
+import { numberToUUID } from '@capacitor-community/bluetooth-le';
 
 const HEART_RATE_SERVICE = numberToUUID(0x180d);
 // '0000180d-0000-1000-8000-00805f9b34fb'

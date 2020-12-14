@@ -3,7 +3,7 @@ import {
   BleDevice,
   BleClient,
   numbersToDataView,
-} from 'capacitor-bluetooth-le';
+} from '@capacitor-community/bluetooth-le';
 import { Component, h, State } from '@stencil/core';
 import { handleError } from '../../helpers/error';
 import { main } from '../../helpers/usage';

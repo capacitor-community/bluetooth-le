@@ -5,10 +5,10 @@
 npm i
 
 # build and sync for Android
-npm run bas:android
+npm run build:android
 
 # build and sync for iOS
-npm run bas:ios
+npm run build:ios
 
 # run web version locally
 npm run serve

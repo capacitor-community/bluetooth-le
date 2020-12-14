@@ -2,7 +2,7 @@ import {
   BleClient,
   numbersToDataView,
   numberToUUID,
-} from 'capacitor-bluetooth-le';
+} from '@capacitor-community/bluetooth-le';
 
 const HEART_RATE_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
 const HEART_RATE_MEASUREMENT_CHARACTERISTIC =
