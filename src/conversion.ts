@@ -27,7 +27,7 @@ export function dataViewToHexString(value: DataView): string {
 }
 
 export function textToDataView(value: string): DataView {
-  return numbersToDataView(value.split('').map(s => s.charCodeAt(0)))
+  return numbersToDataView(value.split('').map(s => s.charCodeAt(0)));
 }
 
 export function dataViewToText(value: DataView): string {
