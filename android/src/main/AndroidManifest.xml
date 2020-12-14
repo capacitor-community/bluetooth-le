@@ -1,6 +1,6 @@
 
   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.wespiapps.plugins.capacitorbluetoothle.capacitorbluetoothle">
+      package="com.capacitorjs.community.plugins.bluetoothle.bluetoothle">
     <!-- Bluetooth -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

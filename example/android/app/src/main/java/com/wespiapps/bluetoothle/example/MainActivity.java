@@ -7,7 +7,7 @@ import com.getcapacitor.Plugin;
 
 import java.util.ArrayList;
 
-import com.wespiapps.plugins.capacitorbluetoothle.BluetoothLe;
+import com.capacitorjs.community.plugins.bluetoothle.BluetoothLe;
 
 public class MainActivity extends BridgeActivity {
   @Override

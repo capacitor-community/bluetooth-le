@@ -1,5 +1,5 @@
 {
-  "name": "capacitor-bluetooth-le",
+  "name": "@capacitor-community/bluetooth-le",
   "version": "0.0.1",
   "description": "Capacitor Bluetooth Low Energy Plugin",
   "main": "dist/plugin.js",
@@ -44,7 +44,7 @@
     "dist/",
     "ios/",
     "android/",
-    "CapacitorBluetoothLe.podspec"
+    "CapacitorCommunityBluetoothLe.podspec"
   ],
   "keywords": [
     "capacitor",
@@ -63,9 +63,9 @@
   "swiftlint": "@ionic/swiftlint-config",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pwespi/capacitor-bluetooth-le"
+    "url": "https://github.com/capacitor-community/bluetooth-le"
   },
   "bugs": {
-    "url": "https://github.com/pwespi/capacitor-bluetooth-le/issues"
+    "url": "https://github.com/capacitor-community/bluetooth-le/issues"
   }
 }

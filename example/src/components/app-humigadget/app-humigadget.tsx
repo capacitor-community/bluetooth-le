@@ -4,7 +4,7 @@ import {
   BleClient,
   dataViewToText,
   numberToUUID,
-} from 'capacitor-bluetooth-le';
+} from '@capacitor-community/bluetooth-le';
 import { Component, h, State } from '@stencil/core';
 import { Target, resultToString } from '../../helpers/helpers';
 import { handleError } from '../../helpers/error';
