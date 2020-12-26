@@ -8,6 +8,7 @@ import { Component, h, State } from '@stencil/core';
 import { handleError } from '../../helpers/error';
 import { main } from '../../helpers/usage';
 import { resultToString, Target } from '../../helpers/helpers';
+import { runTests } from '../../test/runTests';
 
 @Component({
   tag: 'app-home',
@@ -30,6 +31,13 @@ export class AppHome {
   device: BleDevice;
 
   actions: { label: string; action: () => Promise<any> }[] = [
+    {
+      label: 'test',
+      action: async () => {
+        await runTests();
+        return 'done';
+      },
+    },
     {
       label: 'initialize',
       action: () => {
@@ -244,7 +252,7 @@ export class AppHome {
     } catch (error) {
       handleError(error);
     }
-    loading.dismiss();
+    loading?.dismiss();
   }
 
   showResult(result: any, target: Target = Target.RESULT): void {

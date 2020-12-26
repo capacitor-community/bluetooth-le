@@ -135,7 +135,14 @@ class BluetoothLe : Plugin() {
             call.reject("deviceId required.")
             return
         }
-        val device = Device(activity, bluetoothAdapter!!, deviceId)
+
+        var device: Device
+        try {
+            device = Device(activity, bluetoothAdapter!!, deviceId)
+        } catch (e: IllegalArgumentException) {
+            call.reject("Invalid deviceId")
+            return
+        }
         deviceMap.put(deviceId, device)
         device.connect() { response ->
             run {
