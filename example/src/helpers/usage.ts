@@ -20,7 +20,7 @@ export async function main() {
 
     const device = await BleClient.requestDevice({
       services: [HEART_RATE_SERVICE],
-      optionalServices: [BATTERY_SERVICE],
+      optionalServices: [BATTERY_SERVICE, POLAR_PMD_SERVICE],
     });
 
     await BleClient.connect(device.deviceId);

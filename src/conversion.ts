@@ -42,3 +42,24 @@ export function dataViewToText(value: DataView): string {
 export function numberToUUID(value: number): string {
   return `0000${value.toString(16)}-0000-1000-8000-00805f9b34fb`;
 }
+
+export function webUUIDToString(uuid: string | number): string {
+  if (typeof uuid === 'string') {
+    return uuid;
+  } else if (typeof uuid === 'number') {
+    return numberToUUID(uuid);
+  } else {
+    throw new Error('Invalid UUID');
+  }
+}
+
+export function mapToObject<V>(map?: Map<string | number, V>) {
+  const obj: { [key: string]: V } = {};
+  if (!map) {
+    return undefined;
+  }
+  map.forEach((value, key) => {
+    obj[key.toString()] = value;
+  });
+  return obj;
+}

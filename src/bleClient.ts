@@ -1,6 +1,13 @@
 import { Capacitor, PluginListenerHandle, Plugins } from '@capacitor/core';
 import { dataViewToHexString, hexStringToDataView } from './conversion';
-import { BleDevice, ReadResult, RequestBleDeviceOptions } from './definitions';
+import {
+  BleDevice,
+  Data,
+  ReadResult,
+  RequestBleDeviceOptions,
+  ScanResult,
+  ScanResultInternal,
+} from './definitions';
 
 const { BluetoothLe } = Plugins;
 
@@ -13,27 +20,44 @@ export interface BleClientInterface {
   initialize(): Promise<void>;
 
   /**
-   * Request a peripheral BLE device to interact with. This will scan for available devices according to the filters provided in the options and show a dialog to pick a device.
+   * Request a peripheral BLE device to interact with. This will scan for available devices according to the filters in the options and show a dialog to pick a device.
    * For an example, see [usage](#usage).
    * @param options Device filters, see [RequestBleDeviceOptions](#RequestBleDeviceOptions)
    */
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
 
   /**
+   * Start scanning for BLE devices to interact with according to the filters in the options. The callback will be invoked on each device that is found.
+   * Scanning will continue until `stopLEScan` is called. For an example, see [usage](#usage).
+   * **NOTE**: Use with care on web platform, the required API is still behind a flag in most browsers.
+   * @param options
+   * @param callback
+   */
+  requestLEScan(
+    options: RequestBleDeviceOptions,
+    callback: (result: ScanResult) => void,
+  ): Promise<void>;
+
+  /**
+   * Stop scanning for BLE devices. For an example, see [usage](#usage).
+   */
+  stopLEScan(): Promise<void>;
+
+  /**
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
-   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice))
+   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   connect(deviceId: string): Promise<void>;
 
   /**
    * Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
-   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice))
+   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   disconnect(deviceId: string): Promise<void>;
 
   /**
    * Read the value of a characteristic. For an example, see [usage](#usage).
-   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice))
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    */
@@ -45,7 +69,7 @@ export interface BleClientInterface {
 
   /**
    * Write a value to a characteristic. For an example, see [usage](#usage).
-   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice))
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
@@ -59,7 +83,7 @@ export interface BleClientInterface {
 
   /**
    * Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
-   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice))
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param callback Callback function to use when the value of the characteristic changes
@@ -73,7 +97,7 @@ export interface BleClientInterface {
 
   /**
    * Stop listening to the changes of the value of a characteristic. For an example, see [usage](#usage).
-   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice))
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    */
@@ -85,6 +109,7 @@ export interface BleClientInterface {
 }
 
 class BleClientClass implements BleClientInterface {
+  scanListener: PluginListenerHandle | null = null;
   notifyListeners = new Map<string, PluginListenerHandle>();
 
   async initialize(): Promise<void> {
@@ -96,21 +121,37 @@ class BleClientClass implements BleClientInterface {
     return device;
   }
 
+  async requestLEScan(
+    options: RequestBleDeviceOptions,
+    callback: (result: ScanResult) => void,
+  ): Promise<void> {
+    this.scanListener?.remove();
+    this.scanListener = BluetoothLe.addListener(
+      'onScanResult',
+      (result: ScanResultInternal) => {
+        result.manufacturerData = this.convertObject(result.manufacturerData);
+        result.serviceData = this.convertObject(result.serviceData);
+        result.rawAdvertisement = result.rawAdvertisement
+          ? this.convertValue(result.rawAdvertisement)
+          : undefined;
+        callback(result as ScanResult);
+      },
+    );
+    await BluetoothLe.requestLEScan(options);
+  }
+
+  async stopLEScan(): Promise<void> {
+    this.scanListener?.remove();
+    this.scanListener = null;
+    await BluetoothLe.stopLEScan();
+  }
+
   async connect(deviceId: string): Promise<void> {
     await BluetoothLe.connect({ deviceId });
   }
 
   async disconnect(deviceId: string): Promise<void> {
     await BluetoothLe.disconnect({ deviceId });
-  }
-
-  private convertValue(value: ReadResult['value']): DataView {
-    if (typeof value === 'string') {
-      return hexStringToDataView(value);
-    } else if (value === undefined) {
-      return new DataView(new ArrayBuffer(0));
-    }
-    return value;
   }
 
   async read(
@@ -152,6 +193,7 @@ class BleClientClass implements BleClientInterface {
     callback: (value: DataView) => void,
   ): Promise<void> {
     const key = `notification|${deviceId}|${service}|${characteristic}`;
+    this.notifyListeners.get(key)?.remove();
     const listener = BluetoothLe.addListener(key, (event: ReadResult) => {
       callback(this.convertValue(event?.value));
     });
@@ -176,6 +218,28 @@ class BleClientClass implements BleClientInterface {
       service,
       characteristic,
     });
+  }
+
+  private convertValue(value?: Data): DataView {
+    if (typeof value === 'string') {
+      return hexStringToDataView(value);
+    } else if (value === undefined) {
+      return new DataView(new ArrayBuffer(0));
+    }
+    return value;
+  }
+
+  private convertObject(obj?: {
+    [key: string]: Data;
+  }): { [key: string]: DataView } | undefined {
+    if (obj === undefined) {
+      return undefined;
+    }
+    const result: { [key: string]: DataView } = {};
+    for (const key of Object.keys(obj)) {
+      result[key] = this.convertValue(obj[key]);
+    }
+    return result;
   }
 }
 

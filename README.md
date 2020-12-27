@@ -19,9 +19,9 @@
 
 ## Maintainers
 
-| Maintainer | GitHub | Social |
-| -----------| -------| -------|
-| Patrick Wespi | [pwespi](https://github.com/pwespi) |  |
+| Maintainer    | GitHub                              | Social |
+| ------------- | ----------------------------------- | ------ |
+| Patrick Wespi | [pwespi](https://github.com/pwespi) |        |
 
 ## Introduction
 
@@ -35,6 +35,8 @@ Below is an index of all the methods available.
 
 - [`initialize()`](#initialize)
 - [`requestDevice(...)`](#requestdevice)
+- [`requestLEScan(...)`](#requestlescan)
+- [`stopLEScan()`](#stoplescan)
 - [`connect(...)`](#connect)
 - [`disconnect(...)`](#disconnect)
 - [`read(...)`](#read)
@@ -42,6 +44,7 @@ Below is an index of all the methods available.
 - [`startNotifications(...)`](#startnotifications)
 - [`stopNotifications(...)`](#stopnotifications)
 - [Interfaces](#interfaces)
+- [Enums](#enums)
 
 </docgen-index>
 
@@ -112,7 +115,7 @@ public class MainActivity extends BridgeActivity {
 
 ## Configuration
 
-You can configure the strings that are displayed in the device selection dialog on iOS and Android:
+You can configure the strings that are displayed in the device selection dialog on iOS and Android when using `requestDevice()`:
 
 `./capacitor.config.json`:
 
@@ -187,7 +190,7 @@ export async function main() {
 
     const device = await BleClient.requestDevice({
       services: [HEART_RATE_SERVICE],
-      optionalServices: [BATTERY_SERVICE],
+      optionalServices: [BATTERY_SERVICE, POLAR_PMD_SERVICE],
     });
 
     await BleClient.connect(device.deviceId);
@@ -251,7 +254,35 @@ function parseHeartRate(value: DataView): number {
 }
 ```
 
-For a full app example, see the `./example` folder of this repository.
+An example of using the scanning API:
+
+```typescript
+import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
+
+const HEART_RATE_SERVICE = numberToUUID(0x180d);
+
+export async function scan() {
+  try {
+    await BleClient.initialize();
+
+    await BleClient.requestLEScan(
+      {
+        services: [HEART_RATE_SERVICE],
+      },
+      result => {
+        console.log('received new scan result', result);
+      },
+    );
+
+    setTimeout(async () => {
+      await BleClient.stopLEScan();
+      console.log('stopped scanning');
+    }, 5000);
+  } catch (error) {
+    console.error(error);
+  }
+}
+```
 
 ## API
 
@@ -276,7 +307,7 @@ For an example, see [usage](#usage).
 requestDevice(options?: RequestBleDeviceOptions | undefined) => Promise<BleDevice>
 ```
 
-Request a peripheral BLE device to interact with. This will scan for available devices according to the filters provided in the options and show a dialog to pick a device.
+Request a peripheral BLE device to interact with. This will scan for available devices according to the filters in the options and show a dialog to pick a device.
 For an example, see [usage](#usage).
 
 | Param         | Type                                                                        | Description                                                             |
@@ -284,6 +315,33 @@ For an example, see [usage](#usage).
 | **`options`** | <code><a href="#requestbledeviceoptions">RequestBleDeviceOptions</a></code> | Device filters, see [RequestBleDeviceOptions](#RequestBleDeviceOptions) |
 
 **Returns:** <code>Promise&lt;<a href="#bledevice">BleDevice</a>&gt;</code>
+
+---
+
+### requestLEScan(...)
+
+```typescript
+requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) => void) => Promise<void>
+```
+
+Start scanning for BLE devices to interact with according to the filters in the options. The callback will be invoked on each device that is found.
+Scanning will continue until `stopLEScan` is called. For an example, see [usage](#usage).
+**NOTE**: Use with care on web platform, the required API is still behind a flag in most browsers.
+
+| Param          | Type                                                                        |
+| -------------- | --------------------------------------------------------------------------- |
+| **`options`**  | <code><a href="#requestbledeviceoptions">RequestBleDeviceOptions</a></code> |
+| **`callback`** | <code>(result: <a href="#scanresult">ScanResult</a>) =&gt; void</code>      |
+
+---
+
+### stopLEScan()
+
+```typescript
+stopLEScan() => Promise<void>
+```
+
+Stop scanning for BLE devices. For an example, see [usage](#usage).
 
 ---
 
@@ -295,9 +353,9 @@ connect(deviceId: string) => Promise<void>
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param          | Type                | Description                                                                 |
-| -------------- | ------------------- | --------------------------------------------------------------------------- |
-| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice)) |
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
 
 ---
 
@@ -309,9 +367,9 @@ disconnect(deviceId: string) => Promise<void>
 
 Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param          | Type                | Description                                                                 |
-| -------------- | ------------------- | --------------------------------------------------------------------------- |
-| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice)) |
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
 
 ---
 
@@ -323,11 +381,11 @@ read(deviceId: string, service: string, characteristic: string) => Promise<DataV
 
 Read the value of a characteristic. For an example, see [usage](#usage).
 
-| Param                | Type                | Description                                                                 |
-| -------------------- | ------------------- | --------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice)) |
-| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                       |
-| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                |
+| Param                | Type                | Description                                                                                                    |
+| -------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                                                          |
+| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
 
 **Returns:** <code>Promise&lt;<a href="#dataview">DataView</a>&gt;</code>
 
@@ -343,7 +401,7 @@ Write a value to a characteristic. For an example, see [usage](#usage).
 
 | Param                | Type                                          | Description                                                                                                                                                                                 |
 | -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice))                                                                                                                 |
+| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
 | **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
 | **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
 | **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
@@ -358,12 +416,12 @@ startNotifications(deviceId: string, service: string, characteristic: string, ca
 
 Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
 
-| Param                | Type                                                              | Description                                                                 |
-| -------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code>                                               | The ID of the device to use (obtained from [requestDevice](#requestDevice)) |
-| **`service`**        | <code>string</code>                                               | UUID of the service (see [UUID format](#uuid-format))                       |
-| **`characteristic`** | <code>string</code>                                               | UUID of the characteristic (see [UUID format](#uuid-format))                |
-| **`callback`**       | <code>(value: <a href="#dataview">DataView</a>) =&gt; void</code> | Callback function to use when the value of the characteristic changes       |
+| Param                | Type                                                              | Description                                                                                                    |
+| -------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                                               | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`service`**        | <code>string</code>                                               | UUID of the service (see [UUID format](#uuid-format))                                                          |
+| **`characteristic`** | <code>string</code>                                               | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
+| **`callback`**       | <code>(value: <a href="#dataview">DataView</a>) =&gt; void</code> | Callback function to use when the value of the characteristic changes                                          |
 
 ---
 
@@ -375,11 +433,11 @@ stopNotifications(deviceId: string, service: string, characteristic: string) => 
 
 Stop listening to the changes of the value of a characteristic. For an example, see [usage](#usage).
 
-| Param                | Type                | Description                                                                 |
-| -------------------- | ------------------- | --------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice)) |
-| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                       |
-| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                |
+| Param                | Type                | Description                                                                                                    |
+| -------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                                                          |
+| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
 
 ---
 
@@ -395,11 +453,25 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 
 #### RequestBleDeviceOptions
 
-| Prop                   | Type                  | Description                                                                                                                                                                                                                                                            |
-| ---------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`services`**         | <code>string[]</code> | Filter devices by service UUIDs. UUIDs have to be specified as 128 bit UUID strings in lowercase, e.g. ['0000180d-0000-1000-8000-00805f9b34fb'] There is a helper function to convert numbers to UUIDs. e.g. [numberToUUID(0x180f)]. (see [UUID format](#uuid-format)) |
-| **`name`**             | <code>string</code>   | Filter devices by name                                                                                                                                                                                                                                                 |
-| **`optionalServices`** | <code>string[]</code> | For web, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                                            |
+| Prop                   | Type                                          | Description                                                                                                                                                                                                                                                            |
+| ---------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`services`**         | <code>string[]</code>                         | Filter devices by service UUIDs. UUIDs have to be specified as 128 bit UUID strings in lowercase, e.g. ['0000180d-0000-1000-8000-00805f9b34fb'] There is a helper function to convert numbers to UUIDs. e.g. [numberToUUID(0x180f)]. (see [UUID format](#uuid-format)) |
+| **`name`**             | <code>string</code>                           | Filter devices by name                                                                                                                                                                                                                                                 |
+| **`optionalServices`** | <code>string[]</code>                         | For web, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                                            |
+| **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                             |
+| **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                                       |
+
+#### ScanResult
+
+| Prop                   | Type                                                              | Description                                                               |
+| ---------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **`device`**           | <code><a href="#bledevice">BleDevice</a></code>                   | The device that was found in the scan                                     |
+| **`rssi`**             | <code>number</code>                                               | Received Signal Strength Indication                                       |
+| **`txPower`**          | <code>number</code>                                               | Transmit power in dBm. A value of 127 indicates that it is not available. |
+| **`manufacturerData`** | <code>{ [key: string]: <a href="#dataview">DataView</a>; }</code> | Manufacturer data, key is a company identifier and value is the data      |
+| **`serviceData`**      | <code>{ [key: string]: <a href="#dataview">DataView</a>; }</code> | Service data, key is a service UUID and value is the data                 |
+| **`uuids`**            | <code>string[]</code>                                             | Advertised services                                                       |
+| **`rawAdvertisement`** | <code><a href="#dataview">DataView</a></code>                     | Raw advertisement data (Android only)                                     |
 
 #### DataView
 
@@ -442,6 +514,16 @@ buffer as needed.
 | Method    | Signature                                                                               | Description                                                     |
 | --------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **slice** | (begin: number, end?: number \| undefined) =&gt; <a href="#arraybuffer">ArrayBuffer</a> | Returns a section of an <a href="#arraybuffer">ArrayBuffer</a>. |
+
+### Enums
+
+#### ScanMode
+
+| Members                     | Value          | Description                                                                                                                                                                                                                                                               |
+| --------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`SCAN_MODE_LOW_POWER`**   | <code>0</code> | Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER                                                        |
+| **`SCAN_MODE_BALANCED`**    | <code>1</code> | Perform Bluetooth LE scan in balanced power mode. (default) Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_BALANCED |
+| **`SCAN_MODE_LOW_LATENCY`** | <code>2</code> | Scan using highest duty cycle. It's recommended to only use this mode when the application is running in the foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY                                                  |
 
 </docgen-api>
 

@@ -32,69 +32,6 @@ class Device: NSObject, CBPeripheralDelegate {
         return self.peripheral
     }
 
-    private func dataToString(_ data: Data) -> String {
-        var valueString = ""
-        for byte in data {
-            valueString += String(format: "%02hhx ", byte)
-        }
-        return valueString
-    }
-
-    private func stringToData(_ dataString: String) -> Data {
-        let hexValues = dataString.split(separator: " ")
-        var data = Data(capacity: hexValues.count)
-        for hex in hexValues {
-            data.append(UInt8(hex, radix: 16)!)
-        }
-        return data
-    }
-
-    private func getKey(_ prefix: String, _ characteristic: CBCharacteristic) -> String {
-        var serviceUUIDString = characteristic.service.uuid.uuidString
-        if serviceUUIDString.count == 4 {
-            serviceUUIDString = "0000\(serviceUUIDString)-0000-1000-8000-00805F9B34FB"
-        }
-        var characteristicUUIDString = characteristic.uuid.uuidString
-        if characteristicUUIDString.count == 4 {
-            characteristicUUIDString = "0000\(characteristicUUIDString)-0000-1000-8000-00805F9B34FB"
-        }
-        return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
-    }
-
-    private func resolve(_ key: String, _ value: String) {
-        let callback = self.callbackMap[key]
-        if callback != nil {
-            print("Resolve", key, value)
-            callback!(true, value)
-            self.callbackMap[key] = nil
-            self.timeoutMap[key]?.cancel()
-            self.timeoutMap[key] = nil
-        } else {
-            print("Resolve callback not registered for key: ", key)
-        }
-    }
-
-    private func reject(_ key: String, _ value: String) {
-        let callback = self.callbackMap[key]
-        if callback != nil {
-            print("Reject", key, value)
-            callback!(false, value)
-            self.callbackMap[key] = nil
-            self.timeoutMap[key]?.cancel()
-            self.timeoutMap[key] = nil
-        } else {
-            print("Reject callback not registered for key: ", key)
-        }
-    }
-
-    private func setTimeout(_ key: String, _ message: String, _ timeout: Double = 5) {
-        let workItem = DispatchWorkItem {
-            self.reject(key, message)
-        }
-        self.timeoutMap[key] = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
-    }
-
     func setOnConnected(_ callback: @escaping Callback) {
         let key = "connect"
         self.callbackMap[key] = callback
@@ -159,7 +96,7 @@ class Device: NSObject, CBPeripheralDelegate {
             return
         }
         // reading
-        let valueString = self.dataToString(characteristic.value!)
+        let valueString = dataToString(characteristic.value!)
         self.resolve(key, valueString)
 
         // notifications
@@ -177,7 +114,7 @@ class Device: NSObject, CBPeripheralDelegate {
             return
         }
         print("Writing value", value)
-        let data: Data = self.stringToData(value)
+        let data: Data = stringToData(value)
         self.peripheral.writeValue(data, for: characteristic, type: .withResponse)
         self.setTimeout(key, "Write timeout.")
     }
@@ -214,12 +151,57 @@ class Device: NSObject, CBPeripheralDelegate {
     }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        print("didUpdateNotificationStateFor")
         let key = self.getKey("setNotifications", characteristic)
         if error != nil {
             self.reject(key, error!.localizedDescription)
             return
         }
         self.resolve(key, "Successfully set notifications.")
+    }
+
+    private func getKey(_ prefix: String, _ characteristic: CBCharacteristic) -> String {
+        var serviceUUIDString = characteristic.service.uuid.uuidString
+        if serviceUUIDString.count == 4 {
+            serviceUUIDString = "0000\(serviceUUIDString)-0000-1000-8000-00805F9B34FB"
+        }
+        var characteristicUUIDString = characteristic.uuid.uuidString
+        if characteristicUUIDString.count == 4 {
+            characteristicUUIDString = "0000\(characteristicUUIDString)-0000-1000-8000-00805F9B34FB"
+        }
+        return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
+    }
+
+    private func resolve(_ key: String, _ value: String) {
+        let callback = self.callbackMap[key]
+        if callback != nil {
+            print("Resolve", key, value)
+            callback!(true, value)
+            self.callbackMap[key] = nil
+            self.timeoutMap[key]?.cancel()
+            self.timeoutMap[key] = nil
+        } else {
+            print("Resolve callback not registered for key: ", key)
+        }
+    }
+
+    private func reject(_ key: String, _ value: String) {
+        let callback = self.callbackMap[key]
+        if callback != nil {
+            print("Reject", key, value)
+            callback!(false, value)
+            self.callbackMap[key] = nil
+            self.timeoutMap[key]?.cancel()
+            self.timeoutMap[key] = nil
+        } else {
+            print("Reject callback not registered for key: ", key)
+        }
+    }
+
+    private func setTimeout(_ key: String, _ message: String, _ timeout: Double = 5) {
+        let workItem = DispatchWorkItem {
+            self.reject(key, message)
+        }
+        self.timeoutMap[key] = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
     }
 }

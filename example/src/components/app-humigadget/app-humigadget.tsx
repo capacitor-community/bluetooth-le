@@ -4,10 +4,23 @@ import {
   BleClient,
   dataViewToText,
   numberToUUID,
+  ScanMode,
 } from '@capacitor-community/bluetooth-le';
 import { Component, h, State } from '@stencil/core';
 import { Target, resultToString } from '../../helpers/helpers';
 import { handleError } from '../../helpers/error';
+import {
+  BATTERY_CHARACTERISTIC,
+  BATTERY_SERVICE,
+  DEVICE_INFORMATION_SERVICE,
+  DEVICE_NAME_CHARACTERISTIC,
+  GENERIC_SERVICE,
+  HUMIDITY_CHARACTERISTIC,
+  HUMIDITY_SERVICE,
+  MANUFACTURER_NAME_CHARACTERISTIC,
+  TEMPERATURE_CHARACTERISTIC,
+  TEMPERATURE_SERVICE,
+} from '../../helpers/ble';
 
 @Component({
   tag: 'app-humigadget',
@@ -19,17 +32,6 @@ export class AppHumigadget {
 
   DEVICE_ID = 'DA:8F:8E:31:DC:48';
 
-  GENERIC_SERVICE = numberToUUID(0x1800);
-  DEVICE_NAME_CHARACTERISTIC = numberToUUID(0x2a00);
-  DEVICE_INFORMATION_SERVICE = numberToUUID(0x180a);
-  MANUFACTURER_NAME_CHARACTERISTIC = numberToUUID(0x2a29);
-  BATTERY_SERVICE = numberToUUID(0x180f);
-  BATTERY_CHARACTERISTIC = numberToUUID(0x2a19);
-  TEMPERATURE_SERVICE = '00002234-b38d-4985-720e-0f993a68ee41';
-  TEMPERATURE_CHARACTERISTIC = '00002235-b38d-4985-720e-0f993a68ee41';
-  HUMIDITY_SERVICE = '00001234-b38d-4985-720e-0f993a68ee41';
-  HUMIDITY_CHARACTERISTIC = '00001235-b38d-4985-720e-0f993a68ee41';
-
   device: BleDevice;
 
   actions: { label: string; action: () => Promise<any> }[] = [
@@ -38,11 +40,11 @@ export class AppHumigadget {
       action: async () => {
         const result = await BleClient.requestDevice({
           optionalServices: [
-            this.GENERIC_SERVICE,
-            this.DEVICE_INFORMATION_SERVICE,
-            this.BATTERY_SERVICE,
-            this.TEMPERATURE_SERVICE,
-            this.HUMIDITY_SERVICE,
+            GENERIC_SERVICE,
+            DEVICE_INFORMATION_SERVICE,
+            BATTERY_SERVICE,
+            TEMPERATURE_SERVICE,
+            HUMIDITY_SERVICE,
           ],
         });
         this.device = result;
@@ -55,12 +57,13 @@ export class AppHumigadget {
         const result = await BleClient.requestDevice({
           name: 'Smart Humigadget',
           optionalServices: [
-            this.GENERIC_SERVICE,
-            this.DEVICE_INFORMATION_SERVICE,
-            this.BATTERY_SERVICE,
-            this.TEMPERATURE_SERVICE,
-            this.HUMIDITY_SERVICE,
+            GENERIC_SERVICE,
+            DEVICE_INFORMATION_SERVICE,
+            BATTERY_SERVICE,
+            TEMPERATURE_SERVICE,
+            HUMIDITY_SERVICE,
           ],
+          scanMode: ScanMode.SCAN_MODE_LOW_LATENCY,
         });
         this.device = result;
         return result;
@@ -131,8 +134,8 @@ export class AppHumigadget {
       action: async () => {
         const result = await BleClient.read(
           this.device?.deviceId,
-          this.GENERIC_SERVICE,
-          this.DEVICE_NAME_CHARACTERISTIC,
+          GENERIC_SERVICE,
+          DEVICE_NAME_CHARACTERISTIC,
         );
         return dataViewToText(result);
       },
@@ -142,8 +145,8 @@ export class AppHumigadget {
       action: async () => {
         const result = await BleClient.read(
           this.device?.deviceId,
-          this.DEVICE_INFORMATION_SERVICE,
-          this.MANUFACTURER_NAME_CHARACTERISTIC,
+          DEVICE_INFORMATION_SERVICE,
+          MANUFACTURER_NAME_CHARACTERISTIC,
         );
         return dataViewToText(result);
       },
@@ -153,8 +156,8 @@ export class AppHumigadget {
       action: async () => {
         const value = await BleClient.read(
           this.device?.deviceId,
-          this.BATTERY_SERVICE,
-          this.BATTERY_CHARACTERISTIC,
+          BATTERY_SERVICE,
+          BATTERY_CHARACTERISTIC,
         );
         return value.getUint8(0);
       },
@@ -164,8 +167,8 @@ export class AppHumigadget {
       action: async () => {
         const value = await BleClient.read(
           this.device?.deviceId,
-          this.TEMPERATURE_SERVICE,
-          this.TEMPERATURE_CHARACTERISTIC,
+          TEMPERATURE_SERVICE,
+          TEMPERATURE_CHARACTERISTIC,
         );
         return value.getFloat32(0, true);
       },
@@ -175,8 +178,8 @@ export class AppHumigadget {
       action: async () => {
         const value = await BleClient.read(
           this.device?.deviceId,
-          this.HUMIDITY_SERVICE,
-          this.HUMIDITY_CHARACTERISTIC,
+          HUMIDITY_SERVICE,
+          HUMIDITY_CHARACTERISTIC,
         );
         return value.getFloat32(0, true);
       },

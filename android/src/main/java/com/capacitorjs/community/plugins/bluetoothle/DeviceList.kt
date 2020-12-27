@@ -7,6 +7,7 @@ class DeviceList {
     private val devices: ArrayList<BluetoothDevice> = ArrayList()
 
     fun addDevice(device: BluetoothDevice): Boolean {
+        // contains compares devices by their address
         if (!devices.contains(device)) {
             devices.add(device)
             return true

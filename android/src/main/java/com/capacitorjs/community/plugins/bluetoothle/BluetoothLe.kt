@@ -2,16 +2,16 @@ package com.capacitorjs.community.plugins.bluetoothle
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
 import com.getcapacitor.*
 import com.getcapacitor.Logger.config
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -25,11 +25,14 @@ class BluetoothLe : Plugin() {
     companion object {
         private val TAG = BluetoothLe::class.java.simpleName
         private val CONFIG_KEY_PREFIX = "plugins.BluetoothLe."
-        private val SCAN_DURATION: Long = 30000
+
+        // maximal scan duration for requestDevice
+        private val MAX_SCAN_DURATION: Long = 30000
     }
 
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var deviceMap = HashMap<String, Device>()
+    private var deviceScanner: DeviceScanner? = null
 
     @PluginMethod
     fun initialize(call: PluginCall) {
@@ -54,82 +57,91 @@ class BluetoothLe : Plugin() {
         call.resolve()
     }
 
-    private fun getScanFilters(call: PluginCall): List<ScanFilter>? {
-        val filters: ArrayList<ScanFilter> = ArrayList()
+    @PluginMethod
+    fun requestDevice(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        val scanFilters = getScanFilters(call) ?: return
+        val scanSettings = getScanSettings(call) ?: return
+        val displayStrings = getDisplayStrings()
 
-        val services = call.getArray("services", JSArray()).toList<String>()
-        val name = call.getString("name", null)
-        try {
-            for (service in services) {
-                val filter = ScanFilter.Builder()
-                filter.setServiceUuid(ParcelUuid.fromString(service))
-                if (name != null) {
-                    filter.setDeviceName(name)
-                }
-                filters.add(filter.build())
-            }
-        } catch (e: IllegalArgumentException) {
-            call.reject("Invalid service UUID.")
-            return null
-        }
+        deviceScanner?.stopScanning()
+        deviceScanner = DeviceScanner(
+                context,
+                bluetoothAdapter!!,
+                MAX_SCAN_DURATION,
+                displayStrings,
+                showDialog = true,
+        )
+        deviceScanner?.startScanning(
+                scanFilters,
+                scanSettings,
+                false,
+                { scanResponse ->
+                    run {
+                        if (scanResponse.success) {
+                            if (scanResponse.device == null) {
+                                call.reject("No device found.")
+                            } else {
+                                val bleDevice = getBleDevice(scanResponse.device)
+                                call.resolve(bleDevice)
+                            }
+                        } else {
+                            call.reject(scanResponse.message)
 
-        if (name != null && filters.isEmpty()) {
-            val filter = ScanFilter.Builder()
-            filter.setDeviceName(name)
-            filters.add(filter.build())
-        }
-
-        return filters
+                        }
+                    }
+                },
+                null
+        )
     }
 
     @PluginMethod
-    fun requestDevice(call: PluginCall) {
-        if (bluetoothAdapter == null) {
-            call.reject("BluetoothAdapter not initialized")
-            return
-        }
-        val filters = getScanFilters(call) ?: return
-        val displayStrings = DisplayStrings(
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.scanning",
-                        "Scanning..."),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.cancel",
-                        "Cancel"),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.availableDevices",
-                        "Available devices"),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.noDeviceFound",
-                        "No device found"),
-        )
-        val deviceScanner = DeviceScanner(
+    fun requestLEScan(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        val scanFilters = getScanFilters(call) ?: return
+        val scanSettings = getScanSettings(call) ?: return
+        val allowDuplicates = call.getBoolean("allowDuplicates", false)
+
+        deviceScanner?.stopScanning()
+        deviceScanner = DeviceScanner(
                 context,
                 bluetoothAdapter!!,
-                SCAN_DURATION,
-                displayStrings,
+                scanDuration = null,
+                displayStrings = null,
+                showDialog = false,
         )
-        deviceScanner.requestDevice(filters) { scanResponse ->
-            run {
-                if (!scanResponse.success) {
-                    call.reject(scanResponse.message)
-                } else {
-                    if (scanResponse.device == null) {
-                        call.reject("No device found.")
-                    } else {
-                        val ret = JSObject()
-                        ret.put("deviceId", scanResponse.device.address)
-                        ret.put("name", scanResponse.device.name)
-                        call.resolve(ret)
+        deviceScanner?.startScanning(
+                scanFilters,
+                scanSettings,
+                allowDuplicates,
+                { scanResponse ->
+                    run {
+                        if (scanResponse.success) {
+                            call.resolve()
+                        } else {
+                            call.reject(scanResponse.message)
+                        }
                     }
-
+                },
+                { result ->
+                    run {
+                        val scanResult = getScanResult(result)
+                        notifyListeners("onScanResult", scanResult)
+                    }
                 }
-            }
-        }
+        )
+    }
+
+    @PluginMethod
+    fun stopLEScan(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        deviceScanner?.stopScanning()
+        call.resolve()
     }
 
     @PluginMethod
     fun connect(call: PluginCall) {
-        if (bluetoothAdapter == null) {
-            call.reject("BluetoothAdapter not initialized")
-            return
-        }
+        assertBluetoothAdapter(call) ?: return
         val deviceId = call.getString("deviceId", null)
         if (deviceId == null) {
             call.reject("deviceId required.")
@@ -157,73 +169,18 @@ class BluetoothLe : Plugin() {
 
     @PluginMethod
     fun disconnect(call: PluginCall) {
-        val deviceId = call.getString("deviceId", null)
-        if (deviceId == null) {
-            call.reject("deviceId required.")
-            return
-        }
-        val device = deviceMap.get(deviceId)
-        if (device == null || !device.isConnected()) {
-            call.reject("Not connected to device.")
-            return
-        }
+        val device = getDevice(call) ?: return
         device.disconnect() { response ->
             run {
                 if (response.success) {
                     device.close()
-                    deviceMap.remove(deviceId)
+                    deviceMap.remove(device.getId())
                     call.resolve()
                 } else {
                     call.reject(response.value)
                 }
             }
         }
-    }
-
-    private fun getDevice(call: PluginCall): Device? {
-        if (bluetoothAdapter == null) {
-            call.reject("BluetoothAdapter not initialized")
-            return null
-        }
-        val deviceId = call.getString("deviceId", null)
-        if (deviceId == null) {
-            call.reject("deviceId required.")
-            return null
-        }
-        val device = deviceMap.get(deviceId)
-        if (device == null || !device.isConnected()) {
-            call.reject("Not connected to device.")
-            return null
-        }
-        return device
-    }
-
-    private fun getCharacteristic(call: PluginCall): Pair<UUID, UUID>? {
-        val serviceString = call.getString("service", null)
-        var serviceUUID: UUID?
-        try {
-            serviceUUID = UUID.fromString(serviceString)
-        } catch (e: IllegalArgumentException) {
-            call.reject("Invalid service UUID.")
-            return null
-        }
-        if (serviceUUID == null) {
-            call.reject("Service UUID required.")
-            return null
-        }
-        val characteristicString = call.getString("characteristic", null)
-        var characteristicUUID: UUID?
-        try {
-            characteristicUUID = UUID.fromString(characteristicString)
-        } catch (e: IllegalArgumentException) {
-            call.reject("Invalid characteristic UUID.")
-            return null
-        }
-        if (characteristicUUID == null) {
-            call.reject("Characteristic UUID required.")
-            return null
-        }
-        return Pair(serviceUUID, characteristicUUID)
     }
 
     @PluginMethod
@@ -255,8 +212,7 @@ class BluetoothLe : Plugin() {
         device.write(characteristic.first, characteristic.second, value) { response ->
             run {
                 if (response.success) {
-                    val ret = JSObject()
-                    call.resolve(ret)
+                    call.resolve()
                 } else {
                     call.reject(response.value)
                 }
@@ -283,8 +239,7 @@ class BluetoothLe : Plugin() {
                 { response ->
                     run {
                         if (response.success) {
-                            val ret = JSObject()
-                            call.resolve(ret)
+                            call.resolve()
                         } else {
                             call.reject(response.value)
                         }
@@ -305,12 +260,170 @@ class BluetoothLe : Plugin() {
                 { response ->
                     run {
                         if (response.success) {
-                            val ret = JSObject()
-                            call.resolve(ret)
+                            call.resolve()
                         } else {
                             call.reject(response.value)
                         }
                     }
                 })
+    }
+
+    private fun assertBluetoothAdapter(call: PluginCall): Boolean? {
+        if (bluetoothAdapter == null) {
+            call.reject("Bluetooth LE not initialized.")
+            return null
+        }
+        return true
+    }
+
+    private fun getScanFilters(call: PluginCall): List<ScanFilter>? {
+        val filters: ArrayList<ScanFilter> = ArrayList()
+
+        val services = call.getArray("services", JSArray()).toList<String>()
+        val name = call.getString("name", null)
+        try {
+            for (service in services) {
+                val filter = ScanFilter.Builder()
+                filter.setServiceUuid(ParcelUuid.fromString(service))
+                if (name != null) {
+                    filter.setDeviceName(name)
+                }
+                filters.add(filter.build())
+            }
+        } catch (e: IllegalArgumentException) {
+            call.reject("Invalid service UUID.")
+            return null
+        }
+
+        if (name != null && filters.isEmpty()) {
+            val filter = ScanFilter.Builder()
+            filter.setDeviceName(name)
+            filters.add(filter.build())
+        }
+
+        return filters
+    }
+
+    private fun getScanSettings(call: PluginCall): ScanSettings? {
+        val scanSettings = ScanSettings.Builder()
+        val scanMode = call.getInt("scanMode", ScanSettings.SCAN_MODE_BALANCED)
+        try {
+            scanSettings.setScanMode(scanMode)
+        } catch (e: IllegalArgumentException) {
+            call.reject("Invalid scan mode.")
+            return null
+        }
+        return scanSettings.build()
+    }
+
+    private fun getBleDevice(device: BluetoothDevice): JSObject {
+        val bleDevice = JSObject()
+        bleDevice.put("deviceId", device.address)
+        bleDevice.put("name", device.name)
+
+        val uuids = JSArray()
+        device.uuids?.forEach { uuid -> uuids.put(uuid.toString()) }
+        if (uuids.length() > 0) {
+            bleDevice.put("uuids", uuids)
+        }
+
+        return bleDevice
+    }
+
+    private fun getScanResult(result: ScanResult): JSObject {
+        val scanResult = JSObject()
+
+        val bleDevice = getBleDevice(result.device)
+        scanResult.put("device", bleDevice)
+
+        scanResult.put("rssi", result.rssi)
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            scanResult.put("txPower", result.txPower)
+        }
+
+        val manufacturerData = JSObject()
+        val manufacturerSpecificData = result.scanRecord?.manufacturerSpecificData
+        if (manufacturerSpecificData != null) {
+            for (i in 0 until manufacturerSpecificData.size()) {
+                val key = manufacturerSpecificData.keyAt(i)
+                val bytes = manufacturerSpecificData.get(key)
+                manufacturerData.put(key.toString(), bytesToString(bytes))
+            }
+        }
+        scanResult.put("manufacturerData", manufacturerData)
+
+        val serviceDataObject = JSObject()
+        val serviceData = result.scanRecord?.serviceData
+        serviceData?.forEach {
+            serviceDataObject.put(it.key.toString(), bytesToString(it.value))
+        }
+        scanResult.put("serviceData", serviceDataObject)
+
+        val uuids = JSArray()
+        result.scanRecord?.serviceUuids?.forEach { uuid -> uuids.put(uuid.toString()) }
+        scanResult.put("uuids", uuids)
+
+        scanResult.put("rawAdvertisement",
+                result.scanRecord?.bytes?.let { bytesToString(it) })
+        return scanResult
+    }
+
+    private fun getDisplayStrings(): DisplayStrings {
+        return DisplayStrings(
+                config.getString(CONFIG_KEY_PREFIX + "displayStrings.scanning",
+                        "Scanning..."),
+                config.getString(CONFIG_KEY_PREFIX + "displayStrings.cancel",
+                        "Cancel"),
+                config.getString(CONFIG_KEY_PREFIX + "displayStrings.availableDevices",
+                        "Available devices"),
+                config.getString(CONFIG_KEY_PREFIX + "displayStrings.noDeviceFound",
+                        "No device found"),
+        )
+    }
+
+
+    private fun getDevice(call: PluginCall): Device? {
+        assertBluetoothAdapter(call) ?: return null
+        val deviceId = call.getString("deviceId", null)
+        if (deviceId == null) {
+            call.reject("deviceId required.")
+            return null
+        }
+        val device = deviceMap.get(deviceId)
+        if (device == null || !device.isConnected()) {
+            call.reject("Not connected to device.")
+            return null
+        }
+        return device
+    }
+
+
+    private fun getCharacteristic(call: PluginCall): Pair<UUID, UUID>? {
+        val serviceString = call.getString("service", null)
+        var serviceUUID: UUID?
+        try {
+            serviceUUID = UUID.fromString(serviceString)
+        } catch (e: IllegalArgumentException) {
+            call.reject("Invalid service UUID.")
+            return null
+        }
+        if (serviceUUID == null) {
+            call.reject("Service UUID required.")
+            return null
+        }
+        val characteristicString = call.getString("characteristic", null)
+        var characteristicUUID: UUID?
+        try {
+            characteristicUUID = UUID.fromString(characteristicString)
+        } catch (e: IllegalArgumentException) {
+            call.reject("Invalid characteristic UUID.")
+            return null
+        }
+        if (characteristicUUID == null) {
+            call.reject("Characteristic UUID required.")
+            return null
+        }
+        return Pair(serviceUUID, characteristicUUID)
     }
 }

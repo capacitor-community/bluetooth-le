@@ -6,12 +6,18 @@ import {
   ReadOptions,
   ReadResult,
   RequestBleDeviceOptions,
+  ScanResultInternal,
   WriteOptions,
 } from './definitions';
-import { hexStringToDataView } from './conversion';
+import {
+  hexStringToDataView,
+  mapToObject,
+  webUUIDToString,
+} from './conversion';
 
 export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private deviceMap = new Map<string, BluetoothDevice>();
+  private scan: BluetoothLEScan | null = null;
 
   constructor() {
     super({
@@ -29,19 +35,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
-  async requestDevice(options: RequestBleDeviceOptions): Promise<BleDevice> {
-    let filters: BluetoothRequestDeviceFilter[] = [];
-    for (let service of options?.services ?? []) {
-      filters.push({
-        services: [service],
-        name: options?.name,
-      });
-    }
-    if (options?.name && filters.length === 0) {
-      filters.push({
-        name: options.name,
-      });
-    }
+  async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
+    const filters = this.getFilters(options);
     const device = await navigator.bluetooth.requestDevice({
       filters: filters.length ? filters : undefined,
       optionalServices: options?.optionalServices,
@@ -52,12 +47,43 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return { deviceId: id, name, uuids };
   }
 
-  private getDevice(deviceId: string): BluetoothDevice {
-    const device = this.deviceMap.get(deviceId);
-    if (device === undefined) {
-      throw new Error('Device not found. Call "requestDevice" first.');
+  async requestLEScan(options?: RequestBleDeviceOptions): Promise<void> {
+    const filters = this.getFilters(options);
+    await this.stopLEScan();
+    navigator.bluetooth.addEventListener(
+      'advertisementreceived',
+      (event: BluetoothAdvertisementEvent) => {
+        const isNew = !this.deviceMap.has(event.device.id);
+        this.deviceMap.set(event.device.id, event.device);
+        if (isNew || options?.allowDuplicates) {
+          const device: BleDevice = {
+            deviceId: event.device.id,
+            name: event.device.name,
+          };
+          const result: ScanResultInternal = {
+            device,
+            rssi: event.rssi,
+            txPower: event.txPower,
+            manufacturerData: mapToObject(event.manufacturerData),
+            serviceData: mapToObject(event.serviceData),
+            uuids: event.uuids?.map(webUUIDToString),
+          };
+          this.notifyListeners('onScanResult', result);
+        }
+      },
+    );
+    this.scan = await navigator.bluetooth.requestLEScan({
+      filters: filters.length ? filters : undefined,
+      acceptAllAdvertisements: filters.length === 0,
+      keepRepeatedDevices: options?.allowDuplicates,
+    });
+  }
+
+  async stopLEScan(): Promise<void> {
+    if (this.scan && this.scan.active) {
+      this.scan.stop();
     }
-    return device;
+    this.scan = null;
   }
 
   async connect(options: ConnectOptions): Promise<void> {
@@ -111,6 +137,34 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   async stopNotifications(options: ReadOptions): Promise<void> {
     const characteristic = await this.getCharacteristic(options);
     await characteristic?.stopNotifications();
+  }
+
+  private getFilters(
+    options?: RequestBleDeviceOptions,
+  ): BluetoothRequestDeviceFilter[] {
+    let filters: BluetoothRequestDeviceFilter[] = [];
+    for (let service of options?.services ?? []) {
+      filters.push({
+        services: [service],
+        name: options?.name,
+      });
+    }
+    if (options?.name && filters.length === 0) {
+      filters.push({
+        name: options.name,
+      });
+    }
+    return filters;
+  }
+
+  private getDevice(deviceId: string): BluetoothDevice {
+    const device = this.deviceMap.get(deviceId);
+    if (device === undefined) {
+      throw new Error(
+        'Device not found. Call "requestDevice" or "requestLEScan" first.',
+      );
+    }
+    return device;
   }
 }
 

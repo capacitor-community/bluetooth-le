@@ -30,9 +30,7 @@ export async function testBleClient() {
         const test = async () => {
           await BleClient.connect('');
         };
-        // TODO
-        // await expectError(test, 'initialize');
-        await expectError(test);
+        await expectError(test, 'not initialized');
       }
       assert(!!BleClient);
     });

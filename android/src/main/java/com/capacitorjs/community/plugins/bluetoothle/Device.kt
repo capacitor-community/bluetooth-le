@@ -129,68 +129,6 @@ class Device(
         }
     }
 
-    private fun resolve(key: String, value: String) {
-        if (callbackMap.containsKey(key)) {
-            Log.d(TAG, "resolve: $key $value")
-            callbackMap[key]?.invoke(CallbackResponse(true, value))
-            callbackMap.remove(key)
-            timeoutMap[key]?.removeCallbacksAndMessages(null)
-            timeoutMap.remove(key)
-        } else {
-            Log.w(TAG, "Resolve callback not registered for key: $key")
-        }
-    }
-
-    private fun reject(key: String, value: String) {
-        if (callbackMap.containsKey(key)) {
-            Log.d(TAG, "reject: $key $value")
-            callbackMap[key]?.invoke(CallbackResponse(false, value))
-            callbackMap.remove(key)
-            timeoutMap[key]?.removeCallbacksAndMessages(null)
-            timeoutMap.remove(key)
-        } else {
-            Log.w(TAG, "Reject callback not registered for key: $key")
-        }
-    }
-
-    private fun bytesToString(bytes: ByteArray): String {
-        val stringBuilder = StringBuilder(bytes.size)
-        for (byte in bytes) {
-            // byte to hex string
-            stringBuilder.append(String.format("%02X ", byte))
-        }
-        return stringBuilder.toString()
-    }
-
-    private fun stringToBytes(value: String): ByteArray {
-        val hexValues = value.split(" ")
-        var bytes = ByteArray(hexValues.size)
-        for (i in hexValues.indices) {
-            bytes[i] = hexToByte(hexValues[i])
-        }
-        return bytes
-    }
-
-    private fun hexToByte(hexString: String): Byte {
-        val firstDigit = toDigit(hexString[0])
-        val secondDigit = toDigit(hexString[1])
-        return ((firstDigit shl 4) + secondDigit).toByte()
-    }
-
-    private fun toDigit(hexChar: Char): Int {
-        val digit = Character.digit(hexChar, 16)
-        require(digit != -1) { "Invalid Hexadecimal Character: $hexChar" }
-        return digit
-    }
-
-    private fun setTimeout(key: String, message: String, timeout: Long = 5000) {
-        val handler = Handler()
-        timeoutMap.put(key, handler)
-        handler.postDelayed({
-            reject(key, message)
-        }, timeout)
-    }
-
     fun getId(): String {
         return address
     }
@@ -311,6 +249,37 @@ class Device(
         } else {
             reject(key, "Characteristic not found.")
         }
-        setTimeout(key, "Set notifications timeout.")
+    }
+
+    private fun resolve(key: String, value: String) {
+        if (callbackMap.containsKey(key)) {
+            Log.d(TAG, "resolve: $key $value")
+            callbackMap[key]?.invoke(CallbackResponse(true, value))
+            callbackMap.remove(key)
+            timeoutMap[key]?.removeCallbacksAndMessages(null)
+            timeoutMap.remove(key)
+        } else {
+            Log.w(TAG, "Resolve callback not registered for key: $key")
+        }
+    }
+
+    private fun reject(key: String, value: String) {
+        if (callbackMap.containsKey(key)) {
+            Log.d(TAG, "reject: $key $value")
+            callbackMap[key]?.invoke(CallbackResponse(false, value))
+            callbackMap.remove(key)
+            timeoutMap[key]?.removeCallbacksAndMessages(null)
+            timeoutMap.remove(key)
+        } else {
+            Log.w(TAG, "Reject callback not registered for key: $key")
+        }
+    }
+
+    private fun setTimeout(key: String, message: String, timeout: Long = 5000) {
+        val handler = Handler()
+        timeoutMap.put(key, handler)
+        handler.postDelayed({
+            reject(key, message)
+        }, timeout)
     }
 }

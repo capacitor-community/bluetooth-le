@@ -9,6 +9,15 @@ import { handleError } from '../../helpers/error';
 import { main } from '../../helpers/usage';
 import { resultToString, Target } from '../../helpers/helpers';
 import { runTests } from '../../test/runTests';
+import {
+  HEART_RATE_SERVICE,
+  POLAR_PMD_SERVICE,
+  DEVICE_ID,
+  BODY_SENSOR_LOCATION_CHARACTERISTIC,
+  HEART_RATE_MEASUREMENT_CHARACTERISTIC,
+  POLAR_PMD_CONTROL_POINT,
+  POLAR_PMD_DATA,
+} from '../../helpers/ble';
 
 @Component({
   tag: 'app-home',
@@ -18,15 +27,6 @@ export class AppHome {
   @State() notification1: string;
   @State() notification2: string;
   @State() heartRate: [string, number][] = [];
-
-  DEVICE_ID = 'E5:A3:06:72:5B:E9';
-  HEART_RATE_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
-  HEART_RATE_MEASUREMENT_CHARACTERISTIC =
-    '00002a37-0000-1000-8000-00805f9b34fb';
-  BODY_SENSOR_LOCATION_CHARACTERISTIC = '00002a38-0000-1000-8000-00805f9b34fb';
-  POLAR_PMD_SERVICE = 'fb005c80-02e7-f387-1cad-8acd2d8df0c8';
-  POLAR_PMD_CONTROL_POINT = 'fb005c81-02e7-f387-1cad-8acd2d8df0c8';
-  POLAR_PMD_DATA = 'fb005c82-02e7-f387-1cad-8acd2d8df0c8';
 
   device: BleDevice;
 
@@ -62,8 +62,8 @@ export class AppHome {
       label: 'request device (HR)',
       action: async () => {
         const result = await BleClient.requestDevice({
-          services: [this.HEART_RATE_SERVICE],
-          optionalServices: [this.POLAR_PMD_SERVICE],
+          services: [HEART_RATE_SERVICE],
+          optionalServices: [POLAR_PMD_SERVICE],
         });
         this.device = result;
         return result;
@@ -88,8 +88,8 @@ export class AppHome {
     {
       label: 'connect directly',
       action: async () => {
-        const result = await BleClient.connect(this.DEVICE_ID);
-        this.device = { deviceId: this.DEVICE_ID };
+        const result = await BleClient.connect(DEVICE_ID);
+        this.device = { deviceId: DEVICE_ID };
         return result;
       },
     },
@@ -98,8 +98,8 @@ export class AppHome {
       action: () => {
         return BleClient.read(
           this.device?.deviceId,
-          this.HEART_RATE_SERVICE,
-          this.BODY_SENSOR_LOCATION_CHARACTERISTIC,
+          HEART_RATE_SERVICE,
+          BODY_SENSOR_LOCATION_CHARACTERISTIC,
         );
       },
     },
@@ -108,7 +108,7 @@ export class AppHome {
       action: () => {
         return BleClient.read(
           this.device?.deviceId,
-          this.HEART_RATE_SERVICE,
+          HEART_RATE_SERVICE,
           '0000',
         );
       },
@@ -118,8 +118,8 @@ export class AppHome {
       action: () => {
         return BleClient.read(
           this.device?.deviceId,
-          this.HEART_RATE_SERVICE,
-          this.HEART_RATE_MEASUREMENT_CHARACTERISTIC,
+          HEART_RATE_SERVICE,
+          HEART_RATE_MEASUREMENT_CHARACTERISTIC,
         );
       },
     },
@@ -129,8 +129,8 @@ export class AppHome {
         this.heartRate = [];
         return BleClient.startNotifications(
           this.device?.deviceId,
-          this.HEART_RATE_SERVICE,
-          this.HEART_RATE_MEASUREMENT_CHARACTERISTIC,
+          HEART_RATE_SERVICE,
+          HEART_RATE_MEASUREMENT_CHARACTERISTIC,
           value => {
             const timestamp = new Date().toLocaleTimeString();
             this.heartRate.push([timestamp, this.parseHeartRate(value)]);
@@ -145,8 +145,8 @@ export class AppHome {
       action: () => {
         return BleClient.stopNotifications(
           this.device?.deviceId,
-          this.HEART_RATE_SERVICE,
-          this.HEART_RATE_MEASUREMENT_CHARACTERISTIC,
+          HEART_RATE_SERVICE,
+          HEART_RATE_MEASUREMENT_CHARACTERISTIC,
         );
       },
     },
@@ -155,8 +155,8 @@ export class AppHome {
       action: () => {
         return BleClient.startNotifications(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_CONTROL_POINT,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_CONTROL_POINT,
           value => this.showResult(value, Target.NOTIFICATION_2),
         );
       },
@@ -166,8 +166,8 @@ export class AppHome {
       action: () => {
         return BleClient.stopNotifications(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_CONTROL_POINT,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_CONTROL_POINT,
         );
       },
     },
@@ -176,8 +176,8 @@ export class AppHome {
       action: () => {
         return BleClient.write(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_CONTROL_POINT,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_CONTROL_POINT,
           numbersToDataView([1, 0]),
         );
       },
@@ -187,8 +187,8 @@ export class AppHome {
       action: () => {
         return BleClient.write(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_CONTROL_POINT,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_CONTROL_POINT,
           numbersToDataView([2, 0, 0, 1, 130, 0, 1, 1, 14, 0]),
         );
       },
@@ -198,8 +198,8 @@ export class AppHome {
       action: () => {
         return BleClient.write(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_CONTROL_POINT,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_CONTROL_POINT,
           numbersToDataView([3, 0]),
         );
       },
@@ -209,8 +209,8 @@ export class AppHome {
       action: () => {
         return BleClient.read(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_CONTROL_POINT,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_CONTROL_POINT,
         );
       },
     },
@@ -219,8 +219,8 @@ export class AppHome {
       action: () => {
         return BleClient.startNotifications(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_DATA,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_DATA,
           value => this.showResult(value, Target.NOTIFICATION_1),
         );
       },
@@ -230,8 +230,8 @@ export class AppHome {
       action: () => {
         return BleClient.stopNotifications(
           this.device?.deviceId,
-          this.POLAR_PMD_SERVICE,
-          this.POLAR_PMD_DATA,
+          POLAR_PMD_SERVICE,
+          POLAR_PMD_DATA,
         );
       },
     },

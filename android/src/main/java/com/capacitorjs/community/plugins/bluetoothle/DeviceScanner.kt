@@ -29,8 +29,9 @@ class DisplayStrings(
 class DeviceScanner(
         private val context: Context,
         private val bluetoothAdapter: BluetoothAdapter,
-        private val scanDuration: Long,
-        private val displayStrings: DisplayStrings
+        private val scanDuration: Long?,
+        private val displayStrings: DisplayStrings?,
+        private val showDialog: Boolean,
 ) {
     companion object {
         private val TAG = DeviceScanner::class.java.simpleName
@@ -39,30 +40,94 @@ class DeviceScanner(
     private var isScanning = false
     private val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
     private var savedCallback: ((ScanResponse) -> Unit)? = null
+    private var scanResultCallback: ((ScanResult) -> Unit)? = null
     private var adapter: ArrayAdapter<String>? = null
     private val deviceList = DeviceList()
     private var deviceStrings: ArrayList<String> = ArrayList()
     private var dialog: AlertDialog? = null
-    private var dialogHandler = Handler()
+    private var dialogHandler: Handler? = null
     private var stopScanHandler: Handler? = null
+    private var allowDuplicates: Boolean = false
 
     private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
-            val isAdded = deviceList.addDevice(result.device)
-            if (isAdded) {
-                dialogHandler.post() {
-                    deviceStrings.add("[${result.device.address}] ${result.device.name}")
-                    adapter?.notifyDataSetChanged()
+            val isNew = deviceList.addDevice(result.device)
+            if (showDialog) {
+                if (isNew) {
+                    dialogHandler?.post() {
+                        deviceStrings.add("[${result.device.address}] ${result.device.name}")
+                        adapter?.notifyDataSetChanged()
+                    }
+                }
+            } else {
+                if (allowDuplicates || isNew) {
+                    scanResultCallback?.invoke(result)
                 }
             }
         }
     }
 
+    fun startScanning(
+            scanFilters: List<ScanFilter>,
+            scanSettings: ScanSettings,
+            allowDuplicates: Boolean,
+            callback: (ScanResponse) -> Unit,
+            scanResultCallback: ((ScanResult) -> Unit)?
+    ) {
+        this.savedCallback = callback
+        this.scanResultCallback = scanResultCallback
+        this.allowDuplicates = allowDuplicates
+
+        deviceList.clear()
+        if (!isScanning) {
+            setTimeoutForStopScanning()
+            Log.d(TAG, "Start scanning.")
+            isScanning = true
+            bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
+            if (showDialog) {
+                dialogHandler = Handler()
+                showDeviceList()
+            } else {
+                savedCallback?.invoke(ScanResponse(
+                        true,
+                        "Started scanning.",
+                        null
+                ))
+                savedCallback = null
+            }
+        } else {
+            stopScanning()
+            savedCallback?.invoke(ScanResponse(
+                    false,
+                    "Already scanning. Stopping now.",
+                    null
+            ))
+            savedCallback = null
+        }
+    }
+
+    fun stopScanning() {
+        stopScanHandler?.removeCallbacksAndMessages(null)
+        stopScanHandler = null
+        if (showDialog) {
+            dialogHandler?.post() {
+                if (deviceList.getCount() == 0) {
+                    dialog?.setTitle(displayStrings?.noDeviceFound)
+                } else {
+                    dialog?.setTitle(displayStrings?.availableDevices)
+                }
+            }
+        }
+        Log.d(TAG, "Stop scanning.")
+        isScanning = false
+        bluetoothLeScanner?.stopScan(scanCallback)
+    }
+
     private fun showDeviceList() {
-        dialogHandler.post() {
+        dialogHandler?.post() {
             val builder = AlertDialog.Builder(context)
-            builder.setTitle(displayStrings.scanning)
+            builder.setTitle(displayStrings?.scanning)
             builder.setCancelable(true)
             adapter = ArrayAdapter(
                     context,
@@ -73,10 +138,10 @@ class DeviceScanner(
                 stopScanning()
                 dialog.dismiss()
                 val device = deviceList.getDevice(index)
-                savedCallback?.invoke(ScanResponse(true, device.name, device))
+                savedCallback?.invoke(ScanResponse(true, device.address, device))
                 savedCallback = null
             }
-            builder.setNegativeButton(displayStrings.cancel) { dialog, _ ->
+            builder.setNegativeButton(displayStrings?.cancel) { dialog, _ ->
                 stopScanning()
                 dialog.cancel()
                 savedCallback?.invoke(ScanResponse(false,
@@ -97,25 +162,8 @@ class DeviceScanner(
         }
     }
 
-    fun stopScanning() {
-        stopScanHandler?.removeCallbacksAndMessages(null)
-        stopScanHandler = null
-        dialogHandler.post() {
-            if (deviceList.getCount() == 0) {
-                dialog?.setTitle(displayStrings.noDeviceFound)
-            } else {
-                dialog?.setTitle(displayStrings.availableDevices)
-            }
-        }
-        Log.d(TAG, "Stop scanning.")
-        isScanning = false
-        bluetoothLeScanner?.stopScan(scanCallback)
-    }
-
-    fun requestDevice(filters: List<ScanFilter>, callback: (ScanResponse) -> Unit) {
-        savedCallback = callback
-        deviceList.clear()
-        if (!isScanning) {
+    private fun setTimeoutForStopScanning() {
+        if (scanDuration != null) {
             stopScanHandler = Handler()
             stopScanHandler?.postDelayed(
                     {
@@ -123,24 +171,7 @@ class DeviceScanner(
                     },
                     scanDuration
             )
-            Log.d(TAG, "Start scanning.")
-            isScanning = true
-            if (filters.isNotEmpty()) {
-                val settings = ScanSettings.Builder().build()
-                bluetoothLeScanner?.startScan(filters, settings, scanCallback)
-            } else {
-                bluetoothLeScanner?.startScan(scanCallback)
-            }
-            showDeviceList()
-        } else {
-            stopScanning()
-            savedCallback?.invoke(ScanResponse(
-                    false,
-                    "Already scanning. Stopping now.",
-                    null
-            ))
-            savedCallback = null
         }
-
     }
+
 }

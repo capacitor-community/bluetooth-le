@@ -2,6 +2,7 @@ import {
   BleClient,
   BleDevice,
   numbersToDataView,
+  ScanMode,
 } from '@capacitor-community/bluetooth-le';
 import { Capacitor } from '@capacitor/core';
 import {
@@ -43,8 +44,6 @@ export async function testMultipleDevices() {
       assert(!!device1);
       assert(device1.name.includes('Polar'));
       assert(device1.deviceId.length > 0);
-      // TODO connect before requesting second device?
-      await BleClient.connect(device1.deviceId);
 
       if (Capacitor.platform === 'web') {
         // web requires user interaction for requestDevice
@@ -59,12 +58,18 @@ export async function testMultipleDevices() {
           TEMPERATURE_SERVICE,
           HUMIDITY_SERVICE,
         ],
+        scanMode: ScanMode.SCAN_MODE_LOW_LATENCY,
       });
 
       assert(!!device2);
       assert(device2.name.includes('Smart'));
       assert(device2.deviceId.length > 0);
+    });
+
+    await it('should connect', async () => {
+      await BleClient.connect(device1.deviceId);
       await BleClient.connect(device2.deviceId);
+      assert(true);
     });
 
     await it('should read body sensor location and read battery level', async () => {

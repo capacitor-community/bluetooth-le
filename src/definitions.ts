@@ -24,6 +24,37 @@ export interface RequestBleDeviceOptions {
    * e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))
    */
   optionalServices?: string[];
+  /**
+   * Normally scans will discard the second and subsequent advertisements from a single device.
+   * If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`).
+   * (default: false)
+   */
+  allowDuplicates?: boolean;
+  /**
+   * Android scan mode (default: ScanMode.SCAN_MODE_BALANCED)
+   */
+  scanMode?: ScanMode;
+}
+
+/**
+ * Android scan mode
+ */
+export enum ScanMode {
+  /**
+   * Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground.
+   * https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER
+   */
+  SCAN_MODE_LOW_POWER = 0,
+  /**
+   * Perform Bluetooth LE scan in balanced power mode. (default) Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.
+   * https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_BALANCED
+   */
+  SCAN_MODE_BALANCED = 1,
+  /**
+   * Scan using highest duty cycle. It's recommended to only use this mode when the application is running in the foreground.
+   * https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY
+   */
+  SCAN_MODE_LOW_LATENCY = 2,
 }
 
 export interface BleDevice {
@@ -50,6 +81,8 @@ export interface ReadOptions {
   characteristic: string;
 }
 
+export type Data = DataView | string;
+
 export interface WriteOptions {
   deviceId: string;
   service: string;
@@ -58,7 +91,7 @@ export interface WriteOptions {
    * android, ios: string
    * web: DataView
    */
-  value: DataView | string;
+  value: Data;
 }
 
 export interface ReadResult {
@@ -66,15 +99,62 @@ export interface ReadResult {
    * android, ios: string
    * web: DataView
    */
-  value?: DataView | string;
+  value?: Data;
+}
+
+export interface ScanResultInternal<T = Data> {
+  device: BleDevice;
+  rssi: number;
+  txPower: number;
+  manufacturerData?: { [key: string]: T };
+  serviceData?: { [key: string]: T };
+  uuids?: string[];
+  rawAdvertisement?: T;
+}
+
+export interface ScanResult {
+  /**
+   * The device that was found in the scan
+   */
+  device: BleDevice;
+  /**
+   * Received Signal Strength Indication
+   */
+  rssi: number;
+  /**
+   * Transmit power in dBm. A value of 127 indicates that it is not available.
+   */
+  txPower: number;
+  /**
+   * Manufacturer data, key is a company identifier and value is the data
+   */
+  manufacturerData?: { [key: string]: DataView };
+  /**
+   * Service data, key is a service UUID and value is the data
+   */
+  serviceData?: { [key: string]: DataView };
+  /**
+   * Advertised services
+   */
+  uuids?: string[];
+  /**
+   * Raw advertisement data (Android only)
+   */
+  rawAdvertisement?: DataView;
 }
 
 export interface BluetoothLePlugin {
   initialize(): Promise<void>;
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
+  requestLEScan(options?: RequestBleDeviceOptions): Promise<void>;
+  stopLEScan(): Promise<void>;
   addListener(
     eventName: string,
     listenerFunc: (event: ReadResult) => void,
+  ): PluginListenerHandle;
+  addListener(
+    eventName: string,
+    listenerFunc: (result: ScanResultInternal) => void,
   ): PluginListenerHandle;
   connect(options: ConnectOptions): Promise<void>;
   disconnect(options: ConnectOptions): Promise<void>;

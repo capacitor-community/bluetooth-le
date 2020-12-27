@@ -12,6 +12,8 @@ export namespace Components {
     }
     interface AppRoot {
     }
+    interface AppScan {
+    }
 }
 declare global {
     interface HTMLAppHomeElement extends Components.AppHome, HTMLStencilElement {
@@ -32,10 +34,17 @@ declare global {
         prototype: HTMLAppRootElement;
         new (): HTMLAppRootElement;
     };
+    interface HTMLAppScanElement extends Components.AppScan, HTMLStencilElement {
+    }
+    var HTMLAppScanElement: {
+        prototype: HTMLAppScanElement;
+        new (): HTMLAppScanElement;
+    };
     interface HTMLElementTagNameMap {
         "app-home": HTMLAppHomeElement;
         "app-humigadget": HTMLAppHumigadgetElement;
         "app-root": HTMLAppRootElement;
+        "app-scan": HTMLAppScanElement;
     }
 }
 declare namespace LocalJSX {
@@ -45,10 +54,13 @@ declare namespace LocalJSX {
     }
     interface AppRoot {
     }
+    interface AppScan {
+    }
     interface IntrinsicElements {
         "app-home": AppHome;
         "app-humigadget": AppHumigadget;
         "app-root": AppRoot;
+        "app-scan": AppScan;
     }
 }
 export { LocalJSX as JSX };
@@ -58,6 +70,7 @@ declare module "@stencil/core" {
             "app-home": LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
             "app-humigadget": LocalJSX.AppHumigadget & JSXBase.HTMLAttributes<HTMLAppHumigadgetElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "app-scan": LocalJSX.AppScan & JSXBase.HTMLAttributes<HTMLAppScanElement>;
         }
     }
 }
