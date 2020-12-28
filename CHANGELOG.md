@@ -1,8 +1,9 @@
-## 0.0.4 (2020-12-xx)
+## 0.1.0 (2020-12-28)
 
 - add requestLEScan
 - add stopLEScan
-- make android scan mode configurable
+- add Android scan mode
+- add namePrefix filter
 - fix getting some events twice
 - fix invalid deviceId on Android
 - fix device initialization on iOS

@@ -1,6 +1,7 @@
 // import { testRunner } from './runner.test';
 import { testBleClient } from './bleClient.test';
 import { testBleScan } from './bleScan.test';
+import { testFilters } from './filter.test';
 import { testMultipleDevices } from './multipleDevices.test';
 import { printResult, beforeAll } from './testRunner';
 
@@ -10,5 +11,6 @@ export async function runTests() {
   await testBleClient();
   await testMultipleDevices();
   await testBleScan();
+  await testFilters();
   await printResult();
 }

@@ -48,10 +48,16 @@ class DeviceScanner(
     private var dialogHandler: Handler? = null
     private var stopScanHandler: Handler? = null
     private var allowDuplicates: Boolean = false
+    private var namePrefix: String = ""
 
     private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
+            if (namePrefix.isNotEmpty()) {
+                if (result.device.name == null || !result.device.name.startsWith(namePrefix)) {
+                    return
+                }
+            }
             val isNew = deviceList.addDevice(result.device)
             if (showDialog) {
                 if (isNew) {
@@ -72,12 +78,14 @@ class DeviceScanner(
             scanFilters: List<ScanFilter>,
             scanSettings: ScanSettings,
             allowDuplicates: Boolean,
+            namePrefix: String,
             callback: (ScanResponse) -> Unit,
             scanResultCallback: ((ScanResult) -> Unit)?
     ) {
         this.savedCallback = callback
         this.scanResultCallback = scanResultCallback
         this.allowDuplicates = allowDuplicates
+        this.namePrefix = namePrefix
 
         deviceList.clear()
         if (!isScanning) {

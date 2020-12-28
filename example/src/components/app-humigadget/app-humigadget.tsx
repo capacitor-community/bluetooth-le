@@ -70,6 +70,24 @@ export class AppHumigadget {
       },
     },
     {
+      label: 'request device (by name prefix)',
+      action: async () => {
+        const result = await BleClient.requestDevice({
+          namePrefix: 'Smart H',
+          optionalServices: [
+            GENERIC_SERVICE,
+            DEVICE_INFORMATION_SERVICE,
+            BATTERY_SERVICE,
+            TEMPERATURE_SERVICE,
+            HUMIDITY_SERVICE,
+          ],
+          scanMode: ScanMode.SCAN_MODE_LOW_LATENCY,
+        });
+        this.device = result;
+        return result;
+      },
+    },
+    {
       label: 'request device (filter test and)',
       action: async () => {
         const result = await BleClient.requestDevice({

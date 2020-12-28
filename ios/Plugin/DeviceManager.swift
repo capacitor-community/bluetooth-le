@@ -16,6 +16,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var alertController: UIAlertController?
     private var discoveredDevices = [String: Device]()
     private var deviceNameFilter: String?
+    private var deviceNamePrefixFilter: String?
     private var shouldShowDeviceList = false
     private var allowDuplicates = false
 
@@ -45,6 +46,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     func startScanning(
         _ serviceUUIDs: [CBUUID],
         _ name: String?,
+        _ namePrefix: String?,
         _ allowDuplicates: Bool,
         _ shouldShowDeviceList: Bool,
         _ scanDuration: Double?,
@@ -59,6 +61,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.shouldShowDeviceList = shouldShowDeviceList
             self.allowDuplicates = allowDuplicates
             self.deviceNameFilter = name
+            self.deviceNamePrefixFilter = namePrefix
 
             if shouldShowDeviceList {
                 self.showDeviceList()
@@ -105,16 +108,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
 
         let isNew = self.discoveredDevices[peripheral.identifier.uuidString] == nil
-
-        guard isNew || self.allowDuplicates else {
-            print("Device already known", peripheral.name ?? "Unknown")
-            return
-        }
-
-        if self.deviceNameFilter != nil && self.deviceNameFilter != peripheral.name {
-            print("Device does not match name filter: ", peripheral.name ?? "Unknown")
-            return
-        }
+        guard isNew || self.allowDuplicates else { return }
+        
+        guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
+        guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
 
         let device = Device(peripheral)
         print("New device found: ", device.getName())
@@ -194,6 +191,18 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             return
         }
         self.resolve(key, "Successfully disconnected.")
+    }
+    
+    private func passesNameFilter(peripheralName: String?) -> Bool {
+        guard let nameFilter = self.deviceNameFilter else { return true }
+        guard let name = peripheralName else { return false }
+        return name == nameFilter
+    }
+    
+    private func passesNamePrefixFilter(peripheralName: String?) -> Bool {
+        guard let prefix = self.deviceNamePrefixFilter else { return true }
+        guard let name = peripheralName else { return false }
+        return name.hasPrefix(prefix)
     }
 
     private func resolve(_ key: String, _ value: String) {
