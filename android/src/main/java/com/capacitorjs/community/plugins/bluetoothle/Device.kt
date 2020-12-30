@@ -2,19 +2,19 @@ package com.capacitorjs.community.plugins.bluetoothle
 
 import android.bluetooth.*
 import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+import android.content.Context
 import android.os.Handler
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 import kotlin.collections.HashMap
 
 class CallbackResponse(
         val success: Boolean,
         val value: String,
-) {}
+)
 
 class Device(
-        private val activity: AppCompatActivity,
+        private val context: Context,
         private val bluetoothAdapter: BluetoothAdapter,
         private val address: String,
 ) {
@@ -24,6 +24,9 @@ class Device(
         private const val STATE_CONNECTING = 1
         private const val STATE_CONNECTED = 2
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
+        private const val DEFAULT_TIMEOUT: Long = 5000
+        private const val CONNECT_TIMEOUT: Long = 7500
+        private const val REQUEST_MTU = 512
     }
 
     private var connectionState = STATE_DISCONNECTED
@@ -41,14 +44,14 @@ class Device(
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connectionState = STATE_CONNECTED
                 // service discovery is required to use services
-                Log.i(TAG, "Connected to GATT server. Starting service discovery.")
+                Log.d(TAG, "Connected to GATT server. Starting service discovery.")
                 val result = bluetoothGatt?.discoverServices()
                 if (result != true) {
                     reject("connect", "Starting service discovery failed.")
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectionState = STATE_DISCONNECTED
-                Log.i(TAG, "Disconnected from GATT server.")
+                Log.d(TAG, "Disconnected from GATT server.")
                 resolve("disconnect", "Disconnected.")
             }
         }
@@ -57,7 +60,7 @@ class Device(
             super.onServicesDiscovered(gatt, status)
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // Try requesting a larger MTU. Maximally supported MTU will be selected.
-                requestMtu(512)
+                requestMtu(REQUEST_MTU)
             } else {
                 reject("connect", "Service discovery failed.")
             }
@@ -66,9 +69,9 @@ class Device(
         override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "MTU changed: " + mtu)
+                Log.d(TAG, "MTU changed: $mtu")
             } else {
-                Log.d(TAG, "MTU change failed: " + mtu)
+                Log.d(TAG, "MTU change failed: $mtu")
             }
             resolve("connect", "Connected.")
         }
@@ -82,9 +85,8 @@ class Device(
             val key = "read|${characteristic.service.uuid}|${characteristic.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 val data = characteristic.value
-                if (data != null && data.size > 0) {
+                if (data != null && data.isNotEmpty()) {
                     val value = bytesToString(data)
-                    Log.d(TAG, "reading value: " + value)
                     resolve(key, value)
                 } else {
                     reject(key, "No data received while reading characteristic.")
@@ -102,11 +104,6 @@ class Device(
             super.onCharacteristicWrite(gatt, characteristic, status)
             val key = "write|${characteristic.service.uuid}|${characteristic.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                val data = characteristic.value
-                if (data != null && data.size > 0) {
-                    val value = bytesToString(data)
-                    Log.d(TAG, "current value: " + value)
-                }
                 resolve(key, "Characteristic successfully written.")
             } else {
                 reject(key, "Writing characteristic failed.")
@@ -121,9 +118,8 @@ class Device(
             super.onCharacteristicChanged(gatt, characteristic)
             val notifyKey = "notification|${characteristic.service.uuid}|${characteristic.uuid}"
             val data = characteristic.value
-            if (data != null && data.size > 0) {
+            if (data != null && data.isNotEmpty()) {
                 val value = bytesToString(data)
-                Log.d(TAG, "characteristic changed, value: " + value)
                 callbackMap[notifyKey]?.invoke(CallbackResponse(true, value))
             }
         }
@@ -140,10 +136,10 @@ class Device(
      * - request MTU
      */
     fun connect(callback: (CallbackResponse) -> Unit) {
-        callbackMap.put("connect", callback)
-        bluetoothGatt = device.connectGatt(activity.applicationContext, false, gattCallback)
+        callbackMap["connect"] = callback
+        bluetoothGatt = device.connectGatt(context, false, gattCallback)
         connectionState = STATE_CONNECTING
-        setTimeout("connect", "Connection timeout.", 7500)
+        setTimeout("connect", "Connection timeout.", CONNECT_TIMEOUT)
     }
 
     fun isConnected(): Boolean {
@@ -151,7 +147,7 @@ class Device(
     }
 
     private fun requestMtu(mtu: Int) {
-        Log.d(TAG, "requestMtu " + mtu)
+        Log.d(TAG, "requestMtu $mtu")
         val result = bluetoothGatt?.requestMtu(mtu)
         if (result != true) {
             reject("connect", "Starting requestMtu failed.")
@@ -159,7 +155,7 @@ class Device(
     }
 
     fun disconnect(callback: (CallbackResponse) -> Unit) {
-        callbackMap.put("disconnect", callback)
+        callbackMap["disconnect"] = callback
         if (bluetoothGatt == null) {
             reject("disconnect", "Not connected to any device.")
         }
@@ -174,7 +170,7 @@ class Device(
 
     fun read(serviceUUID: UUID, characteristicUUID: UUID, callback: (CallbackResponse) -> Unit) {
         val key = "read|$serviceUUID|$characteristicUUID"
-        callbackMap.put(key, callback)
+        callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
         val characteristic = service?.getCharacteristic(characteristicUUID)
         if (characteristic != null) {
@@ -190,14 +186,12 @@ class Device(
 
     fun write(serviceUUID: UUID, characteristicUUID: UUID, value: String, callback: (CallbackResponse) -> Unit) {
         val key = "write|$serviceUUID|$characteristicUUID"
-        callbackMap.put(key, callback)
+        callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
         val characteristic = service?.getCharacteristic(characteristicUUID)
         if (characteristic != null) {
-            Log.d(TAG, "writing value: " + value)
             val bytes = stringToBytes(value)
-            Log.d(TAG, "writing value check: " + bytesToString(bytes))
-            characteristic.setValue(bytes)
+            characteristic.value = bytes
             characteristic.writeType = WRITE_TYPE_DEFAULT
             val result = bluetoothGatt?.writeCharacteristic(characteristic)
             if (result != true) {
@@ -218,9 +212,9 @@ class Device(
     ) {
         val key = "setNotifications|$serviceUUID|$characteristicUUID"
         val notifyKey = "notification|$serviceUUID|$characteristicUUID"
-        callbackMap.put(key, callback)
+        callbackMap[key] = callback
         if (notifyCallback != null) {
-            callbackMap.put(notifyKey, notifyCallback)
+            callbackMap[notifyKey] = notifyCallback
         }
         val service = bluetoothGatt?.getService(serviceUUID)
         val characteristic = service?.getCharacteristic(characteristicUUID)
@@ -275,9 +269,9 @@ class Device(
         }
     }
 
-    private fun setTimeout(key: String, message: String, timeout: Long = 5000) {
+    private fun setTimeout(key: String, message: String, timeout: Long = DEFAULT_TIMEOUT) {
         val handler = Handler()
-        timeoutMap.put(key, handler)
+        timeoutMap[key] = handler
         handler.postDelayed({
             reject(key, message)
         }, timeout)

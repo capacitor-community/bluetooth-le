@@ -17,14 +17,14 @@ class ScanResponse(
         val success: Boolean,
         val message: String?,
         val device: BluetoothDevice?,
-) {}
+)
 
 class DisplayStrings(
         val scanning: String,
         val cancel: String,
         val availableDevices: String,
         val noDeviceFound: String,
-) {}
+)
 
 class DeviceScanner(
         private val context: Context,
@@ -61,7 +61,7 @@ class DeviceScanner(
             val isNew = deviceList.addDevice(result.device)
             if (showDialog) {
                 if (isNew) {
-                    dialogHandler?.post() {
+                    dialogHandler?.post {
                         deviceStrings.add("[${result.device.address}] ${result.device.name}")
                         adapter?.notifyDataSetChanged()
                     }
@@ -87,6 +87,7 @@ class DeviceScanner(
         this.allowDuplicates = allowDuplicates
         this.namePrefix = namePrefix
 
+        deviceStrings.clear()
         deviceList.clear()
         if (!isScanning) {
             setTimeoutForStopScanning()
@@ -119,7 +120,7 @@ class DeviceScanner(
         stopScanHandler?.removeCallbacksAndMessages(null)
         stopScanHandler = null
         if (showDialog) {
-            dialogHandler?.post() {
+            dialogHandler?.post {
                 if (deviceList.getCount() == 0) {
                     dialog?.setTitle(displayStrings?.noDeviceFound)
                 } else {
@@ -133,7 +134,7 @@ class DeviceScanner(
     }
 
     private fun showDeviceList() {
-        dialogHandler?.post() {
+        dialogHandler?.post {
             val builder = AlertDialog.Builder(context)
             builder.setTitle(displayStrings?.scanning)
             builder.setCancelable(true)
@@ -157,7 +158,7 @@ class DeviceScanner(
                         null))
                 savedCallback = null
             }
-            builder.setOnCancelListener() { dialog ->
+            builder.setOnCancelListener { dialog ->
                 stopScanning()
                 dialog.cancel()
                 savedCallback?.invoke(ScanResponse(false,

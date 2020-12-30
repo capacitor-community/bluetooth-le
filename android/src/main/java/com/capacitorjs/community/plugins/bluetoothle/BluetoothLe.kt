@@ -24,10 +24,10 @@ import kotlin.collections.ArrayList
 class BluetoothLe : Plugin() {
     companion object {
         private val TAG = BluetoothLe::class.java.simpleName
-        private val CONFIG_KEY_PREFIX = "plugins.BluetoothLe."
+        private const val CONFIG_KEY_PREFIX = "plugins.BluetoothLe."
 
         // maximal scan duration for requestDevice
-        private val MAX_SCAN_DURATION: Long = 30000
+        private const val MAX_SCAN_DURATION: Long = 30000
     }
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -152,15 +152,15 @@ class BluetoothLe : Plugin() {
             return
         }
 
-        var device: Device
+        val device: Device
         try {
-            device = Device(activity, bluetoothAdapter!!, deviceId)
+            device = Device(activity.applicationContext, bluetoothAdapter!!, deviceId)
         } catch (e: IllegalArgumentException) {
             call.reject("Invalid deviceId")
             return
         }
-        deviceMap.put(deviceId, device)
-        device.connect() { response ->
+        deviceMap[deviceId] = device
+        device.connect { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -174,7 +174,7 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun disconnect(call: PluginCall) {
         val device = getDevice(call) ?: return
-        device.disconnect() { response ->
+        device.disconnect { response ->
             run {
                 if (response.success) {
                     device.close()
@@ -394,7 +394,7 @@ class BluetoothLe : Plugin() {
             call.reject("deviceId required.")
             return null
         }
-        val device = deviceMap.get(deviceId)
+        val device = deviceMap[deviceId]
         if (device == null || !device.isConnected()) {
             call.reject("Not connected to device.")
             return null
@@ -405,7 +405,7 @@ class BluetoothLe : Plugin() {
 
     private fun getCharacteristic(call: PluginCall): Pair<UUID, UUID>? {
         val serviceString = call.getString("service", null)
-        var serviceUUID: UUID?
+        val serviceUUID: UUID?
         try {
             serviceUUID = UUID.fromString(serviceString)
         } catch (e: IllegalArgumentException) {
@@ -417,7 +417,7 @@ class BluetoothLe : Plugin() {
             return null
         }
         val characteristicString = call.getString("characteristic", null)
-        var characteristicUUID: UUID?
+        val characteristicUUID: UUID?
         try {
             characteristicUUID = UUID.fromString(characteristicString)
         } catch (e: IllegalArgumentException) {

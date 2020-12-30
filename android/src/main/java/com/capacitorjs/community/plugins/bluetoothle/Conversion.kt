@@ -12,7 +12,7 @@ fun bytesToString(bytes: ByteArray): String {
 
 fun stringToBytes(value: String): ByteArray {
     val hexValues = value.split(" ")
-    var bytes = ByteArray(hexValues.size)
+    val bytes = ByteArray(hexValues.size)
     for (i in hexValues.indices) {
         bytes[i] = hexToByte(hexValues[i])
     }
