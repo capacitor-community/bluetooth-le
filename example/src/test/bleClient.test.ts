@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import {
   BleClient,
   BleDevice,
+  dataViewToNumbers,
   numbersToDataView,
 } from '@capacitor-community/bluetooth-le';
 import {
@@ -11,10 +12,12 @@ import {
   HEART_RATE_MEASUREMENT_CHARACTERISTIC,
   HEART_RATE_SERVICE,
   POLAR_PMD_CONTROL_POINT,
+  POLAR_PMD_DATA,
   POLAR_PMD_SERVICE,
 } from '../helpers/ble';
 import {
   assert,
+  assertEqualArray,
   describe,
   expectError,
   it,
@@ -22,9 +25,8 @@ import {
   sleep,
 } from './testRunner';
 
-export async function testBleClient() {
+export async function testInit() {
   await describe('BleClient', async () => {
-    let device: BleDevice | null = null;
     await it('should throw an error if not initialized on android or ios', async () => {
       if (Capacitor.platform !== 'web') {
         const test = async () => {
@@ -34,6 +36,12 @@ export async function testBleClient() {
       }
       assert(!!BleClient);
     });
+  });
+}
+
+export async function testBleClient() {
+  await describe('BleClient', async () => {
+    let device: BleDevice | null = null;
 
     await it('should initialize', async () => {
       await BleClient.initialize();
@@ -47,7 +55,7 @@ export async function testBleClient() {
       }
       device = await BleClient.requestDevice({
         services: [HEART_RATE_SERVICE],
-        optionalServices: [BATTERY_SERVICE],
+        optionalServices: [BATTERY_SERVICE, POLAR_PMD_SERVICE],
       });
       assert(!!device);
       assert(device.name.includes('Polar'));
@@ -105,6 +113,100 @@ export async function testBleClient() {
         HEART_RATE_MEASUREMENT_CHARACTERISTIC,
       );
       assert(true);
+    });
+
+    await it('should read ECG', async () => {
+      const ecg: DataView[] = [];
+      let control: DataView | null = null;
+
+      await sleep(100);
+
+      // listen to control
+      await BleClient.startNotifications(
+        device.deviceId,
+        POLAR_PMD_SERVICE,
+        POLAR_PMD_CONTROL_POINT,
+        value => (control = value),
+      );
+
+      await sleep(100);
+
+      // get ecg settings
+      await BleClient.write(
+        device.deviceId,
+        POLAR_PMD_SERVICE,
+        POLAR_PMD_CONTROL_POINT,
+        numbersToDataView([1, 0]),
+      );
+      await sleep(300);
+      assert(control !== null);
+      assertEqualArray(dataViewToNumbers(control), [
+        240,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        130,
+        0,
+        1,
+        1,
+        14,
+        0,
+      ]);
+
+      // listen to data
+      await BleClient.startNotifications(
+        device.deviceId,
+        POLAR_PMD_SERVICE,
+        POLAR_PMD_DATA,
+        value => ecg.push(value),
+      );
+
+      // should not receive data before start command
+      await sleep(1500);
+      assert(ecg.length === 0);
+
+      // start stream
+      await BleClient.write(
+        device.deviceId,
+        POLAR_PMD_SERVICE,
+        POLAR_PMD_CONTROL_POINT,
+        numbersToDataView([2, 0, 0, 1, 130, 0, 1, 1, 14, 0]),
+      );
+      await sleep(300);
+      assertEqualArray(dataViewToNumbers(control), [240, 2, 0, 0, 0, 0]);
+
+      await sleep(10000);
+      if (Capacitor.platform === 'web') {
+        await sleep(30000);
+      }
+      const length = ecg.length;
+      assert(length >= 5);
+      console.log('length', ecg.length);
+      assert(ecg[length - 1].byteLength > 100);
+      console.log('bytelength', ecg[length - 1].byteLength);
+
+      // stop stream
+      await BleClient.write(
+        device.deviceId,
+        POLAR_PMD_SERVICE,
+        POLAR_PMD_CONTROL_POINT,
+        numbersToDataView([3, 0]),
+      );
+      await sleep(300);
+      assertEqualArray(dataViewToNumbers(control), [240, 3, 0, 0, 0]);
+
+      // should not receive any further values
+      await sleep(3000);
+      assert(ecg.length === length);
+
+      await BleClient.stopNotifications(
+        device.deviceId,
+        POLAR_PMD_SERVICE,
+        POLAR_PMD_DATA,
+      );
     });
 
     await it('should disconnect', async () => {

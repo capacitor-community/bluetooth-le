@@ -13,10 +13,7 @@ import {
   HEART_RATE_SERVICE,
   BODY_SENSOR_LOCATION_CHARACTERISTIC,
 } from '../../helpers/ble';
-import { testBleScan } from '../../test/bleScan.test';
-import { printResult, beforeAll } from '../../test/testRunner';
 import { scan } from '../../helpers/usageScan';
-import { testFilters } from '../../test/filter.test';
 
 @Component({
   tag: 'app-scan',
@@ -32,24 +29,6 @@ export class AppScan {
       label: 'initialize',
       action: () => {
         return BleClient.initialize();
-      },
-    },
-    {
-      label: 'test scan',
-      action: async () => {
-        await beforeAll();
-        await testBleScan();
-        await printResult();
-        return 'done';
-      },
-    },
-    {
-      label: 'test filters',
-      action: async () => {
-        await beforeAll();
-        await testFilters();
-        await printResult();
-        return 'done';
       },
     },
     {

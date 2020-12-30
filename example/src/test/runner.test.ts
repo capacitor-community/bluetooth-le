@@ -1,4 +1,12 @@
-import { assert, describe, expectError, it, sleep } from './testRunner';
+import {
+  assert,
+  assertEqual,
+  assertEqualArray,
+  describe,
+  expectError,
+  it,
+  sleep,
+} from './testRunner';
 
 export async function testRunner() {
   await describe('Custom test runner', async () => {
@@ -40,6 +48,16 @@ export async function testRunner() {
       };
       await test();
       await assert(true);
+    });
+
+    await it('should use assertEqual', async () => {
+      await assertEqual(1, 1);
+      await assertEqual(1, 2);
+    });
+
+    await it('should compare arrays', async () => {
+      await assertEqualArray([1, 0], [1, 0]);
+      await assertEqualArray([1, 0], [1, 2]);
     });
   });
 }

@@ -8,7 +8,6 @@ import { Component, h, State } from '@stencil/core';
 import { handleError } from '../../helpers/error';
 import { main } from '../../helpers/usage';
 import { resultToString, Target } from '../../helpers/helpers';
-import { runTests } from '../../test/runTests';
 import {
   HEART_RATE_SERVICE,
   POLAR_PMD_SERVICE,
@@ -31,13 +30,6 @@ export class AppHome {
   device: BleDevice;
 
   actions: { label: string; action: () => Promise<any> }[] = [
-    {
-      label: 'test',
-      action: async () => {
-        await runTests();
-        return 'done';
-      },
-    },
     {
       label: 'initialize',
       action: () => {

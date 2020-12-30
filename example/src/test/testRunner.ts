@@ -32,13 +32,13 @@ const initialState = {
 
 let state: typeof initialState;
 
-export async function beforeAll() {
+export function beforeAll() {
   state = JSON.parse(JSON.stringify(initialState));
   state.startTime = new Date().getTime();
 }
 
-export async function printResult() {
-  console.log(`Test result:
+export function printResult(): string {
+  const result = `Test result: ${state.currentSuite.name}
   Test suites: ${state.suites.passed} / ${state.suites.total} passed
   Tests:       ${state.tests.passed} / ${state.tests.total} passed
   Assertions:  ${state.assertions.passed} / ${state.assertions.total} passed
@@ -46,7 +46,9 @@ export async function printResult() {
   Result:      ${
     state.suites.passed === state.suites.total ? 'PASSED' : 'FAILED'
   }
-  `);
+  `;
+  console.log(result);
+  return result;
 }
 
 export async function describe(name: string, testSuite: () => void) {
@@ -113,6 +115,39 @@ export function assert(condition: boolean): void {
     state.currentTest.assertions.passed += 1;
     console.info(`    √ ${state.currentTest.name}`);
   }
+}
+
+export function assertEqual(a: any, b: any): void {
+  assert(a === b);
+  if (a !== b) {
+    console.warn(a, 'is not equal', b);
+  }
+}
+
+export function assertEqualArray(a: any[], b: any[]): void {
+  if (a === b) {
+    assert(true);
+    return;
+  }
+  if (a == null || b == null) {
+    assert(false);
+    console.warn(a, 'is not equal', b);
+    return;
+  }
+  if (a.length !== b.length) {
+    assert(false);
+    console.warn(a, 'is not equal', b);
+    return;
+  }
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) {
+      assert(false);
+      console.warn(a, 'is not equal', b);
+      return;
+    }
+  }
+  assert(true);
 }
 
 export async function sleep(time: number): Promise<void> {
