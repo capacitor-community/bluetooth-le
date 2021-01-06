@@ -4,6 +4,7 @@
   ],
   "imageSize": 100,
   "commit": false,
+  "commitConvention": "angular",
   "contributors": [
     {
       "login": "pwespi",
@@ -15,6 +16,7 @@
       ]
     }
   ],
+  "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
   "contributorsPerLine": 7,
   "projectName": "bluetooth-le",
   "projectOwner": "capacitor-community",
