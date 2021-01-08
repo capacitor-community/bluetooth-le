@@ -2,7 +2,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 
 export default {
   input: 'dist/esm/index.js',
-  output: {
+  output: [{
     file: 'dist/plugin.js',
     format: 'iife',
     name: 'capacitorCommunityBluetoothLe',
@@ -11,6 +11,11 @@ export default {
     },
     sourcemap: true,
   },
+  {
+    file: 'dist/index.js',
+    format: 'cjs',
+    sourcemap: true
+  }],
   plugins: [
     nodeResolve({
       // allowlist of dependencies to bundle in
