@@ -14,7 +14,9 @@
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "version:dev": "npm version --no-git-tag-version $(git describe)",
+    "publish:dev": "npm publish --tag dev"
   },
   "author": "pwespi",
   "license": "MIT",
