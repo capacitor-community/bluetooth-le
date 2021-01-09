@@ -1,3 +1,7 @@
+## 0.1.1 (2021-01-09)
+
+- use commonjs output as main entry point (#14)
+
 ## 0.1.0 (2020-12-28)
 
 - add requestLEScan
