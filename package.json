@@ -2,7 +2,8 @@
   "name": "@capacitor-community/bluetooth-le",
   "version": "0.1.0",
   "description": "Capacitor Bluetooth Low Energy Plugin",
-  "main": "dist/plugin.js",
+  "main": "dist/index.js",
+  "unpkg": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "scripts": {
@@ -14,7 +15,9 @@
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "version:dev": "npm version --no-git-tag-version $(git describe)",
+    "publish:dev": "npm publish --tag dev"
   },
   "author": "pwespi",
   "license": "MIT",
