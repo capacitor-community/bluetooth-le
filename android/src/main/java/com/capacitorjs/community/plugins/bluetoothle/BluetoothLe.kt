@@ -10,17 +10,28 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
-import com.getcapacitor.*
-import com.getcapacitor.Logger.config
+import com.getcapacitor.JSObject
+import com.getcapacitor.JSArray
+import com.getcapacitor.Plugin
+import com.getcapacitor.PluginCall
+import com.getcapacitor.PluginMethod
+import com.getcapacitor.annotation.CapacitorPlugin
+import com.getcapacitor.annotation.Permission
 import java.util.*
 import kotlin.collections.ArrayList
 
-@NativePlugin(permissions = [
-    Manifest.permission.ACCESS_COARSE_LOCATION,
-    Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.BLUETOOTH,
-    Manifest.permission.BLUETOOTH_ADMIN
-])
+@CapacitorPlugin(
+        name = "BluetoothLe",
+        permissions = [
+            Permission(strings = [
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ], alias = "location"),
+            Permission(strings = [
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN
+            ], alias = "bluetooth"),
+        ])
 class BluetoothLe : Plugin() {
     companion object {
         private val TAG = BluetoothLe::class.java.simpleName
@@ -34,9 +45,24 @@ class BluetoothLe : Plugin() {
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
 
-    @PluginMethod
+    @PluginMethod(permissionCallback = "initializeCallback")
     fun initialize(call: PluginCall) {
-        pluginRequestAllPermissions()
+        if (hasRequiredPermissions()) {
+            runInitialization(call);
+        } else {
+            requestAllPermissions(call);
+        }
+    }
+
+    private fun initializeCallback(call: PluginCall) {
+        if (hasRequiredPermissions()) {
+            runInitialization(call);
+        } else {
+            call.reject("Permission denied.")
+        }
+    }
+
+    private fun runInitialization(call: PluginCall) {
         // Use this check to determine whether BLE is supported on the device. Then
         // you can selectively disable BLE-related features.
         if (!activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -62,7 +88,7 @@ class BluetoothLe : Plugin() {
         assertBluetoothAdapter(call) ?: return
         val scanFilters = getScanFilters(call) ?: return
         val scanSettings = getScanSettings(call) ?: return
-        val namePrefix = call.getString("namePrefix", "")
+        val namePrefix = call.getString("namePrefix", "") as String
         val displayStrings = getDisplayStrings()
 
         deviceScanner?.stopScanning()
@@ -102,8 +128,8 @@ class BluetoothLe : Plugin() {
         assertBluetoothAdapter(call) ?: return
         val scanFilters = getScanFilters(call) ?: return
         val scanSettings = getScanSettings(call) ?: return
-        val namePrefix = call.getString("namePrefix", "")
-        val allowDuplicates = call.getBoolean("allowDuplicates", false)
+        val namePrefix = call.getString("namePrefix", "") as String
+        val allowDuplicates = call.getBoolean("allowDuplicates", false) as Boolean
 
         deviceScanner?.stopScanning()
         deviceScanner = DeviceScanner(
@@ -283,7 +309,7 @@ class BluetoothLe : Plugin() {
     private fun getScanFilters(call: PluginCall): List<ScanFilter>? {
         val filters: ArrayList<ScanFilter> = ArrayList()
 
-        val services = call.getArray("services", JSArray()).toList<String>()
+        val services = (call.getArray("services", JSArray()) as JSArray).toList<String>()
         val name = call.getString("name", null)
         try {
             for (service in services) {
@@ -310,7 +336,7 @@ class BluetoothLe : Plugin() {
 
     private fun getScanSettings(call: PluginCall): ScanSettings? {
         val scanSettings = ScanSettings.Builder()
-        val scanMode = call.getInt("scanMode", ScanSettings.SCAN_MODE_BALANCED)
+        val scanMode = call.getInt("scanMode", ScanSettings.SCAN_MODE_BALANCED) as Int
         try {
             scanSettings.setScanMode(scanMode)
         } catch (e: IllegalArgumentException) {
