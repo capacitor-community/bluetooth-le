@@ -176,7 +176,7 @@ class BleClientClass implements BleClientInterface {
     value: DataView,
   ): Promise<void> {
     let writeValue: DataView | string = value;
-    if (Capacitor.platform !== 'web') {
+    if (Capacitor.getPlatform() !== 'web') {
       // on native we can only write strings
       writeValue = dataViewToHexString(value);
     }
