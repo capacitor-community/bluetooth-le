@@ -1,6 +1,8 @@
-import { Capacitor, PluginListenerHandle, Plugins } from '@capacitor/core';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
+
 import { dataViewToHexString, hexStringToDataView } from './conversion';
-import {
+import type {
   BleDevice,
   Data,
   ReadResult,

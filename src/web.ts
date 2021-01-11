@@ -1,5 +1,11 @@
-import { WebPlugin } from '@capacitor/core';
+import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+
 import {
+  hexStringToDataView,
+  mapToObject,
+  webUUIDToString,
+} from './conversion';
+import type {
   BleDevice,
   BluetoothLePlugin,
   ConnectOptions,
@@ -9,11 +15,6 @@ import {
   ScanResultInternal,
   WriteOptions,
 } from './definitions';
-import {
-  hexStringToDataView,
-  mapToObject,
-  webUUIDToString,
-} from './conversion';
 
 export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private deviceMap = new Map<string, BluetoothDevice>();
@@ -26,7 +27,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     });
   }
 
-  async initialize() {
+  async initialize(): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
       throw new Error('Web Bluetooth API not available in this browser.');
     }
@@ -80,7 +81,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async stopLEScan(): Promise<void> {
-    if (this.scan && this.scan.active) {
+    if (this.scan?.active) {
       this.scan.stop();
     }
     this.scan = null;
@@ -142,8 +143,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private getFilters(
     options?: RequestBleDeviceOptions,
   ): BluetoothRequestDeviceFilter[] {
-    let filters: BluetoothRequestDeviceFilter[] = [];
-    for (let service of options?.services ?? []) {
+    const filters: BluetoothRequestDeviceFilter[] = [];
+    for (const service of options?.services ?? []) {
       filters.push({
         services: [service],
         name: options?.name,
@@ -173,6 +174,4 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 const BluetoothLe = new BluetoothLeWeb();
 
 export { BluetoothLe };
-
-import { registerWebPlugin } from '@capacitor/core';
 registerWebPlugin(BluetoothLe);

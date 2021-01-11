@@ -53,7 +53,9 @@ export function webUUIDToString(uuid: string | number): string {
   }
 }
 
-export function mapToObject<V>(map?: Map<string | number, V>) {
+export function mapToObject<V>(
+  map?: Map<string | number, V>,
+): { [key: string]: V } | undefined {
   const obj: { [key: string]: V } = {};
   if (!map) {
     return undefined;

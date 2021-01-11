@@ -11,9 +11,10 @@ export default {
         '@capacitor/core': 'capacitorExports',
       },
       sourcemap: true,
+      inlineDynamicImports: true,
     },
     {
-      file: 'dist/index.js',
+      file: 'dist/plugin.cjs.js',
       format: 'cjs',
       sourcemap: true,
       inlineDynamicImports: true,
