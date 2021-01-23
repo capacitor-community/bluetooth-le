@@ -48,17 +48,16 @@ This template is integrated with ESLint, Prettier, and SwiftLint. Using these to
    npm run lint
    # if there are linting errors
    npm run fmt
-   cd ios && swiftlint autocorrect
    ```
-1. Update `CHANGELOG`
 1. Update `usage` in README if necessary
 1. Merge to main
-1. Create new version
+1. Create a new version
    ```bash
-   npm version [<newversion> | major | minor | patch]
+   npm run release
    # or for a development release
    npm run version:dev
    ```
+1. Check `CHANGELOG.md` (which is auto-generated)
 1. Publish
 
    There is a `prepublishOnly` hook in `package.json` which prepares the plugin before publishing, so all you need to do is run:
