@@ -24,7 +24,8 @@
     "prepublishOnly": "npm run build",
     "test": "jest",
     "version:dev": "npm version --no-git-tag-version $(git describe)",
-    "publish:dev": "npm publish --tag dev"
+    "publish:dev": "npm publish --tag dev",
+    "release": "standard-version"
   },
   "author": "pwespi",
   "license": "MIT",
@@ -47,6 +48,7 @@
     "prettier-plugin-java": "^1.0.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.36.1",
+    "standard-version": "^9.1.0",
     "swiftlint": "^1.0.1",
     "ts-jest": "^26.4.4",
     "typescript": "~4.1.3"
