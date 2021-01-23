@@ -163,7 +163,7 @@ export interface BluetoothLePlugin {
   connect(options: ConnectOptions): Promise<void>;
   disconnect(options: ConnectOptions): Promise<void>;
   read(options: ReadOptions): Promise<ReadResult>;
-  write(otpions: WriteOptions): Promise<void>;
+  write(options: WriteOptions): Promise<void>;
   startNotifications(options: ReadOptions): Promise<void>;
   stopNotifications(options: ReadOptions): Promise<void>;
 }
