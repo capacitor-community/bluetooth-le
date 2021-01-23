@@ -76,8 +76,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
 
             if shouldShowDeviceList == false {
-               self.resolve("startScanning", "Scan started.")
-           }
+                self.resolve("startScanning", "Scan started.")
+            }
         } else {
             self.stopScan()
             self.reject("startScanning", "Already scanning. Stopping now.")
@@ -109,7 +109,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
         let isNew = self.discoveredDevices[peripheral.identifier.uuidString] == nil
         guard isNew || self.allowDuplicates else { return }
-        
+
         guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
 
@@ -192,13 +192,13 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
         self.resolve(key, "Successfully disconnected.")
     }
-    
+
     private func passesNameFilter(peripheralName: String?) -> Bool {
         guard let nameFilter = self.deviceNameFilter else { return true }
         guard let name = peripheralName else { return false }
         return name == nameFilter
     }
-    
+
     private func passesNamePrefixFilter(peripheralName: String?) -> Bool {
         guard let prefix = self.deviceNamePrefixFilter else { return true }
         guard let name = peripheralName else { return false }

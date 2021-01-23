@@ -48,7 +48,7 @@ public class BluetoothLe: CAPPlugin {
             }, {(_, _, _) -> Void in
 
             }
-            )
+        )
     }
 
     @objc func requestLEScan(_ call: CAPPluginCall) {
@@ -88,12 +88,12 @@ public class BluetoothLe: CAPPlugin {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call, checkConnection: false) else { return }
         device.setOnConnected({(success, message) -> Void in
-                if success {
-                    // only resolve after service discovery
-                    call.resolve()
-                } else {
-                    call.reject(message)
-                }
+            if success {
+                // only resolve after service discovery
+                call.resolve()
+            } else {
+                call.reject(message)
+            }
         })
         self.deviceManager?.connect(device, {(success, message) -> Void in
             if success {
