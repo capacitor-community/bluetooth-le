@@ -1,4 +1,4 @@
-import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+import { WebPlugin } from '@capacitor/core';
 
 import {
   hexStringToDataView,
@@ -170,8 +170,3 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return device;
   }
 }
-
-const BluetoothLe = new BluetoothLeWeb();
-
-export { BluetoothLe };
-registerWebPlugin(BluetoothLe);

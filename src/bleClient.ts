@@ -1,5 +1,5 @@
 import type { PluginListenerHandle } from '@capacitor/core';
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 
 import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
@@ -10,8 +10,7 @@ import type {
   ScanResult,
   ScanResultInternal,
 } from './definitions';
-
-const { BluetoothLe } = Plugins;
+import { BluetoothLe } from './plugin';
 
 export interface BleClientInterface {
   /**

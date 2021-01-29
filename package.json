@@ -33,14 +33,13 @@
     "@types/web-bluetooth": "^0.0.9"
   },
   "devDependencies": {
-    "@capacitor/android": "^2.4.6",
-    "@capacitor/core": "^2.4.6",
+    "@capacitor/android": "next",
+    "@capacitor/core": "next",
     "@capacitor/docgen": "^0.0.14",
-    "@capacitor/ios": "^2.4.6",
+    "@capacitor/ios": "next",
     "@ionic/eslint-config": "^0.3.0",
     "@ionic/prettier-config": "^1.0.1",
     "@ionic/swiftlint-config": "^1.1.2",
-    "@rollup/plugin-node-resolve": "^11.1.1",
     "@types/jest": "^26.0.20",
     "eslint": "^7.18.0",
     "jest": "^26.6.3",
@@ -54,12 +53,13 @@
     "typescript": "~4.1.3"
   },
   "peerDependencies": {
-    "@capacitor/core": "^2.4.6"
+    "@capacitor/core": "next"
   },
   "files": [
+    "android/src/main/",
+    "android/build.gradle",
     "dist/",
-    "ios/",
-    "android/",
+    "ios/Plugin/",
     "CapacitorCommunityBluetoothLe.podspec"
   ],
   "keywords": [
