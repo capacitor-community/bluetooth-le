@@ -9,7 +9,7 @@ public class BluetoothLe: CAPPlugin {
 
     @objc func initialize(_ call: CAPPluginCall) {
         let displayStrings = getConfigValue("displayStrings") as? [String: String] ?? [String: String]()
-        self.deviceManager = DeviceManager(self.bridge, displayStrings, {(success, message) -> Void in
+        self.deviceManager = DeviceManager(self.bridge?.viewController, displayStrings, {(success, message) -> Void in
             if success {
                 call.resolve()
             } else {
@@ -21,8 +21,8 @@ public class BluetoothLe: CAPPlugin {
     @objc func requestDevice(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         let serviceUUIDs = self.getServiceUUIDs(call)
-        let name = call.getString("name", nil)
-        let namePrefix = call.getString("namePrefix", nil)
+        let name = call.getString("name")
+        let namePrefix = call.getString("namePrefix")
 
         deviceManager.startScanning(
             serviceUUIDs,
@@ -54,9 +54,9 @@ public class BluetoothLe: CAPPlugin {
     @objc func requestLEScan(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         let serviceUUIDs = self.getServiceUUIDs(call)
-        let name = call.getString("name", nil)
-        let namePrefix = call.getString("namePrefix", nil)
-        let allowDuplicates = call.getBool("allowDuplicates", false)!
+        let name = call.getString("name")
+        let namePrefix = call.getString("namePrefix")
+        let allowDuplicates = call.getBool("allowDuplicates", false)
 
         deviceManager.startScanning(
             serviceUUIDs,
@@ -136,7 +136,7 @@ public class BluetoothLe: CAPPlugin {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
         guard let characteristic = self.getCharacteristic(call) else { return }
-        guard let value = call.getString("value", nil) else {
+        guard let value = call.getString("value") else {
             call.reject("value must be provided")
             return
         }
@@ -202,7 +202,7 @@ public class BluetoothLe: CAPPlugin {
     }
 
     private func getDevice(_ call: CAPPluginCall, checkConnection: Bool = true) -> Device? {
-        guard let deviceId = call.getString("deviceId", nil) else {
+        guard let deviceId = call.getString("deviceId") else {
             call.reject("deviceId required.")
             return nil
         }
@@ -220,13 +220,13 @@ public class BluetoothLe: CAPPlugin {
     }
 
     private func getCharacteristic(_ call: CAPPluginCall) -> (CBUUID, CBUUID)? {
-        guard let service = call.getString("service", nil) else {
+        guard let service = call.getString("service") else {
             call.reject("Service UUID required.")
             return nil
         }
         let serviceUUID = CBUUID(string: service)
 
-        guard let characteristic = call.getString("characteristic", nil) else {
+        guard let characteristic = call.getString("characteristic") else {
             call.reject("Characteristic UUID required.")
             return nil
         }
