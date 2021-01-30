@@ -17,6 +17,26 @@ public class BluetoothLe: CAPPlugin {
             }
         })
     }
+    
+    @objc func getEnabled(_ call: CAPPluginCall) {
+        guard let deviceManager = self.getDeviceManager(call) else { return }
+        let enabled: Bool = deviceManager.getEnabled()
+        call.resolve(["value": enabled])
+    }
+    
+    @objc func startEnabledNotifications(_ call: CAPPluginCall) {
+        guard let deviceManager = self.getDeviceManager(call) else { return }
+        deviceManager.registerStateReceiver({(enabled) -> Void in
+            self.notifyListeners("onEnabledChanged", data: ["value": enabled])
+        })
+        call.resolve()
+    }
+    
+    @objc func stopEnabledNotifications(_ call: CAPPluginCall) {
+        guard let deviceManager = self.getDeviceManager(call) else { return }
+        deviceManager.unregisterStateReceiver()
+        call.resolve()
+    }
 
     @objc func requestDevice(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }

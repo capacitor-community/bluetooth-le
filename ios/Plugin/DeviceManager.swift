@@ -4,6 +4,7 @@ import CoreBluetooth
 
 class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias Callback = (_ success: Bool, _ message: String) -> Void
+    typealias StateReceiver = (_ enabled: Bool) -> Void
     typealias ScanResultCallback = (_ device: Device, _ advertisementData: [String: Any], _ rssi: NSNumber) -> Void
 
     private var centralManager: CBCentralManager!
@@ -11,6 +12,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var displayStrings: [String: String]!
     private var callbackMap = [String: Callback]()
     private var scanResultCallback: ScanResultCallback?
+    private var stateReceiver: StateReceiver?
     private var timeoutMap = [String: DispatchWorkItem]()
     private var stopScanWorkItem: DispatchWorkItem?
     private var alertController: UIAlertController?
@@ -30,17 +32,43 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
     // initialize
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        let key = "initialize"
+        let initializeKey = "initialize"
         switch central.state {
         case .poweredOn:
-            self.resolve(key, "BLE powered on")
+            self.resolve(initializeKey, "BLE powered on")
+            self.emitState(enabled: true)
         case .poweredOff:
-            central.stopScan()
-            self.reject(key, "BLE powered off")
+            self.stopScan()
+            self.resolve(initializeKey, "BLE powered off")
+            self.emitState(enabled: false)
+        case .resetting:
+            self.emitState(enabled: false)
+        case .unauthorized:
+            self.emitState(enabled: false)
         case .unsupported:
-            self.reject(key, "BLE unsupported")
+            self.reject(initializeKey, "BLE unsupported")
+            self.emitState(enabled: false)
+        case .unknown:
+            self.emitState(enabled: false)
         default: break
         }
+    }
+    
+    func getEnabled() -> Bool {
+        return self.centralManager.state == CBManagerState.poweredOn
+    }
+    
+    func registerStateReceiver( _ stateReceiver: @escaping StateReceiver) {
+        self.stateReceiver = stateReceiver
+    }
+    
+    func unregisterStateReceiver() {
+        self.stateReceiver = nil
+    }
+    
+    func emitState(enabled: Bool) {
+        guard let stateReceiver = self.stateReceiver else { return }
+        stateReceiver(enabled)
     }
 
     func startScanning(

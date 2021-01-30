@@ -36,6 +36,19 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
+  async getEnabled(): Promise<{ value: true }> {
+    // not available on web
+    return { value: true };
+  }
+
+  async startEnabledNotifications(): Promise<void> {
+    // not available on web
+  }
+
+  async stopEnabledNotifications(): Promise<void> {
+    // not available on web
+  }
+
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
     const filters = this.getFilters(options);
     const device = await navigator.bluetooth.requestDevice({

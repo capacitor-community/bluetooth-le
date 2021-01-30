@@ -15,11 +15,29 @@ const { BluetoothLe } = Plugins;
 
 export interface BleClientInterface {
   /**
-   * Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable or disabled on this device.
+   * Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
    * On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
    * For an example, see [usage](#usage).
    */
   initialize(): Promise<void>;
+
+  /**
+   * Reports whether BLE is enabled on this device.
+   * Always returns `true` on web.
+   */
+  getEnabled(): Promise<boolean>;
+
+  /**
+   * Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
+   * Not available on web (the callback will never be invoked).
+   * @param callback Callback function to use when the BLE state changes.
+   */
+  startEnabledNotifications(callback: (value: boolean) => void): Promise<void>;
+
+  /**
+   * Stop the enabled notifications registered with `startEnabledNotifications`.
+   */
+  stopEnabledNotifications(): Promise<void>;
 
   /**
    * Request a peripheral BLE device to interact with. This will scan for available devices according to the filters in the options and show a dialog to pick a device.
@@ -116,6 +134,29 @@ class BleClientClass implements BleClientInterface {
 
   async initialize(): Promise<void> {
     await BluetoothLe.initialize();
+  }
+
+  async getEnabled(): Promise<boolean> {
+    const result = await BluetoothLe.getEnabled();
+    return result.value;
+  }
+
+  async startEnabledNotifications(
+    callback: (value: boolean) => void,
+  ): Promise<void> {
+    const key = `onEnabledChanged`;
+    this.notifyListeners.get(key)?.remove();
+    const listener = BluetoothLe.addListener(key, result => {
+      callback(result.value);
+    });
+    this.notifyListeners.set(key, listener);
+    await BluetoothLe.startEnabledNotifications();
+  }
+
+  async stopEnabledNotifications(): Promise<void> {
+    const key = `onEnabledChanged`;
+    this.notifyListeners.get(key)?.remove();
+    await BluetoothLe.stopEnabledNotifications();
   }
 
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {

@@ -34,6 +34,9 @@ Below is an index of all the methods available.
 <docgen-index>
 
 - [`initialize()`](#initialize)
+- [`getEnabled()`](#getenabled)
+- [`startEnabledNotifications(...)`](#startenablednotifications)
+- [`stopEnabledNotifications()`](#stopenablednotifications)
 - [`requestDevice(...)`](#requestdevice)
 - [`requestLEScan(...)`](#requestlescan)
 - [`stopLEScan()`](#stoplescan)
@@ -295,9 +298,47 @@ export async function scan() {
 initialize() => Promise<void>
 ```
 
-Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable or disabled on this device.
+Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
 On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
 For an example, see [usage](#usage).
+
+---
+
+### getEnabled()
+
+```typescript
+getEnabled() => Promise<boolean>
+```
+
+Reports whether BLE is enabled on this device.
+Always returns `true` on web.
+
+**Returns:** <code>Promise&lt;boolean&gt;</code>
+
+---
+
+### startEnabledNotifications(...)
+
+```typescript
+startEnabledNotifications(callback: (value: boolean) => void) => Promise<void>
+```
+
+Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
+Not available on web (the callback will never be invoked).
+
+| Param          | Type                                     | Description                                          |
+| -------------- | ---------------------------------------- | ---------------------------------------------------- |
+| **`callback`** | <code>(value: boolean) =&gt; void</code> | Callback function to use when the BLE state changes. |
+
+---
+
+### stopEnabledNotifications()
+
+```typescript
+stopEnabledNotifications() => Promise<void>
+```
+
+Stop the enabled notifications registered with `startEnabledNotifications`.
 
 ---
 

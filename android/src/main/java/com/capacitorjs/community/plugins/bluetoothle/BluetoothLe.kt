@@ -7,7 +7,10 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
 import com.getcapacitor.*
@@ -31,16 +34,16 @@ class BluetoothLe : Plugin() {
     }
 
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private var stateReceiver: BroadcastReceiver? = null
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
 
     @PluginMethod
     fun initialize(call: PluginCall) {
         pluginRequestAllPermissions()
-        // Use this check to determine whether BLE is supported on the device. Then
-        // you can selectively disable BLE-related features.
+        // Use this check to determine whether BLE is supported on the device.
         if (!activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            call.reject("BLE is not supported")
+            call.reject("BLE is not supported.")
             return
         }
 
@@ -48,12 +51,61 @@ class BluetoothLe : Plugin() {
         bluetoothAdapter = (activity.getSystemService(Context.BLUETOOTH_SERVICE)
                 as BluetoothManager).adapter
 
-        // Ensures Bluetooth is available on the device and it is enabled.
-        if (bluetoothAdapter == null || bluetoothAdapter?.isEnabled != true) {
-            bluetoothAdapter = null
-            call.reject("BLE is not enabled.")
+        if (bluetoothAdapter == null) {
+            call.reject("BLE is not available.")
             return
         }
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun getEnabled(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        val enabled = bluetoothAdapter?.isEnabled == true
+        val result = JSObject()
+        result.put("value", enabled)
+        call.resolve(result)
+    }
+
+    @PluginMethod
+    fun startEnabledNotifications(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        createStateReceiver()
+
+        try {
+            val intentFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+            context.registerReceiver(stateReceiver, intentFilter);
+        } catch (e: Error) {
+            call.reject("Error")
+            return
+        }
+        call.resolve()
+    }
+
+    private fun createStateReceiver() {
+        if (stateReceiver == null) {
+            stateReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    val action = intent.action
+                    if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                        val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                                BluetoothAdapter.ERROR)
+                        val enabled = state == BluetoothAdapter.STATE_ON
+                        val result = JSObject()
+                        result.put("value", enabled)
+                        notifyListeners("onEnabledChanged", result)
+                    }
+                }
+            }
+        }
+    }
+
+    @PluginMethod
+    fun stopEnabledNotifications(call: PluginCall) {
+        if (stateReceiver != null) {
+            context.unregisterReceiver(stateReceiver)
+        }
+        stateReceiver = null
         call.resolve()
     }
 
