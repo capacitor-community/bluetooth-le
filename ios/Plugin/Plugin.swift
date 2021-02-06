@@ -115,6 +115,10 @@ public class BluetoothLe: CAPPlugin {
                 call.reject(message)
             }
         })
+        self.deviceManager?.setOnDisconnected(device, {(success, message) -> Void in
+            let key = "disconnected|\(device.getId())"
+            self.notifyListeners(key, data: nil)
+        })
         self.deviceManager?.connect(device, {(success, message) -> Void in
             if success {
                 print("Connected to peripheral. Waiting for service discovery.")

@@ -101,7 +101,16 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async connect(options: ConnectOptions): Promise<void> {
-    await this.getDevice(options.deviceId).gatt?.connect();
+    const device = await this.getDevice(options.deviceId);
+    device.removeEventListener('gattserverdisconnected', this.onDisconnected);
+    device.addEventListener('gattserverdisconnected', this.onDisconnected);
+    await device.gatt?.connect();
+  }
+
+  private onDisconnected(event: Event) {
+    const deviceId = (event.target as BluetoothDevice).id;
+    const key = `disconnected|${deviceId}`;
+    BluetoothLe.notifyListeners(key, null);
   }
 
   async disconnect(options: ConnectOptions): Promise<void> {

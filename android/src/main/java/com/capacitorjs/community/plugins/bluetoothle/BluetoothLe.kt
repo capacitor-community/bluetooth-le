@@ -13,6 +13,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
+import android.util.Log
 import com.getcapacitor.*
 import com.getcapacitor.Logger.config
 import java.util.*
@@ -206,7 +207,13 @@ class BluetoothLe : Plugin() {
 
         val device: Device
         try {
-            device = Device(activity.applicationContext, bluetoothAdapter!!, deviceId)
+            device = Device(
+                    activity.applicationContext,
+                    bluetoothAdapter!!,
+                    deviceId
+            ) { ->
+                onDisconnect(deviceId)
+            }
         } catch (e: IllegalArgumentException) {
             call.reject("Invalid deviceId")
             return
@@ -221,6 +228,10 @@ class BluetoothLe : Plugin() {
                 }
             }
         }
+    }
+
+    private fun onDisconnect(deviceId: String) {
+        notifyListeners("disconnected|${deviceId}", null)
     }
 
     @PluginMethod

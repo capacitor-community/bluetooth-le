@@ -66,8 +66,12 @@ export interface BleClientInterface {
   /**
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
    */
-  connect(deviceId: string): Promise<void>;
+  connect(
+    deviceId: string,
+    onDisconnect?: (deviceId: string) => void,
+  ): Promise<void>;
 
   /**
    * Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
@@ -130,7 +134,7 @@ export interface BleClientInterface {
 
 class BleClientClass implements BleClientInterface {
   scanListener: PluginListenerHandle | null = null;
-  notifyListeners = new Map<string, PluginListenerHandle>();
+  eventListeners = new Map<string, PluginListenerHandle>();
 
   async initialize(): Promise<void> {
     await BluetoothLe.initialize();
@@ -145,17 +149,17 @@ class BleClientClass implements BleClientInterface {
     callback: (value: boolean) => void,
   ): Promise<void> {
     const key = `onEnabledChanged`;
-    this.notifyListeners.get(key)?.remove();
+    this.eventListeners.get(key)?.remove();
     const listener = BluetoothLe.addListener(key, result => {
       callback(result.value);
     });
-    this.notifyListeners.set(key, listener);
+    this.eventListeners.set(key, listener);
     await BluetoothLe.startEnabledNotifications();
   }
 
   async stopEnabledNotifications(): Promise<void> {
     const key = `onEnabledChanged`;
-    this.notifyListeners.get(key)?.remove();
+    this.eventListeners.get(key)?.remove();
     await BluetoothLe.stopEnabledNotifications();
   }
 
@@ -189,7 +193,18 @@ class BleClientClass implements BleClientInterface {
     await BluetoothLe.stopLEScan();
   }
 
-  async connect(deviceId: string): Promise<void> {
+  async connect(
+    deviceId: string,
+    onDisconnect?: (deviceId: string) => void,
+  ): Promise<void> {
+    if (onDisconnect) {
+      const key = `disconnected|${deviceId}`;
+      this.eventListeners.get(key)?.remove();
+      const listener = BluetoothLe.addListener(key, () => {
+        onDisconnect(deviceId);
+      });
+      this.eventListeners.set(key, listener);
+    }
     await BluetoothLe.connect({ deviceId });
   }
 
@@ -236,11 +251,11 @@ class BleClientClass implements BleClientInterface {
     callback: (value: DataView) => void,
   ): Promise<void> {
     const key = `notification|${deviceId}|${service}|${characteristic}`;
-    this.notifyListeners.get(key)?.remove();
+    this.eventListeners.get(key)?.remove();
     const listener = BluetoothLe.addListener(key, (event: ReadResult) => {
       callback(this.convertValue(event?.value));
     });
-    this.notifyListeners.set(key, listener);
+    this.eventListeners.set(key, listener);
     await BluetoothLe.startNotifications({
       deviceId,
       service,
@@ -254,8 +269,8 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
   ): Promise<void> {
     const key = `notification|${service}|${characteristic}`;
-    this.notifyListeners.get(key)?.remove();
-    this.notifyListeners.delete(key);
+    this.eventListeners.get(key)?.remove();
+    this.eventListeners.delete(key);
     await BluetoothLe.stopNotifications({
       deviceId,
       service,

@@ -202,9 +202,14 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
         self.reject(key, "Failed to connect.")
     }
+    
+    func setOnDisconnected(_ device: Device, _ callback: @escaping Callback) {
+        let key = "onDisconnected|\(device.getId())"
+        self.callbackMap[key] = callback
+    }
 
     func disconnect(_ device: Device, _ callback: @escaping Callback) {
-        let key = "disconnect|\(device.getPeripheral().identifier.uuidString)"
+        let key = "disconnect|\(device.getId())"
         self.callbackMap[key] = callback
         print("Disconnecting from peripheral", device.getPeripheral())
         self.centralManager.cancelPeripheralConnection(device.getPeripheral())
@@ -214,7 +219,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     // didDisconnectPeripheral
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         let key = "disconnect|\(peripheral.identifier.uuidString)"
+        let keyOnDisconnected = "onDisconnected|\(peripheral.identifier.uuidString)"
+        self.resolve(keyOnDisconnected, "Disconnected.")
         if error != nil {
+            print(error!.localizedDescription)
             self.reject(key, error!.localizedDescription)
             return
         }

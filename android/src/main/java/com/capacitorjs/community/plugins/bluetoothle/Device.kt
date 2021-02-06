@@ -17,6 +17,7 @@ class Device(
         private val context: Context,
         private val bluetoothAdapter: BluetoothAdapter,
         private val address: String,
+        private val onDisconnect: () -> Unit
 ) {
     companion object {
         private val TAG = Device::class.java.simpleName
@@ -51,6 +52,7 @@ class Device(
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectionState = STATE_DISCONNECTED
+                onDisconnect()
                 Log.d(TAG, "Disconnected from GATT server.")
                 resolve("disconnect", "Disconnected.")
             }

@@ -389,14 +389,15 @@ Stop scanning for BLE devices. For an example, see [usage](#usage).
 ### connect(...)
 
 ```typescript
-connect(deviceId: string) => Promise<void>
+connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined) => Promise<void>
 ```
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param          | Type                | Description                                                                                                    |
-| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| Param              | Type                                         | Description                                                                                                    |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**     | <code>string</code>                          | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code> | Optional disconnect callback function that will be used when the device disconnects                            |
 
 ---
 
