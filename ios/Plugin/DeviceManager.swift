@@ -101,7 +101,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + scanDuration!, execute: self.stopScanWorkItem!)
             }
-            self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
+            self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey: allowDuplicates])
 
             if shouldShowDeviceList == false {
                 self.resolve("startScanning", "Scan started.")
