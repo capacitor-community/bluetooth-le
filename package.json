@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/bluetooth-le",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Capacitor Bluetooth Low Energy Plugin",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
