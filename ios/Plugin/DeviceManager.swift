@@ -53,19 +53,19 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         default: break
         }
     }
-    
+
     func getEnabled() -> Bool {
         return self.centralManager.state == CBManagerState.poweredOn
     }
-    
+
     func registerStateReceiver( _ stateReceiver: @escaping StateReceiver) {
         self.stateReceiver = stateReceiver
     }
-    
+
     func unregisterStateReceiver() {
         self.stateReceiver = nil
     }
-    
+
     func emitState(enabled: Bool) {
         guard let stateReceiver = self.stateReceiver else { return }
         stateReceiver(enabled)
@@ -202,7 +202,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
         self.reject(key, "Failed to connect.")
     }
-    
+
     func setOnDisconnected(_ device: Device, _ callback: @escaping Callback) {
         let key = "onDisconnected|\(device.getId())"
         self.callbackMap[key] = callback

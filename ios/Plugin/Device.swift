@@ -106,17 +106,20 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    func write(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ value: String, _ callback: @escaping Callback) {
+    func write(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ value: String, _ writeType: CBCharacteristicWriteType, _ callback: @escaping Callback) {
         let key = "write|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         self.callbackMap[key] = callback
         guard let characteristic = self.getCharacterisitic(serviceUUID, characteristicUUID) else {
             self.reject(key, "Characteristic not found.")
             return
         }
-        print("Writing value", value)
         let data: Data = stringToData(value)
-        self.peripheral.writeValue(data, for: characteristic, type: .withResponse)
-        self.setTimeout(key, "Write timeout.")
+        self.peripheral.writeValue(data, for: characteristic, type: writeType)
+        if writeType == CBCharacteristicWriteType.withResponse {
+            self.setTimeout(key, "Write timeout.")
+        } else {
+            self.resolve(key, "Successfully written value.")
+        }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {

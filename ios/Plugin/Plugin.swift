@@ -17,13 +17,13 @@ public class BluetoothLe: CAPPlugin {
             }
         })
     }
-    
+
     @objc func getEnabled(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         let enabled: Bool = deviceManager.getEnabled()
         call.resolve(["value": enabled])
     }
-    
+
     @objc func startEnabledNotifications(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         deviceManager.registerStateReceiver({(enabled) -> Void in
@@ -31,7 +31,7 @@ public class BluetoothLe: CAPPlugin {
         })
         call.resolve()
     }
-    
+
     @objc func stopEnabledNotifications(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         deviceManager.unregisterStateReceiver()
@@ -115,7 +115,7 @@ public class BluetoothLe: CAPPlugin {
                 call.reject(message)
             }
         })
-        self.deviceManager?.setOnDisconnected(device, {(success, message) -> Void in
+        self.deviceManager?.setOnDisconnected(device, {(_, _) -> Void in
             let key = "disconnected|\(device.getId())"
             self.notifyListeners(key, data: nil)
         })
@@ -164,7 +164,26 @@ public class BluetoothLe: CAPPlugin {
             call.reject("value must be provided")
             return
         }
-        device.write(characteristic.0, characteristic.1, value, {(success, value) -> Void in
+        let writeType = CBCharacteristicWriteType.withResponse
+        device.write(characteristic.0, characteristic.1, value, writeType, {(success, value) -> Void in
+            if success {
+                call.resolve()
+            } else {
+                call.reject(value)
+            }
+        })
+    }
+
+    @objc func writeWithoutResponse(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        guard let characteristic = self.getCharacteristic(call) else { return }
+        guard let value = call.getString("value", nil) else {
+            call.reject("value must be provided")
+            return
+        }
+        let writeType = CBCharacteristicWriteType.withoutResponse
+        device.write(characteristic.0, characteristic.1, value, writeType, {(success, value) -> Void in
             if success {
                 call.resolve()
             } else {
