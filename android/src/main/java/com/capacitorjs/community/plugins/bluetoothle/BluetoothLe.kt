@@ -3,6 +3,7 @@ package com.capacitorjs.community.plugins.bluetoothle
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -276,7 +277,29 @@ class BluetoothLe : Plugin() {
             call.reject("Value required.")
             return
         }
-        device.write(characteristic.first, characteristic.second, value) { response ->
+        val writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+        device.write(characteristic.first, characteristic.second, value, writeType) { response ->
+            run {
+                if (response.success) {
+                    call.resolve()
+                } else {
+                    call.reject(response.value)
+                }
+            }
+        }
+    }
+
+    @PluginMethod
+    fun writeWithoutResponse(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val characteristic = getCharacteristic(call) ?: return
+        val value = call.getString("value", null)
+        if (value == null) {
+            call.reject("Value required.")
+            return
+        }
+        val writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        device.write(characteristic.first, characteristic.second, value, writeType) { response ->
             run {
                 if (response.success) {
                     call.resolve()

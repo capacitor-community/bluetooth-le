@@ -46,6 +46,7 @@ Below is an index of all the methods available.
 - [`disconnect(...)`](#disconnect)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
+- [`writeWithoutResponse(...)`](#writewithoutresponse)
 - [`startNotifications(...)`](#startnotifications)
 - [`stopNotifications(...)`](#stopnotifications)
 - [Interfaces](#interfaces)
@@ -442,6 +443,23 @@ write(deviceId: string, service: string, characteristic: string, value: DataView
 ```
 
 Write a value to a characteristic. For an example, see [usage](#usage).
+
+| Param                | Type                                          | Description                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
+| **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
+| **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
+| **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+
+---
+
+### writeWithoutResponse(...)
+
+```typescript
+writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView) => Promise<void>
+```
+
+Write a value to a characteristic without waiting for a response.
 
 | Param                | Type                                          | Description                                                                                                                                                                                 |
 | -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
