@@ -106,6 +106,20 @@ export interface BleClientInterface {
   ): Promise<void>;
 
   /**
+   * Write a value to a characteristic without waiting for a response.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param service UUID of the service (see [UUID format](#uuid-format))
+   * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
+   * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   */
+  writeWithoutResponse(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+  ): Promise<void>;
+
+  /**
    * Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
@@ -237,6 +251,25 @@ class BleClientClass implements BleClientInterface {
       writeValue = dataViewToHexString(value);
     }
     await BluetoothLe.write({
+      deviceId,
+      service,
+      characteristic,
+      value: writeValue,
+    });
+  }
+
+  async writeWithoutResponse(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+  ): Promise<void> {
+    let writeValue: DataView | string = value;
+    if (Capacitor.getPlatform() !== 'web') {
+      // on native we can only write strings
+      writeValue = dataViewToHexString(value);
+    }
+    await BluetoothLe.writeWithoutResponse({
       deviceId,
       service,
       characteristic,
