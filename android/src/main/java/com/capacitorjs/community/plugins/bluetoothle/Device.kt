@@ -186,7 +186,13 @@ class Device(
         setTimeout(key, "Read timeout.")
     }
 
-    fun write(serviceUUID: UUID, characteristicUUID: UUID, value: String, callback: (CallbackResponse) -> Unit) {
+    fun write(
+            serviceUUID: UUID,
+            characteristicUUID: UUID,
+            value: String,
+            writeType: Int,
+            callback: (CallbackResponse) -> Unit
+    ) {
         val key = "write|$serviceUUID|$characteristicUUID"
         callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
@@ -194,7 +200,7 @@ class Device(
         if (characteristic != null) {
             val bytes = stringToBytes(value)
             characteristic.value = bytes
-            characteristic.writeType = WRITE_TYPE_DEFAULT
+            characteristic.writeType = writeType
             val result = bluetoothGatt?.writeCharacteristic(characteristic)
             if (result != true) {
                 reject(key, "Writing characteristic failed.")
