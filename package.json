@@ -24,8 +24,10 @@
     "prepublishOnly": "npm run build",
     "test": "jest",
     "version:dev": "npm version --no-git-tag-version $(git describe)",
-    "publish:dev": "npm publish --tag dev",
-    "release": "standard-version"
+    "release": "standard-version",
+    "release:minor": "standard-version -r minor",
+    "release:major": "standard-version -r major",
+    "publish:dev": "npm publish --tag dev"
   },
   "author": "pwespi",
   "license": "MIT",

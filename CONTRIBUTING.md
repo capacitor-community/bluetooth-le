@@ -54,6 +54,10 @@ This template is integrated with ESLint, Prettier, and SwiftLint. Using these to
 1. Create a new version
    ```bash
    npm run release
+   # or
+   npm run release:minor
+   # or
+   npm run release:major
    # or for a development release
    npm run version:dev
    ```
@@ -67,5 +71,6 @@ This template is integrated with ESLint, Prettier, and SwiftLint. Using these to
    # or for a development release
    npm run publish:dev
    ```
+1. Push git tag
 
 > **Note**: The [`files`](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#files) array in `package.json` specifies which files get published. If you rename files/directories or add files elsewhere, you may need to update it.
