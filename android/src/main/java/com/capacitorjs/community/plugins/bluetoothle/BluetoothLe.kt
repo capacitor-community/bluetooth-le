@@ -10,13 +10,10 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
-import com.getcapacitor.JSObject
-import com.getcapacitor.JSArray
-import com.getcapacitor.Plugin
-import com.getcapacitor.PluginCall
-import com.getcapacitor.PluginMethod
+import com.getcapacitor.*
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
+import com.getcapacitor.annotation.PermissionCallback
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -45,17 +42,18 @@ class BluetoothLe : Plugin() {
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
 
-    @PluginMethod(permissionCallback = "initializeCallback")
+    @PluginMethod()
     fun initialize(call: PluginCall) {
-        if (hasRequiredPermissions()) {
-            runInitialization(call);
+        if (getPermissionState("location") != PermissionState.GRANTED) {
+            requestAllPermissions(call, "initializeCallback");
         } else {
-            requestAllPermissions(call);
+            runInitialization(call);
         }
     }
 
+    @PermissionCallback()
     private fun initializeCallback(call: PluginCall) {
-        if (hasRequiredPermissions()) {
+        if (getPermissionState("location") == PermissionState.GRANTED) {
             runInitialization(call);
         } else {
             call.reject("Permission denied.")
