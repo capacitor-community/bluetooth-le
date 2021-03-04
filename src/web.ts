@@ -18,7 +18,9 @@ import type {
 
 export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private deviceMap = new Map<string, BluetoothDevice>();
+  private discoverdDevices = new Map<string, boolean>();
   private scan: BluetoothLEScan | null = null;
+  private requestBleDeviceOptions: RequestBleDeviceOptions | undefined;
 
   constructor() {
     super({
@@ -36,6 +38,19 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
+  async getEnabled(): Promise<{ value: true }> {
+    // not available on web
+    return { value: true };
+  }
+
+  async startEnabledNotifications(): Promise<void> {
+    // not available on web
+  }
+
+  async stopEnabledNotifications(): Promise<void> {
+    // not available on web
+  }
+
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
     const filters = this.getFilters(options);
     const device = await navigator.bluetooth.requestDevice({
@@ -49,35 +64,46 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async requestLEScan(options?: RequestBleDeviceOptions): Promise<void> {
+    this.requestBleDeviceOptions = options;
     const filters = this.getFilters(options);
     await this.stopLEScan();
+    this.discoverdDevices = new Map<string, boolean>();
+    navigator.bluetooth.removeEventListener(
+      'advertisementreceived',
+      this.onAdvertisemendReceived as EventListener,
+    );
     navigator.bluetooth.addEventListener(
       'advertisementreceived',
-      (event: BluetoothAdvertisementEvent) => {
-        const isNew = !this.deviceMap.has(event.device.id);
-        this.deviceMap.set(event.device.id, event.device);
-        if (isNew || options?.allowDuplicates) {
-          const device: BleDevice = {
-            deviceId: event.device.id,
-            name: event.device.name,
-          };
-          const result: ScanResultInternal = {
-            device,
-            rssi: event.rssi,
-            txPower: event.txPower,
-            manufacturerData: mapToObject(event.manufacturerData),
-            serviceData: mapToObject(event.serviceData),
-            uuids: event.uuids?.map(webUUIDToString),
-          };
-          this.notifyListeners('onScanResult', result);
-        }
-      },
+      this.onAdvertisemendReceived,
     );
     this.scan = await navigator.bluetooth.requestLEScan({
       filters: filters.length ? filters : undefined,
       acceptAllAdvertisements: filters.length === 0,
       keepRepeatedDevices: options?.allowDuplicates,
     });
+  }
+
+  private onAdvertisemendReceived(event: BluetoothAdvertisementEvent) {
+    // do not use `this` in event listener
+    const deviceId = event.device.id;
+    BluetoothLe.deviceMap.set(deviceId, event.device);
+    const isNew = !BluetoothLe.discoverdDevices.has(deviceId);
+    if (isNew || BluetoothLe.requestBleDeviceOptions?.allowDuplicates) {
+      BluetoothLe.discoverdDevices.set(deviceId, true);
+      const device: BleDevice = {
+        deviceId: deviceId,
+        name: event.device.name,
+      };
+      const result: ScanResultInternal = {
+        device,
+        rssi: event.rssi,
+        txPower: event.txPower,
+        manufacturerData: mapToObject(event.manufacturerData),
+        serviceData: mapToObject(event.serviceData),
+        uuids: event.uuids?.map(webUUIDToString),
+      };
+      BluetoothLe.notifyListeners('onScanResult', result);
+    }
   }
 
   async stopLEScan(): Promise<void> {
@@ -88,7 +114,17 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async connect(options: ConnectOptions): Promise<void> {
-    await this.getDevice(options.deviceId).gatt?.connect();
+    const device = await this.getDevice(options.deviceId);
+    device.removeEventListener('gattserverdisconnected', this.onDisconnected);
+    device.addEventListener('gattserverdisconnected', this.onDisconnected);
+    await device.gatt?.connect();
+  }
+
+  private onDisconnected(event: Event) {
+    // do not use `this` in event listener
+    const deviceId = (event.target as BluetoothDevice).id;
+    const key = `disconnected|${deviceId}`;
+    BluetoothLe.notifyListeners(key, null);
   }
 
   async disconnect(options: ConnectOptions): Promise<void> {
@@ -121,18 +157,37 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     await characteristic?.writeValue(dataView);
   }
 
+  async writeWithoutResponse(options: WriteOptions): Promise<void> {
+    const characteristic = await this.getCharacteristic(options);
+    let dataView: DataView;
+    if (typeof options.value === 'string') {
+      dataView = hexStringToDataView(options.value);
+    } else {
+      dataView = options.value;
+    }
+    await characteristic?.writeValueWithoutResponse(dataView);
+  }
+
   async startNotifications(options: ReadOptions): Promise<void> {
     const characteristic = await this.getCharacteristic(options);
+    characteristic?.removeEventListener(
+      'characteristicvaluechanged',
+      this.onCharacteristicValueChanged,
+    );
     characteristic?.addEventListener(
       'characteristicvaluechanged',
-      (event: Event) => {
-        const key = `notification|${options.deviceId}|${options.service}|${options.characteristic}`;
-        this.notifyListeners(key, {
-          value: (event.target as BluetoothRemoteGATTCharacteristic).value,
-        });
-      },
+      this.onCharacteristicValueChanged,
     );
     await characteristic?.startNotifications();
+  }
+
+  private onCharacteristicValueChanged(event: Event) {
+    // do not use `this` in event listener
+    const characteristic = event.target as BluetoothRemoteGATTCharacteristic;
+    const key = `notification|${characteristic.service?.device.id}|${characteristic.service?.uuid}|${characteristic.uuid}`;
+    BluetoothLe.notifyListeners(key, {
+      value: characteristic.value,
+    });
   }
 
   async stopNotifications(options: ReadOptions): Promise<void> {

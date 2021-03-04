@@ -143,21 +143,29 @@ export interface ScanResult {
 
 export interface BluetoothLePlugin {
   initialize(): Promise<void>;
+  getEnabled(): Promise<{ value: boolean }>;
+  startEnabledNotifications(): Promise<void>;
+  stopEnabledNotifications(): Promise<void>;
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
   requestLEScan(options?: RequestBleDeviceOptions): Promise<void>;
   stopLEScan(): Promise<void>;
+  addListener(
+    eventName: 'onEnabledChanged',
+    listenerFunc: (result: { value: boolean }) => void,
+  ): PluginListenerHandle;
   addListener(
     eventName: string,
     listenerFunc: (event: ReadResult) => void,
   ): PluginListenerHandle;
   addListener(
-    eventName: string,
+    eventName: 'onScanResult',
     listenerFunc: (result: ScanResultInternal) => void,
   ): PluginListenerHandle;
   connect(options: ConnectOptions): Promise<void>;
   disconnect(options: ConnectOptions): Promise<void>;
   read(options: ReadOptions): Promise<ReadResult>;
   write(options: WriteOptions): Promise<void>;
+  writeWithoutResponse(options: WriteOptions): Promise<void>;
   startNotifications(options: ReadOptions): Promise<void>;
   stopNotifications(options: ReadOptions): Promise<void>;
 }

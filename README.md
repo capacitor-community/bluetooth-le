@@ -29,11 +29,16 @@ This is a Capacitor plugin for Bluetooth Low Energy. It supports the web, Androi
 
 The goal is to support the same features on all platforms. Therefore the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) is taken as a guidline for what features to implement.
 
+For support of Web Bluetooth in various browsers, see [implementation status](https://github.com/WebBluetoothCG/web-bluetooth/blob/gh-pages/implementation-status.md).
+
 Below is an index of all the methods available.
 
 <docgen-index>
 
 - [`initialize()`](#initialize)
+- [`getEnabled()`](#getenabled)
+- [`startEnabledNotifications(...)`](#startenablednotifications)
+- [`stopEnabledNotifications()`](#stopenablednotifications)
 - [`requestDevice(...)`](#requestdevice)
 - [`requestLEScan(...)`](#requestlescan)
 - [`stopLEScan()`](#stoplescan)
@@ -41,6 +46,7 @@ Below is an index of all the methods available.
 - [`disconnect(...)`](#disconnect)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
+- [`writeWithoutResponse(...)`](#writewithoutresponse)
 - [`startNotifications(...)`](#startnotifications)
 - [`stopNotifications(...)`](#stopnotifications)
 - [Interfaces](#interfaces)
@@ -295,9 +301,47 @@ export async function scan() {
 initialize() => Promise<void>
 ```
 
-Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable or disabled on this device.
+Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
 On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
 For an example, see [usage](#usage).
+
+---
+
+### getEnabled()
+
+```typescript
+getEnabled() => Promise<boolean>
+```
+
+Reports whether BLE is enabled on this device.
+Always returns `true` on web.
+
+**Returns:** <code>Promise&lt;boolean&gt;</code>
+
+---
+
+### startEnabledNotifications(...)
+
+```typescript
+startEnabledNotifications(callback: (value: boolean) => void) => Promise<void>
+```
+
+Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
+Not available on web (the callback will never be invoked).
+
+| Param          | Type                                     | Description                                          |
+| -------------- | ---------------------------------------- | ---------------------------------------------------- |
+| **`callback`** | <code>(value: boolean) =&gt; void</code> | Callback function to use when the BLE state changes. |
+
+---
+
+### stopEnabledNotifications()
+
+```typescript
+stopEnabledNotifications() => Promise<void>
+```
+
+Stop the enabled notifications registered with `startEnabledNotifications`.
 
 ---
 
@@ -348,14 +392,15 @@ Stop scanning for BLE devices. For an example, see [usage](#usage).
 ### connect(...)
 
 ```typescript
-connect(deviceId: string) => Promise<void>
+connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined) => Promise<void>
 ```
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param          | Type                | Description                                                                                                    |
-| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| Param              | Type                                         | Description                                                                                                    |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**     | <code>string</code>                          | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code> | Optional disconnect callback function that will be used when the device disconnects                            |
 
 ---
 
@@ -398,6 +443,23 @@ write(deviceId: string, service: string, characteristic: string, value: DataView
 ```
 
 Write a value to a characteristic. For an example, see [usage](#usage).
+
+| Param                | Type                                          | Description                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
+| **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
+| **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
+| **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+
+---
+
+### writeWithoutResponse(...)
+
+```typescript
+writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView) => Promise<void>
+```
+
+Write a value to a characteristic without waiting for a response.
 
 | Param                | Type                                          | Description                                                                                                                                                                                 |
 | -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

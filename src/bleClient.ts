@@ -14,11 +14,29 @@ import { BluetoothLe } from './plugin';
 
 export interface BleClientInterface {
   /**
-   * Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable or disabled on this device.
+   * Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
    * On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
    * For an example, see [usage](#usage).
    */
   initialize(): Promise<void>;
+
+  /**
+   * Reports whether BLE is enabled on this device.
+   * Always returns `true` on web.
+   */
+  getEnabled(): Promise<boolean>;
+
+  /**
+   * Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
+   * Not available on web (the callback will never be invoked).
+   * @param callback Callback function to use when the BLE state changes.
+   */
+  startEnabledNotifications(callback: (value: boolean) => void): Promise<void>;
+
+  /**
+   * Stop the enabled notifications registered with `startEnabledNotifications`.
+   */
+  stopEnabledNotifications(): Promise<void>;
 
   /**
    * Request a peripheral BLE device to interact with. This will scan for available devices according to the filters in the options and show a dialog to pick a device.
@@ -47,8 +65,12 @@ export interface BleClientInterface {
   /**
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
    */
-  connect(deviceId: string): Promise<void>;
+  connect(
+    deviceId: string,
+    onDisconnect?: (deviceId: string) => void,
+  ): Promise<void>;
 
   /**
    * Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
@@ -76,6 +98,20 @@ export interface BleClientInterface {
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
    */
   write(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+  ): Promise<void>;
+
+  /**
+   * Write a value to a characteristic without waiting for a response.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param service UUID of the service (see [UUID format](#uuid-format))
+   * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
+   * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   */
+  writeWithoutResponse(
     deviceId: string,
     service: string,
     characteristic: string,
@@ -111,10 +147,33 @@ export interface BleClientInterface {
 
 class BleClientClass implements BleClientInterface {
   scanListener: PluginListenerHandle | null = null;
-  notifyListeners = new Map<string, PluginListenerHandle>();
+  eventListeners = new Map<string, PluginListenerHandle>();
 
   async initialize(): Promise<void> {
     await BluetoothLe.initialize();
+  }
+
+  async getEnabled(): Promise<boolean> {
+    const result = await BluetoothLe.getEnabled();
+    return result.value;
+  }
+
+  async startEnabledNotifications(
+    callback: (value: boolean) => void,
+  ): Promise<void> {
+    const key = `onEnabledChanged`;
+    this.eventListeners.get(key)?.remove();
+    const listener = BluetoothLe.addListener(key, result => {
+      callback(result.value);
+    });
+    this.eventListeners.set(key, listener);
+    await BluetoothLe.startEnabledNotifications();
+  }
+
+  async stopEnabledNotifications(): Promise<void> {
+    const key = `onEnabledChanged`;
+    this.eventListeners.get(key)?.remove();
+    await BluetoothLe.stopEnabledNotifications();
   }
 
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
@@ -147,7 +206,18 @@ class BleClientClass implements BleClientInterface {
     await BluetoothLe.stopLEScan();
   }
 
-  async connect(deviceId: string): Promise<void> {
+  async connect(
+    deviceId: string,
+    onDisconnect?: (deviceId: string) => void,
+  ): Promise<void> {
+    if (onDisconnect) {
+      const key = `disconnected|${deviceId}`;
+      this.eventListeners.get(key)?.remove();
+      const listener = BluetoothLe.addListener(key, () => {
+        onDisconnect(deviceId);
+      });
+      this.eventListeners.set(key, listener);
+    }
     await BluetoothLe.connect({ deviceId });
   }
 
@@ -187,6 +257,25 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
+  async writeWithoutResponse(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+  ): Promise<void> {
+    let writeValue: DataView | string = value;
+    if (Capacitor.getPlatform() !== 'web') {
+      // on native we can only write strings
+      writeValue = dataViewToHexString(value);
+    }
+    await BluetoothLe.writeWithoutResponse({
+      deviceId,
+      service,
+      characteristic,
+      value: writeValue,
+    });
+  }
+
   async startNotifications(
     deviceId: string,
     service: string,
@@ -194,11 +283,11 @@ class BleClientClass implements BleClientInterface {
     callback: (value: DataView) => void,
   ): Promise<void> {
     const key = `notification|${deviceId}|${service}|${characteristic}`;
-    this.notifyListeners.get(key)?.remove();
+    this.eventListeners.get(key)?.remove();
     const listener = BluetoothLe.addListener(key, (event: ReadResult) => {
       callback(this.convertValue(event?.value));
     });
-    this.notifyListeners.set(key, listener);
+    this.eventListeners.set(key, listener);
     await BluetoothLe.startNotifications({
       deviceId,
       service,
@@ -212,8 +301,8 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
   ): Promise<void> {
     const key = `notification|${service}|${characteristic}`;
-    this.notifyListeners.get(key)?.remove();
-    this.notifyListeners.delete(key);
+    this.eventListeners.get(key)?.remove();
+    this.eventListeners.delete(key);
     await BluetoothLe.stopNotifications({
       deviceId,
       service,
