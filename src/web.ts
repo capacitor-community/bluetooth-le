@@ -225,3 +225,5 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return device;
   }
 }
+
+export const BluetoothLe = new BluetoothLeWeb();
