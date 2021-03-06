@@ -67,14 +67,11 @@ class BluetoothLe : Plugin() {
     }
 
     private fun runInitialization(call: PluginCall) {
-        // Use this check to determine whether BLE is supported on the device. Then
-        // you can selectively disable BLE-related features.
         if (!activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             call.reject("BLE is not supported.")
             return
         }
 
-        // Initializes Bluetooth adapter.
         bluetoothAdapter = (activity.getSystemService(Context.BLUETOOTH_SERVICE)
                 as BluetoothManager).adapter
 
