@@ -178,7 +178,7 @@ public class BluetoothLe: CAPPlugin {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
         guard let characteristic = self.getCharacteristic(call) else { return }
-        guard let value = call.getString("value", nil) else {
+        guard let value = call.getString("value") else {
             call.reject("value must be provided")
             return
         }
