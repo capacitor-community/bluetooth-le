@@ -22,13 +22,6 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private scan: BluetoothLEScan | null = null;
   private requestBleDeviceOptions: RequestBleDeviceOptions | undefined;
 
-  constructor() {
-    super({
-      name: 'BluetoothLe',
-      platforms: ['web'],
-    });
-  }
-
   async initialize(): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
       throw new Error('Web Bluetooth API not available in this browser.');
