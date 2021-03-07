@@ -37,7 +37,6 @@ import kotlin.collections.ArrayList
 class BluetoothLe : Plugin() {
     companion object {
         private val TAG = BluetoothLe::class.java.simpleName
-        private const val CONFIG_KEY_PREFIX = "plugins.BluetoothLe."
 
         // maximal scan duration for requestDevice
         private const val MAX_SCAN_DURATION: Long = 30000
@@ -485,13 +484,13 @@ class BluetoothLe : Plugin() {
 
     private fun getDisplayStrings(): DisplayStrings {
         return DisplayStrings(
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.scanning",
+                config.getString("displayStrings.scanning",
                         "Scanning..."),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.cancel",
+                config.getString("displayStrings.cancel",
                         "Cancel"),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.availableDevices",
+                config.getString("displayStrings.availableDevices",
                         "Available devices"),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.noDeviceFound",
+                config.getString("displayStrings.noDeviceFound",
                         "No device found"),
         )
     }
