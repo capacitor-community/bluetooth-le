@@ -14,6 +14,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dennisameling",
+      "name": "Dennis Ameling",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17739158?v=4",
+      "profile": "https://twitter.com/dennisameling",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
