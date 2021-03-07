@@ -90,7 +90,7 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 
 ### Android
 
-On Android, register the plugin in your main activity:
+On Android, register the plugin in your main activity (this is only required for Capacitor 2):
 
 `./android/app/src/main/java/<PATH>/MainActivity.java`:
 
@@ -190,7 +190,7 @@ const BATTERY_CHARACTERISTIC = numberToUUID(0x2a19);
 const POLAR_PMD_SERVICE = 'fb005c80-02e7-f387-1cad-8acd2d8df0c8';
 const POLAR_PMD_CONTROL_POINT = 'fb005c81-02e7-f387-1cad-8acd2d8df0c8';
 
-export async function main() {
+export async function main(): Promise<void> {
   try {
     await BleClient.initialize();
 
@@ -251,7 +251,7 @@ function parseHeartRate(value: DataView): number {
   const flags = value.getUint8(0);
   const rate16Bits = flags & 0x1;
   let heartRate: number;
-  if (rate16Bits) {
+  if (rate16Bits > 0) {
     heartRate = value.getUint16(1, true);
   } else {
     heartRate = value.getUint8(1);
@@ -267,7 +267,7 @@ import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
 
 const HEART_RATE_SERVICE = numberToUUID(0x180d);
 
-export async function scan() {
+export async function scan(): Promise<void> {
   try {
     await BleClient.initialize();
 
