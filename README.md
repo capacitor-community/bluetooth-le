@@ -57,7 +57,12 @@ Below is an index of all the methods available.
 ## Installation
 
 ```
-npm install @capacitor-community/bluetooth-le
+# for Capacitor v2
+npm install @capacitor-community/bluetooth-le@latest
+npx cap sync
+
+# for Capacitor v3
+npm install @capacitor-community/bluetooth-le@next
 npx cap sync
 ```
 
