@@ -2,7 +2,7 @@
 <h3 align="center">Bluetooth Low Energy</h3>
 <p align="center"><strong><code>@capacitor-community/bluetooth-le</code></strong></p>
 <p align="center">
-  Capacitor Bluetooth Low Energy Plugin
+  Capacitor plugin for Bluetooth Low Energy 
 </p>
 
 <p align="center">
