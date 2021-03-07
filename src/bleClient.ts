@@ -1,5 +1,5 @@
 import type { PluginListenerHandle } from '@capacitor/core';
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 
 import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
@@ -10,8 +10,7 @@ import type {
   ScanResult,
   ScanResultInternal,
 } from './definitions';
-
-const { BluetoothLe } = Plugins;
+import { BluetoothLe } from './plugin';
 
 export interface BleClientInterface {
   /**
@@ -163,8 +162,8 @@ class BleClientClass implements BleClientInterface {
     callback: (value: boolean) => void,
   ): Promise<void> {
     const key = `onEnabledChanged`;
-    this.eventListeners.get(key)?.remove();
-    const listener = BluetoothLe.addListener(key, result => {
+    await this.eventListeners.get(key)?.remove();
+    const listener = await BluetoothLe.addListener(key, result => {
       callback(result.value);
     });
     this.eventListeners.set(key, listener);
@@ -173,7 +172,7 @@ class BleClientClass implements BleClientInterface {
 
   async stopEnabledNotifications(): Promise<void> {
     const key = `onEnabledChanged`;
-    this.eventListeners.get(key)?.remove();
+    await this.eventListeners.get(key)?.remove();
     await BluetoothLe.stopEnabledNotifications();
   }
 
@@ -186,8 +185,8 @@ class BleClientClass implements BleClientInterface {
     options: RequestBleDeviceOptions,
     callback: (result: ScanResult) => void,
   ): Promise<void> {
-    this.scanListener?.remove();
-    this.scanListener = BluetoothLe.addListener(
+    await this.scanListener?.remove();
+    this.scanListener = await BluetoothLe.addListener(
       'onScanResult',
       (result: ScanResultInternal) => {
         result.manufacturerData = this.convertObject(result.manufacturerData);
@@ -202,7 +201,7 @@ class BleClientClass implements BleClientInterface {
   }
 
   async stopLEScan(): Promise<void> {
-    this.scanListener?.remove();
+    await this.scanListener?.remove();
     this.scanListener = null;
     await BluetoothLe.stopLEScan();
   }
@@ -213,8 +212,8 @@ class BleClientClass implements BleClientInterface {
   ): Promise<void> {
     if (onDisconnect) {
       const key = `disconnected|${deviceId}`;
-      this.eventListeners.get(key)?.remove();
-      const listener = BluetoothLe.addListener(key, () => {
+      await this.eventListeners.get(key)?.remove();
+      const listener = await BluetoothLe.addListener(key, () => {
         onDisconnect(deviceId);
       });
       this.eventListeners.set(key, listener);
@@ -284,8 +283,8 @@ class BleClientClass implements BleClientInterface {
     callback: (value: DataView) => void,
   ): Promise<void> {
     const key = `notification|${deviceId}|${service}|${characteristic}`;
-    this.eventListeners.get(key)?.remove();
-    const listener = BluetoothLe.addListener(key, (event: ReadResult) => {
+    await this.eventListeners.get(key)?.remove();
+    const listener = await BluetoothLe.addListener(key, (event: ReadResult) => {
       callback(this.convertValue(event?.value));
     });
     this.eventListeners.set(key, listener);
@@ -302,7 +301,7 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
   ): Promise<void> {
     const key = `notification|${service}|${characteristic}`;
-    this.eventListeners.get(key)?.remove();
+    await this.eventListeners.get(key)?.remove();
     this.eventListeners.delete(key);
     await BluetoothLe.stopNotifications({
       deviceId,

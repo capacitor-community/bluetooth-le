@@ -1,5 +1,4 @@
 import Foundation
-import Capacitor
 import CoreBluetooth
 
 class DeviceManager: NSObject, CBCentralManagerDelegate {
@@ -8,7 +7,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias ScanResultCallback = (_ device: Device, _ advertisementData: [String: Any], _ rssi: NSNumber) -> Void
 
     private var centralManager: CBCentralManager!
-    private var bridge: CAPBridge!
+    private var viewController: UIViewController?
     private var displayStrings: [String: String]!
     private var callbackMap = [String: Callback]()
     private var scanResultCallback: ScanResultCallback?
@@ -22,9 +21,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var shouldShowDeviceList = false
     private var allowDuplicates = false
 
-    init(_ bridge: CAPBridge, _ displayStrings: [String: String], _ callback: @escaping Callback) {
+    init(_ viewController: UIViewController?, _ displayStrings: [String: String], _ callback: @escaping Callback) {
         super.init()
-        self.bridge = bridge
+        self.viewController = viewController
         self.displayStrings = displayStrings
         self.callbackMap["initialize"] = callback
         self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
@@ -168,7 +167,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 self?.stopScan()
                 self?.reject("startScanning", "requestDevice cancelled.")
             }))
-            self?.bridge.viewController.present((self?.alertController)!, animated: true, completion: nil)
+            self?.viewController?.present((self?.alertController)!, animated: true, completion: nil)
         }
     }
 

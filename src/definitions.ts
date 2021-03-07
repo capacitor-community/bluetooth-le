@@ -1,11 +1,5 @@
 import type { PluginListenerHandle } from '@capacitor/core';
 
-declare module '@capacitor/core' {
-  interface PluginRegistry {
-    BluetoothLe: BluetoothLePlugin;
-  }
-}
-
 export interface RequestBleDeviceOptions {
   /**
    * Filter devices by service UUIDs.

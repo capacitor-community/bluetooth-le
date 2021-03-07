@@ -16,20 +16,27 @@ import android.content.pm.PackageManager
 import android.os.ParcelUuid
 import android.util.Log
 import com.getcapacitor.*
-import com.getcapacitor.Logger.config
+import com.getcapacitor.annotation.CapacitorPlugin
+import com.getcapacitor.annotation.Permission
+import com.getcapacitor.annotation.PermissionCallback
 import java.util.*
 import kotlin.collections.ArrayList
 
-@NativePlugin(permissions = [
-    Manifest.permission.ACCESS_COARSE_LOCATION,
-    Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.BLUETOOTH,
-    Manifest.permission.BLUETOOTH_ADMIN
-])
+@CapacitorPlugin(
+        name = "BluetoothLe",
+        permissions = [
+            Permission(strings = [
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ], alias = "location"),
+            Permission(strings = [
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN
+            ], alias = "bluetooth"),
+        ])
 class BluetoothLe : Plugin() {
     companion object {
         private val TAG = BluetoothLe::class.java.simpleName
-        private const val CONFIG_KEY_PREFIX = "plugins.BluetoothLe."
 
         // maximal scan duration for requestDevice
         private const val MAX_SCAN_DURATION: Long = 30000
@@ -40,16 +47,30 @@ class BluetoothLe : Plugin() {
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
 
-    @PluginMethod
+    @PluginMethod()
     fun initialize(call: PluginCall) {
-        pluginRequestAllPermissions()
-        // Use this check to determine whether BLE is supported on the device.
+        if (getPermissionState("location") != PermissionState.GRANTED) {
+            requestAllPermissions(call, "initializeCallback");
+        } else {
+            runInitialization(call);
+        }
+    }
+
+    @PermissionCallback()
+    private fun initializeCallback(call: PluginCall) {
+        if (getPermissionState("location") == PermissionState.GRANTED) {
+            runInitialization(call);
+        } else {
+            call.reject("Permission denied.")
+        }
+    }
+
+    private fun runInitialization(call: PluginCall) {
         if (!activity.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             call.reject("BLE is not supported.")
             return
         }
 
-        // Initializes Bluetooth adapter.
         bluetoothAdapter = (activity.getSystemService(Context.BLUETOOTH_SERVICE)
                 as BluetoothManager).adapter
 
@@ -116,7 +137,7 @@ class BluetoothLe : Plugin() {
         assertBluetoothAdapter(call) ?: return
         val scanFilters = getScanFilters(call) ?: return
         val scanSettings = getScanSettings(call) ?: return
-        val namePrefix = call.getString("namePrefix", "")
+        val namePrefix = call.getString("namePrefix", "") as String
         val displayStrings = getDisplayStrings()
 
         deviceScanner?.stopScanning()
@@ -156,8 +177,8 @@ class BluetoothLe : Plugin() {
         assertBluetoothAdapter(call) ?: return
         val scanFilters = getScanFilters(call) ?: return
         val scanSettings = getScanSettings(call) ?: return
-        val namePrefix = call.getString("namePrefix", "")
-        val allowDuplicates = call.getBoolean("allowDuplicates", false)
+        val namePrefix = call.getString("namePrefix", "") as String
+        val allowDuplicates = call.getBoolean("allowDuplicates", false) as Boolean
 
         deviceScanner?.stopScanning()
         deviceScanner = DeviceScanner(
@@ -369,7 +390,7 @@ class BluetoothLe : Plugin() {
     private fun getScanFilters(call: PluginCall): List<ScanFilter>? {
         val filters: ArrayList<ScanFilter> = ArrayList()
 
-        val services = call.getArray("services", JSArray()).toList<String>()
+        val services = (call.getArray("services", JSArray()) as JSArray).toList<String>()
         val name = call.getString("name", null)
         try {
             for (service in services) {
@@ -396,7 +417,7 @@ class BluetoothLe : Plugin() {
 
     private fun getScanSettings(call: PluginCall): ScanSettings? {
         val scanSettings = ScanSettings.Builder()
-        val scanMode = call.getInt("scanMode", ScanSettings.SCAN_MODE_BALANCED)
+        val scanMode = call.getInt("scanMode", ScanSettings.SCAN_MODE_BALANCED) as Int
         try {
             scanSettings.setScanMode(scanMode)
         } catch (e: IllegalArgumentException) {
@@ -463,13 +484,13 @@ class BluetoothLe : Plugin() {
 
     private fun getDisplayStrings(): DisplayStrings {
         return DisplayStrings(
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.scanning",
+                config.getString("displayStrings.scanning",
                         "Scanning..."),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.cancel",
+                config.getString("displayStrings.cancel",
                         "Cancel"),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.availableDevices",
+                config.getString("displayStrings.availableDevices",
                         "Available devices"),
-                config.getString(CONFIG_KEY_PREFIX + "displayStrings.noDeviceFound",
+                config.getString("displayStrings.noDeviceFound",
                         "No device found"),
         )
     }

@@ -1,4 +1,4 @@
-import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+import { WebPlugin } from '@capacitor/core';
 
 import {
   hexStringToDataView,
@@ -21,13 +21,6 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private discoverdDevices = new Map<string, boolean>();
   private scan: BluetoothLEScan | null = null;
   private requestBleDeviceOptions: RequestBleDeviceOptions | undefined;
-
-  constructor() {
-    super({
-      name: 'BluetoothLe',
-      platforms: ['web'],
-    });
-  }
 
   async initialize(): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
@@ -226,7 +219,4 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 }
 
-const BluetoothLe = new BluetoothLeWeb();
-
-export { BluetoothLe };
-registerWebPlugin(BluetoothLe);
+export const BluetoothLe = new BluetoothLeWeb();
