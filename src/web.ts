@@ -58,9 +58,9 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       optionalServices: options?.optionalServices,
       acceptAllDevices: filters.length === 0,
     });
-    const { id, name, uuids } = device;
-    this.deviceMap.set(id, device);
-    return { deviceId: id, name, uuids };
+    this.deviceMap.set(device.id, device);
+    const bleDevice = this.getBleDevice(device);
+    return bleDevice;
   }
 
   async requestLEScan(options?: RequestBleDeviceOptions): Promise<void> {
@@ -90,12 +90,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     const isNew = !BluetoothLe.discoverdDevices.has(deviceId);
     if (isNew || BluetoothLe.requestBleDeviceOptions?.allowDuplicates) {
       BluetoothLe.discoverdDevices.set(deviceId, true);
-      const device: BleDevice = {
-        deviceId: deviceId,
-        name: event.device.name,
-      };
+      const device = BluetoothLe.getBleDevice(event.device);
       const result: ScanResultInternal = {
         device,
+        localName: device.name,
         rssi: event.rssi,
         txPower: event.txPower,
         manufacturerData: mapToObject(event.manufacturerData),
@@ -223,6 +221,16 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       );
     }
     return device;
+  }
+
+  private getBleDevice(device: BluetoothDevice): BleDevice {
+    const bleDevice: BleDevice = {
+      deviceId: device.id,
+      // use undefined instead of null if name is not available
+      name: device.name ?? undefined,
+      uuids: device.uuids,
+    };
+    return bleDevice;
   }
 }
 

@@ -62,7 +62,7 @@ class DeviceScanner(
             if (showDialog) {
                 if (isNew) {
                     dialogHandler?.post {
-                        deviceStrings.add("[${result.device.address}] ${result.device.name}")
+                        deviceStrings.add("[${result.device.address}] ${result.device.name ?: "Unknown"}")
                         adapter?.notifyDataSetChanged()
                     }
                 }

@@ -142,12 +142,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
 
         let device = Device(peripheral)
-        print("New device found: ", device.getName())
+        print("New device found: ", device.getName() ?? "Unknown")
         self.discoveredDevices[device.getId()] = device
 
         if shouldShowDeviceList {
             DispatchQueue.main.async { [weak self] in
-                self?.alertController?.addAction(UIAlertAction(title: device.getName(), style: UIAlertAction.Style.default, handler: { (_) -> Void in
+                self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) -> Void in
                     print("Selected device")
                     self?.stopScan()
                     self?.resolve("startScanning", device.getId())

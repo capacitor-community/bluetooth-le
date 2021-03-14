@@ -409,7 +409,9 @@ class BluetoothLe : Plugin() {
     private fun getBleDevice(device: BluetoothDevice): JSObject {
         val bleDevice = JSObject()
         bleDevice.put("deviceId", device.address)
-        bleDevice.put("name", device.name)
+        if (device.name != null) {
+            bleDevice.put("name", device.name)
+        }
 
         val uuids = JSArray()
         device.uuids?.forEach { uuid -> uuids.put(uuid.toString()) }
@@ -425,6 +427,10 @@ class BluetoothLe : Plugin() {
 
         val bleDevice = getBleDevice(result.device)
         scanResult.put("device", bleDevice)
+
+        if (result.device.name != null) {
+            scanResult.put("localName", result.device.name)
+        }
 
         scanResult.put("rssi", result.rssi)
 
