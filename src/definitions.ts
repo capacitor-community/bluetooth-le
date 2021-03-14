@@ -18,7 +18,7 @@ export interface RequestBleDeviceOptions {
    */
   namePrefix?: string;
   /**
-   * For web, all services that will be used have to be listed under services or optionalServices,
+   * For **web**, all services that will be used have to be listed under services or optionalServices,
    * e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))
    */
   optionalServices?: string[];
@@ -58,12 +58,12 @@ export enum ScanMode {
 export interface BleDevice {
   /**
    * ID of the device, which will be needed for further calls.
-   * On Android this is the BLE MAC address.
-   * On iOS and web it is an identifier.
+   * On **Android** this is the BLE MAC address.
+   * On **iOS** and **web** it is an identifier.
    */
   deviceId: string;
   /**
-   * Name of the device.
+   * Name of the peripheral device.
    */
   name?: string;
   uuids?: string[];
@@ -102,6 +102,7 @@ export interface ReadResult {
 
 export interface ScanResultInternal<T = Data> {
   device: BleDevice;
+  localName?: string;
   rssi: number;
   txPower: number;
   manufacturerData?: { [key: string]: T };
@@ -112,11 +113,17 @@ export interface ScanResultInternal<T = Data> {
 
 export interface ScanResult {
   /**
-   * The device that was found in the scan
+   * The peripheral device that was found in the scan.
+   * **Android** and **web**: `device.name` is always identical to `localName`.
+   * **iOS**: `device.name` is identical to `localName` the first time a device is discovered, but after connecting `device.name` is the cached GAP name in subsequent scans.
    */
   device: BleDevice;
   /**
-   * Received Signal Strength Indication
+   * The name of the peripheral device from the advertisement data.
+   */
+  localName?: string;
+  /**
+   * Received Signal Strength Indication.
    */
   rssi: number;
   /**
@@ -124,19 +131,19 @@ export interface ScanResult {
    */
   txPower: number;
   /**
-   * Manufacturer data, key is a company identifier and value is the data
+   * Manufacturer data, key is a company identifier and value is the data.
    */
   manufacturerData?: { [key: string]: DataView };
   /**
-   * Service data, key is a service UUID and value is the data
+   * Service data, key is a service UUID and value is the data.
    */
   serviceData?: { [key: string]: DataView };
   /**
-   * Advertised services
+   * Advertised services.
    */
   uuids?: string[];
   /**
-   * Raw advertisement data (Android only)
+   * Raw advertisement data (**Android** only).
    */
   rawAdvertisement?: DataView;
 }

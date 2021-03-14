@@ -307,7 +307,7 @@ initialize() => Promise<void>
 ```
 
 Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
-On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
+On **Android** it will ask for the location permission. On **iOS** it will ask for the Bluetooth permission.
 For an example, see [usage](#usage).
 
 ---
@@ -319,7 +319,7 @@ getEnabled() => Promise<boolean>
 ```
 
 Reports whether BLE is enabled on this device.
-Always returns `true` on web.
+Always returns `true` on **web**.
 
 **Returns:** <code>Promise&lt;boolean&gt;</code>
 
@@ -332,7 +332,7 @@ startEnabledNotifications(callback: (value: boolean) => void) => Promise<void>
 ```
 
 Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
-Not available on web (the callback will never be invoked).
+Not available on **web** (the callback will never be invoked).
 
 | Param          | Type                                     | Description                                          |
 | -------------- | ---------------------------------------- | ---------------------------------------------------- |
@@ -375,7 +375,7 @@ requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) =
 
 Start scanning for BLE devices to interact with according to the filters in the options. The callback will be invoked on each device that is found.
 Scanning will continue until `stopLEScan` is called. For an example, see [usage](#usage).
-**NOTE**: Use with care on web platform, the required API is still behind a flag in most browsers.
+**NOTE**: Use with care on **web** platform, the required API is still behind a flag in most browsers.
 
 | Param          | Type                                                                        |
 | -------------- | --------------------------------------------------------------------------- |
@@ -512,11 +512,11 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 
 #### BleDevice
 
-| Prop           | Type                  | Description                                                                                                                           |
-| -------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`** | <code>string</code>   | ID of the device, which will be needed for further calls. On Android this is the BLE MAC address. On iOS and web it is an identifier. |
-| **`name`**     | <code>string</code>   | Name of the device.                                                                                                                   |
-| **`uuids`**    | <code>string[]</code> |                                                                                                                                       |
+| Prop           | Type                  | Description                                                                                                                                       |
+| -------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code>   | ID of the device, which will be needed for further calls. On **Android** this is the BLE MAC address. On **iOS** and **web** it is an identifier. |
+| **`name`**     | <code>string</code>   | Name of the peripheral device.                                                                                                                    |
+| **`uuids`**    | <code>string[]</code> |                                                                                                                                                   |
 
 #### RequestBleDeviceOptions
 
@@ -525,21 +525,22 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`services`**         | <code>string[]</code>                         | Filter devices by service UUIDs. UUIDs have to be specified as 128 bit UUID strings in lowercase, e.g. ['0000180d-0000-1000-8000-00805f9b34fb'] There is a helper function to convert numbers to UUIDs. e.g. [numberToUUID(0x180f)]. (see [UUID format](#uuid-format)) |
 | **`name`**             | <code>string</code>                           | Filter devices by name                                                                                                                                                                                                                                                 |
 | **`namePrefix`**       | <code>string</code>                           | Filter devices by name prefix                                                                                                                                                                                                                                          |
-| **`optionalServices`** | <code>string[]</code>                         | For web, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                                            |
+| **`optionalServices`** | <code>string[]</code>                         | For **web**, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                                        |
 | **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                             |
 | **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                                       |
 
 #### ScanResult
 
-| Prop                   | Type                                                              | Description                                                               |
-| ---------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **`device`**           | <code><a href="#bledevice">BleDevice</a></code>                   | The device that was found in the scan                                     |
-| **`rssi`**             | <code>number</code>                                               | Received Signal Strength Indication                                       |
-| **`txPower`**          | <code>number</code>                                               | Transmit power in dBm. A value of 127 indicates that it is not available. |
-| **`manufacturerData`** | <code>{ [key: string]: <a href="#dataview">DataView</a>; }</code> | Manufacturer data, key is a company identifier and value is the data      |
-| **`serviceData`**      | <code>{ [key: string]: <a href="#dataview">DataView</a>; }</code> | Service data, key is a service UUID and value is the data                 |
-| **`uuids`**            | <code>string[]</code>                                             | Advertised services                                                       |
-| **`rawAdvertisement`** | <code><a href="#dataview">DataView</a></code>                     | Raw advertisement data (Android only)                                     |
+| Prop                   | Type                                                              | Description                                                                                                                                                                                                                                                                                           |
+| ---------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`device`**           | <code><a href="#bledevice">BleDevice</a></code>                   | The peripheral device that was found in the scan. **Android** and **web**: `device.name` is always identical to `localName`. **iOS**: `device.name` is identical to `localName` the first time a device is discovered, but after connecting `device.name` is the cached GAP name in subsequent scans. |
+| **`localName`**        | <code>string</code>                                               | The name of the peripheral device from the advertisement data.                                                                                                                                                                                                                                        |
+| **`rssi`**             | <code>number</code>                                               | Received Signal Strength Indication.                                                                                                                                                                                                                                                                  |
+| **`txPower`**          | <code>number</code>                                               | Transmit power in dBm. A value of 127 indicates that it is not available.                                                                                                                                                                                                                             |
+| **`manufacturerData`** | <code>{ [key: string]: <a href="#dataview">DataView</a>; }</code> | Manufacturer data, key is a company identifier and value is the data.                                                                                                                                                                                                                                 |
+| **`serviceData`**      | <code>{ [key: string]: <a href="#dataview">DataView</a>; }</code> | Service data, key is a service UUID and value is the data.                                                                                                                                                                                                                                            |
+| **`uuids`**            | <code>string[]</code>                                             | Advertised services.                                                                                                                                                                                                                                                                                  |
+| **`rawAdvertisement`** | <code><a href="#dataview">DataView</a></code>                     | Raw advertisement data (**Android** only).                                                                                                                                                                                                                                                            |
 
 #### DataView
 

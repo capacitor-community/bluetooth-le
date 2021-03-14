@@ -16,8 +16,8 @@ class Device: NSObject, CBPeripheralDelegate {
         self.peripheral.delegate = self
     }
 
-    func getName() -> String {
-        return self.peripheral.name ?? "Unknown"
+    func getName() -> String? {
+        return self.peripheral.name
     }
 
     func getId() -> String {

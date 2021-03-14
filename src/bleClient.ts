@@ -15,20 +15,20 @@ import { BluetoothLe } from './plugin';
 export interface BleClientInterface {
   /**
    * Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
-   * On Android it will ask for the location permission. On iOS it will ask for the Bluetooth permission.
+   * On **Android** it will ask for the location permission. On **iOS** it will ask for the Bluetooth permission.
    * For an example, see [usage](#usage).
    */
   initialize(): Promise<void>;
 
   /**
    * Reports whether BLE is enabled on this device.
-   * Always returns `true` on web.
+   * Always returns `true` on **web**.
    */
   getEnabled(): Promise<boolean>;
 
   /**
    * Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
-   * Not available on web (the callback will never be invoked).
+   * Not available on **web** (the callback will never be invoked).
    * @param callback Callback function to use when the BLE state changes.
    */
   startEnabledNotifications(callback: (value: boolean) => void): Promise<void>;
@@ -48,7 +48,7 @@ export interface BleClientInterface {
   /**
    * Start scanning for BLE devices to interact with according to the filters in the options. The callback will be invoked on each device that is found.
    * Scanning will continue until `stopLEScan` is called. For an example, see [usage](#usage).
-   * **NOTE**: Use with care on web platform, the required API is still behind a flag in most browsers.
+   * **NOTE**: Use with care on **web** platform, the required API is still behind a flag in most browsers.
    * @param options
    * @param callback
    */

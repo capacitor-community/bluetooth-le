@@ -58,10 +58,8 @@ public class BluetoothLe: CAPPlugin {
                         return
                     }
                     self.deviceMap[device.getId()] = device
-                    call.resolve([
-                        "deviceId": device.getId(),
-                        "name": device.getName()
-                    ])
+                    let bleDevice = self.getBleDevice(device)
+                    call.resolve(bleDevice)
                 } else {
                     call.reject(message)
                 }
@@ -277,18 +275,31 @@ public class BluetoothLe: CAPPlugin {
         return (serviceUUID, characteristicUUID)
     }
 
+    private func getBleDevice(_ device: Device) -> [String: Any] {
+        var bleDevice = [
+            "deviceId": device.getId()
+        ]
+        if device.getName() != nil {
+            bleDevice["name"] = device.getName()
+        }
+        return bleDevice
+    }
+
     private func getScanResult(_ device: Device, _ advertisementData: [String: Any], _ rssi: NSNumber) -> [String: Any] {
         var data = [
-            "device": [
-                "deviceId": device.getId(),
-                "name": device.getName()
-            ],
+            "device": self.getBleDevice(device),
             "rssi": rssi,
             "txPower": advertisementData[CBAdvertisementDataTxPowerLevelKey] ?? 127,
             "uuids": (advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []).map({(uuid) -> String in
                 return cbuuidToString(uuid)
             })
         ]
+
+        let localName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
+        if localName != nil {
+            data["localName"] = localName
+        }
+
         let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
         if manufacturerData != nil {
             data["manufacturerData"] = self.getManufacturerData(data: manufacturerData!)
