@@ -44,6 +44,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         case .resetting:
             self.emitState(enabled: false)
         case .unauthorized:
+            self.reject(initializeKey, "BLE permission denied")
             self.emitState(enabled: false)
         case .unsupported:
             self.reject(initializeKey, "BLE unsupported")
