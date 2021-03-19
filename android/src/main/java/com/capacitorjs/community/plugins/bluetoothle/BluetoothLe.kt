@@ -241,7 +241,6 @@ class BluetoothLe : Plugin() {
         device.disconnect { response ->
             run {
                 if (response.success) {
-                    device.close()
                     deviceMap.remove(device.getId())
                     call.resolve()
                 } else {
