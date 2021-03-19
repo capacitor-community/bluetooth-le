@@ -35,7 +35,7 @@ class Device: NSObject, CBPeripheralDelegate {
     func setOnConnected(_ callback: @escaping Callback) {
         let key = "connect"
         self.callbackMap[key] = callback
-        self.setTimeout(key, "Connection timeout", 7.5)
+        self.setTimeout(key, "Connection timeout", connectionTimeout)
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -200,7 +200,7 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    private func setTimeout(_ key: String, _ message: String, _ timeout: Double = 5) {
+    private func setTimeout(_ key: String, _ message: String, _ timeout: Double = defaultTimeout) {
         let workItem = DispatchWorkItem {
             self.reject(key, message)
         }

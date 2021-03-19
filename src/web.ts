@@ -15,12 +15,14 @@ import type {
   ScanResultInternal,
   WriteOptions,
 } from './definitions';
+import { runWithTimeout } from './timeout';
 
 export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private deviceMap = new Map<string, BluetoothDevice>();
   private discoverdDevices = new Map<string, boolean>();
   private scan: BluetoothLEScan | null = null;
   private requestBleDeviceOptions: RequestBleDeviceOptions | undefined;
+  private CONNECTION_TIMEOUT = 10000;
 
   async initialize(): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
@@ -108,7 +110,26 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     const device = await this.getDevice(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnected);
     device.addEventListener('gattserverdisconnected', this.onDisconnected);
-    await device.gatt?.connect();
+    const timeoutError = Symbol();
+    if (device.gatt === undefined) {
+      throw new Error('No gatt server available.');
+    }
+    try {
+      await runWithTimeout(
+        device.gatt.connect(),
+        this.CONNECTION_TIMEOUT,
+        timeoutError,
+      );
+    } catch (error) {
+      // cancel pending connect call, does not work yet in chromium because of a bug:
+      // https://bugs.chromium.org/p/chromium/issues/detail?id=684073
+      await device.gatt?.disconnect();
+      if (error === timeoutError) {
+        throw new Error('Connection timeout');
+      } else {
+        throw error;
+      }
+    }
   }
 
   private onDisconnected(event: Event) {
