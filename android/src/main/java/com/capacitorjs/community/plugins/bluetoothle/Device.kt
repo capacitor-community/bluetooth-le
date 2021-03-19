@@ -26,7 +26,7 @@ class Device(
         private const val STATE_CONNECTED = 2
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
         private const val DEFAULT_TIMEOUT: Long = 5000
-        private const val CONNECT_TIMEOUT: Long = 7500
+        private const val CONNECTION_TIMEOUT: Long = 10000
         private const val REQUEST_MTU = 512
     }
 
@@ -159,7 +159,7 @@ class Device(
         callbackMap["connect"] = callback
         bluetoothGatt = device.connectGatt(context, false, gattCallback)
         connectionState = STATE_CONNECTING
-        setTimeout("connect", "Connection timeout.", CONNECT_TIMEOUT)
+        setConnectionTimeout("connect", "Connection timeout.", bluetoothGatt)
     }
 
     fun isConnected(): Boolean {
@@ -291,6 +291,15 @@ class Device(
         val handler = Handler()
         timeoutMap[key] = handler
         handler.postDelayed({
+            reject(key, message)
+        }, timeout)
+    }
+
+    private fun setConnectionTimeout(key: String, message: String, gatt: BluetoothGatt?, timeout: Long = CONNECTION_TIMEOUT) {
+        val handler = Handler()
+        timeoutMap[key] = handler
+        handler.postDelayed({
+            gatt?.disconnect()
             reject(key, message)
         }, timeout)
     }
