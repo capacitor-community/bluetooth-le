@@ -10,6 +10,7 @@ import type {
   ScanResult,
   ScanResultInternal,
 } from './definitions';
+import { getQueue } from './queue';
 
 const { BluetoothLe } = Plugins;
 
@@ -147,83 +148,112 @@ export interface BleClientInterface {
 }
 
 class BleClientClass implements BleClientInterface {
-  scanListener: PluginListenerHandle | null = null;
-  eventListeners = new Map<string, PluginListenerHandle>();
+  private scanListener: PluginListenerHandle | null = null;
+  private eventListeners = new Map<string, PluginListenerHandle>();
+  private queue = getQueue(true);
+
+  enableQueue() {
+    this.queue = getQueue(true);
+  }
+
+  disableQueue() {
+    this.queue = getQueue(false);
+  }
 
   async initialize(): Promise<void> {
-    await BluetoothLe.initialize();
+    await this.queue(async () => {
+      await BluetoothLe.initialize();
+    });
   }
 
   async getEnabled(): Promise<boolean> {
-    const result = await BluetoothLe.getEnabled();
-    return result.value;
+    const enabled = await this.queue(async () => {
+      const result = await BluetoothLe.getEnabled();
+      return result.value;
+    });
+    return enabled;
   }
 
   async startEnabledNotifications(
     callback: (value: boolean) => void,
   ): Promise<void> {
-    const key = `onEnabledChanged`;
-    this.eventListeners.get(key)?.remove();
-    const listener = BluetoothLe.addListener(key, result => {
-      callback(result.value);
+    await this.queue(async () => {
+      const key = `onEnabledChanged`;
+      await this.eventListeners.get(key)?.remove();
+      const listener = await BluetoothLe.addListener(key, result => {
+        callback(result.value);
+      });
+      this.eventListeners.set(key, listener);
+      await BluetoothLe.startEnabledNotifications();
     });
-    this.eventListeners.set(key, listener);
-    await BluetoothLe.startEnabledNotifications();
   }
 
   async stopEnabledNotifications(): Promise<void> {
-    const key = `onEnabledChanged`;
-    this.eventListeners.get(key)?.remove();
-    await BluetoothLe.stopEnabledNotifications();
+    await this.queue(async () => {
+      const key = `onEnabledChanged`;
+      await this.eventListeners.get(key)?.remove();
+      await BluetoothLe.stopEnabledNotifications();
+    });
   }
 
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
-    const device = await BluetoothLe.requestDevice(options);
-    return device;
+    const result = await this.queue(async () => {
+      const device = await BluetoothLe.requestDevice(options);
+      return device;
+    });
+    return result;
   }
 
   async requestLEScan(
     options: RequestBleDeviceOptions,
     callback: (result: ScanResult) => void,
   ): Promise<void> {
-    this.scanListener?.remove();
-    this.scanListener = BluetoothLe.addListener(
-      'onScanResult',
-      (result: ScanResultInternal) => {
-        result.manufacturerData = this.convertObject(result.manufacturerData);
-        result.serviceData = this.convertObject(result.serviceData);
-        result.rawAdvertisement = result.rawAdvertisement
-          ? this.convertValue(result.rawAdvertisement)
-          : undefined;
-        callback(result as ScanResult);
-      },
-    );
-    await BluetoothLe.requestLEScan(options);
+    await this.queue(async () => {
+      await this.scanListener?.remove();
+      this.scanListener = await BluetoothLe.addListener(
+        'onScanResult',
+        (result: ScanResultInternal) => {
+          result.manufacturerData = this.convertObject(result.manufacturerData);
+          result.serviceData = this.convertObject(result.serviceData);
+          result.rawAdvertisement = result.rawAdvertisement
+            ? this.convertValue(result.rawAdvertisement)
+            : undefined;
+          callback(result as ScanResult);
+        },
+      );
+      await BluetoothLe.requestLEScan(options);
+    });
   }
 
   async stopLEScan(): Promise<void> {
-    this.scanListener?.remove();
-    this.scanListener = null;
-    await BluetoothLe.stopLEScan();
+    await this.queue(async () => {
+      await this.scanListener?.remove();
+      this.scanListener = null;
+      await BluetoothLe.stopLEScan();
+    });
   }
 
   async connect(
     deviceId: string,
     onDisconnect?: (deviceId: string) => void,
   ): Promise<void> {
-    if (onDisconnect) {
-      const key = `disconnected|${deviceId}`;
-      this.eventListeners.get(key)?.remove();
-      const listener = BluetoothLe.addListener(key, () => {
-        onDisconnect(deviceId);
-      });
-      this.eventListeners.set(key, listener);
-    }
-    await BluetoothLe.connect({ deviceId });
+    await this.queue(async () => {
+      if (onDisconnect) {
+        const key = `disconnected|${deviceId}`;
+        await this.eventListeners.get(key)?.remove();
+        const listener = await BluetoothLe.addListener(key, () => {
+          onDisconnect(deviceId);
+        });
+        this.eventListeners.set(key, listener);
+      }
+      await BluetoothLe.connect({ deviceId });
+    });
   }
 
   async disconnect(deviceId: string): Promise<void> {
-    await BluetoothLe.disconnect({ deviceId });
+    await this.queue(async () => {
+      await BluetoothLe.disconnect({ deviceId });
+    });
   }
 
   async read(
@@ -231,12 +261,15 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
   ): Promise<DataView> {
-    const result = await BluetoothLe.read({
-      deviceId,
-      service,
-      characteristic,
+    const value = await this.queue(async () => {
+      const result = await BluetoothLe.read({
+        deviceId,
+        service,
+        characteristic,
+      });
+      return this.convertValue(result.value);
     });
-    return this.convertValue(result.value);
+    return value;
   }
 
   async write(
@@ -245,16 +278,18 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     value: DataView,
   ): Promise<void> {
-    let writeValue: DataView | string = value;
-    if (Capacitor.getPlatform() !== 'web') {
-      // on native we can only write strings
-      writeValue = dataViewToHexString(value);
-    }
-    await BluetoothLe.write({
-      deviceId,
-      service,
-      characteristic,
-      value: writeValue,
+    return this.queue(async () => {
+      let writeValue: DataView | string = value;
+      if (Capacitor.getPlatform() !== 'web') {
+        // on native we can only write strings
+        writeValue = dataViewToHexString(value);
+      }
+      await BluetoothLe.write({
+        deviceId,
+        service,
+        characteristic,
+        value: writeValue,
+      });
     });
   }
 
@@ -264,16 +299,18 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     value: DataView,
   ): Promise<void> {
-    let writeValue: DataView | string = value;
-    if (Capacitor.getPlatform() !== 'web') {
-      // on native we can only write strings
-      writeValue = dataViewToHexString(value);
-    }
-    await BluetoothLe.writeWithoutResponse({
-      deviceId,
-      service,
-      characteristic,
-      value: writeValue,
+    await this.queue(async () => {
+      let writeValue: DataView | string = value;
+      if (Capacitor.getPlatform() !== 'web') {
+        // on native we can only write strings
+        writeValue = dataViewToHexString(value);
+      }
+      await BluetoothLe.writeWithoutResponse({
+        deviceId,
+        service,
+        characteristic,
+        value: writeValue,
+      });
     });
   }
 
@@ -283,16 +320,21 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     callback: (value: DataView) => void,
   ): Promise<void> {
-    const key = `notification|${deviceId}|${service}|${characteristic}`;
-    this.eventListeners.get(key)?.remove();
-    const listener = BluetoothLe.addListener(key, (event: ReadResult) => {
-      callback(this.convertValue(event?.value));
-    });
-    this.eventListeners.set(key, listener);
-    await BluetoothLe.startNotifications({
-      deviceId,
-      service,
-      characteristic,
+    await this.queue(async () => {
+      const key = `notification|${deviceId}|${service}|${characteristic}`;
+      await this.eventListeners.get(key)?.remove();
+      const listener = await BluetoothLe.addListener(
+        key,
+        (event: ReadResult) => {
+          callback(this.convertValue(event?.value));
+        },
+      );
+      this.eventListeners.set(key, listener);
+      await BluetoothLe.startNotifications({
+        deviceId,
+        service,
+        characteristic,
+      });
     });
   }
 
@@ -301,13 +343,15 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
   ): Promise<void> {
-    const key = `notification|${service}|${characteristic}`;
-    this.eventListeners.get(key)?.remove();
-    this.eventListeners.delete(key);
-    await BluetoothLe.stopNotifications({
-      deviceId,
-      service,
-      characteristic,
+    await this.queue(async () => {
+      const key = `notification|${service}|${characteristic}`;
+      await this.eventListeners.get(key)?.remove();
+      this.eventListeners.delete(key);
+      await BluetoothLe.stopNotifications({
+        deviceId,
+        service,
+        characteristic,
+      });
     });
   }
 
