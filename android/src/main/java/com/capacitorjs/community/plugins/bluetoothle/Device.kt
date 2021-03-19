@@ -35,6 +35,7 @@ class Device(
     private var bluetoothGatt: BluetoothGatt? = null
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
     private var timeoutMap = HashMap<String, Handler>()
+    private var setNotificationsKey = ""
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
@@ -124,6 +125,21 @@ class Device(
                 val value = bytesToString(data)
                 callbackMap[notifyKey]?.invoke(CallbackResponse(true, value))
             }
+        }
+
+        override fun onDescriptorWrite(
+                gatt: BluetoothGatt,
+                descriptor: BluetoothGattDescriptor,
+                status: Int
+        ) {
+            super.onDescriptorWrite(gatt, descriptor, status)
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                resolve(setNotificationsKey, "Setting notification succeeded.")
+            } else {
+                reject(setNotificationsKey, "Setting notification failed.")
+            }
+            setNotificationsKey = ""
+
         }
     }
 
@@ -219,6 +235,7 @@ class Device(
             callback: (CallbackResponse) -> Unit,
     ) {
         val key = "setNotifications|$serviceUUID|$characteristicUUID"
+        setNotificationsKey = key
         val notifyKey = "notification|$serviceUUID|$characteristicUUID"
         callbackMap[key] = callback
         if (notifyCallback != null) {
@@ -240,11 +257,7 @@ class Device(
             }
             val resultDesc = bluetoothGatt?.writeDescriptor(descriptor)
             if (result == true && resultDesc == true) {
-                if (enable) {
-                    resolve(key, "Notification enabled.")
-                } else {
-                    resolve(key, "Notification disabled.")
-                }
+                // wait for onDescriptorWrite
             } else {
                 reject(key, "Setting notification failed.")
             }
