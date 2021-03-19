@@ -54,6 +54,8 @@ class Device(
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectionState = STATE_DISCONNECTED
                 onDisconnect()
+                bluetoothGatt?.close()
+                bluetoothGatt = null
                 Log.d(TAG, "Disconnected from GATT server.")
                 resolve("disconnect", "Disconnected.")
             }
@@ -175,15 +177,10 @@ class Device(
     fun disconnect(callback: (CallbackResponse) -> Unit) {
         callbackMap["disconnect"] = callback
         if (bluetoothGatt == null) {
-            reject("disconnect", "Not connected to any device.")
+            reject("disconnect", "Not connected to device.")
         }
         bluetoothGatt?.disconnect()
         setTimeout("disconnect", "Disconnection timeout.")
-    }
-
-    fun close() {
-        bluetoothGatt?.close()
-        bluetoothGatt = null
     }
 
     fun read(serviceUUID: UUID, characteristicUUID: UUID, callback: (CallbackResponse) -> Unit) {
