@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-2](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0-1...v1.0.0-2) (2021-03-20)
+
+
+### Features
+
+* add queue to BleClient ([b763247](https://github.com/capacitor-community/bluetooth-le/commit/b7632477fe9ebd359a65dc3cbb1209f652b8119e))
+
+
+### Bug Fixes
+
+* do not connect after connection timeout ([#80](https://github.com/capacitor-community/bluetooth-le/issues/80)) ([5b9e021](https://github.com/capacitor-community/bluetooth-le/commit/5b9e021746cc23aab0e8ae61d4a32b8ec22bd21d))
+* **android:** close bluetoothGatt on every disconnection ([a0aaeef](https://github.com/capacitor-community/bluetooth-le/commit/a0aaeef072a8e85c65fe43e2e6186f2f693e54a5))
+* **android:** wait for onDescriptorWrite when setting notifications ([06d05bc](https://github.com/capacitor-community/bluetooth-le/commit/06d05bc0a9862591ee201b4560c7e5c039f6d9f4))
+
 ## [0.5.0](https://github.com/capacitor-community/bluetooth-le/compare/v0.4.0...v0.5.0) (2021-03-20)
 
 
