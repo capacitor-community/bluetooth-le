@@ -32,7 +32,8 @@
   "author": "pwespi",
   "license": "MIT",
   "dependencies": {
-    "@types/web-bluetooth": "^0.0.9"
+    "@types/web-bluetooth": "^0.0.9",
+    "throat": "^6.0.1"
   },
   "devDependencies": {
     "@capacitor/android": "^3.0.0-rc.0",
@@ -51,7 +52,6 @@
     "rollup": "^2.42.1",
     "standard-version": "^9.1.1",
     "swiftlint": "^1.0.1",
-    "throat": "^6.0.1",
     "ts-jest": "^26.5.4",
     "typescript": "~4.2.3"
   },
