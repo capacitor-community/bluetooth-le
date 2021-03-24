@@ -3,6 +3,7 @@ package com.capacitorjs.community.plugins.bluetoothle
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothDevice.TRANSPORT_AUTO
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanFilter
@@ -206,6 +207,15 @@ class BluetoothLe : Plugin() {
             return
         }
 
+        var autoConnect = call.getBoolean("autoConnect", null)
+        if(autoConnect == null) {
+            autoConnect = false;
+        }
+        var transport = call.getInt("transport", null)
+        if(transport == null) {
+            transport = TRANSPORT_AUTO;
+        }
+
         val device: Device
         try {
             device = Device(
@@ -220,7 +230,11 @@ class BluetoothLe : Plugin() {
             return
         }
         deviceMap[deviceId] = device
-        device.connect { response ->
+
+        device.connect (
+                autoConnect,
+                transport
+        ) { response ->
             run {
                 if (response.success) {
                     call.resolve()

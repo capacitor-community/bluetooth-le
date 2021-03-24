@@ -75,8 +75,39 @@ export interface BleDevice {
   uuids?: string[];
 }
 
+export enum TransportMode {
+  /**
+   * Perform Bluetooth LE to not preference of physical transport for GATT connections to remote dual-mode devices
+   * https://developer.android.com/reference/android/bluetooth/BluetoothDevice#TRANSPORT_AUTO
+   */
+   TRANSPORT_AUTO = 0,
+  /**
+  * Perform Bluetooth LE to prefer BR/EDR transport for GATT connections to remote dual-mode devices
+  * https://developer.android.com/reference/android/bluetooth/BluetoothDevice#TRANSPORT_BREDR
+  */
+   TRANSPORT_BREDR = 1,
+  /**
+  * Perform Bluetooth LE to prefer LE transport for GATT connections to remote dual-mode devices.
+  * https://developer.android.com/reference/android/bluetooth/BluetoothDevice#TRANSPORT_LE
+  */
+   TRANSPORT_LE = 2,
+}
+
 export interface ConnectOptions {
-  deviceId: string;
+  /**
+   * The ID of the device to use (obtained from requestDevice or requestLEScan).
+   */  
+   deviceId: string;
+   /**
+    * Whether to directly connect to the remote device (false) or to automatically connect as 
+    * soon as the remote device becomes available (true).
+    */
+   autoConnect: boolean;
+   /**
+    * Preferred transport for GATT connections to remote dual-mode devices TRANSPORT_AUTO or 
+    * BluetoothDevice#TRANSPORT_BREDR or TRANSPORT_LE.
+    */
+   transport: TransportMode;
 }
 
 export interface ReadOptions {

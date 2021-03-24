@@ -9,6 +9,7 @@ import type {
   RequestBleDeviceOptions,
   ScanResult,
   ScanResultInternal,
+  ConnectOptions
 } from './definitions';
 import { getQueue } from './queue';
 
@@ -66,11 +67,11 @@ export interface BleClientInterface {
 
   /**
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
-   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param options Connection options, see [ConnectOptions](#ConnectOptions)
    * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
    */
   connect(
-    deviceId: string,
+    options: ConnectOptions,
     onDisconnect?: (deviceId: string) => void,
   ): Promise<void>;
 
