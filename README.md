@@ -397,15 +397,15 @@ Stop scanning for BLE devices. For an example, see [usage](#usage).
 ### connect(...)
 
 ```typescript
-connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined) => Promise<void>
+connect(options: ConnectOptions, onDisconnect?: ((deviceId: string) => void) | undefined) => Promise<void>
 ```
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param              | Type                                         | Description                                                                                                    |
-| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**     | <code>string</code>                          | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
-| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code> | Optional disconnect callback function that will be used when the device disconnects                            |
+| Param              | Type                                                      | Description                                                                         |
+| ------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **`options`**      | <code><a href="#connectoptions">ConnectOptions</a></code> | Connection options                                                                  |
+| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code>              | Optional disconnect callback function that will be used when the device disconnects |
 
 ---
 
@@ -584,6 +584,14 @@ buffer as needed.
 | --------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **slice** | (begin: number, end?: number \| undefined) =&gt; <a href="#arraybuffer">ArrayBuffer</a> | Returns a section of an <a href="#arraybuffer">ArrayBuffer</a>. |
 
+#### ConnectOptions
+
+| Prop              | Type                                                    | Description                                                                                                                                 |
+| ----------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**    | <code>string</code>                                     | The ID of the device to use (obtained from requestDevice or requestLEScan).                                                                 |
+| **`autoConnect`** | <code>boolean</code>                                    | Whether to directly connect to the remote device (false) or to automatically connect as soon as the remote device becomes available (true). |
+| **`transport`**   | <code><a href="#transportmode">TransportMode</a></code> | Preferred transport for GATT connections to remote dual-mode devices TRANSPORT_AUTO or BluetoothDevice#TRANSPORT_BREDR or TRANSPORT_LE.     |
+
 ### Enums
 
 #### ScanMode
@@ -593,6 +601,14 @@ buffer as needed.
 | **`SCAN_MODE_LOW_POWER`**   | <code>0</code> | Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER                                                        |
 | **`SCAN_MODE_BALANCED`**    | <code>1</code> | Perform Bluetooth LE scan in balanced power mode. (default) Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_BALANCED |
 | **`SCAN_MODE_LOW_LATENCY`** | <code>2</code> | Scan using highest duty cycle. It's recommended to only use this mode when the application is running in the foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY                                                  |
+
+#### TransportMode
+
+| Members               | Value          | Description                                                                                                                                                                                            |
+| --------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`TRANSPORT_AUTO`**  | <code>0</code> | Perform Bluetooth LE to not preference of physical transport for GATT connections to remote dual-mode devices https://developer.android.com/reference/android/bluetooth/BluetoothDevice#TRANSPORT_AUTO |
+| **`TRANSPORT_BREDR`** | <code>1</code> | Perform Bluetooth LE to prefer BR/EDR transport for GATT connections to remote dual-mode devices https://developer.android.com/reference/android/bluetooth/BluetoothDevice#TRANSPORT_BREDR             |
+| **`TRANSPORT_LE`**    | <code>2</code> | Perform Bluetooth LE to prefer LE transport for GATT connections to remote dual-mode devices. https://developer.android.com/reference/android/bluetooth/BluetoothDevice#TRANSPORT_LE                   |
 
 </docgen-api>
 

@@ -102,12 +102,12 @@ export interface ConnectOptions {
     * Whether to directly connect to the remote device (false) or to automatically connect as 
     * soon as the remote device becomes available (true).
     */
-   autoConnect: boolean;
+   autoConnect?: boolean;
    /**
     * Preferred transport for GATT connections to remote dual-mode devices TRANSPORT_AUTO or 
     * BluetoothDevice#TRANSPORT_BREDR or TRANSPORT_LE.
     */
-   transport: TransportMode;
+   transport?: TransportMode;
 }
 
 export interface ReadOptions {
