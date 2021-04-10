@@ -214,6 +214,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     func disconnect(_ device: Device, _ callback: @escaping Callback) {
         let key = "disconnect|\(device.getId())"
         self.callbackMap[key] = callback
+        if device.isConnected() == false {
+            self.resolve(key, "Disconnected.")
+            return
+        }
         print("Disconnecting from peripheral", device.getPeripheral())
         self.centralManager.cancelPeripheralConnection(device.getPeripheral())
         self.setTimeout(key, "Disconnection timeout.")

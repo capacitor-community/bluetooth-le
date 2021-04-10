@@ -137,7 +137,7 @@ public class BluetoothLe: CAPPlugin {
 
     @objc func disconnect(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
+        guard let device = self.getDevice(call, checkConnection: false) else { return }
         self.deviceManager?.disconnect(device, {(success, message) -> Void in
             if success {
                 call.resolve()
