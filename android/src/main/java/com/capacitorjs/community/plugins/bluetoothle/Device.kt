@@ -159,10 +159,11 @@ class Device(
      * - request MTU
      */
     fun connect(callback: (CallbackResponse) -> Unit) {
-        callbackMap["connect"] = callback
+        val key = "connect"
+        callbackMap[key] = callback
         bluetoothGatt = device.connectGatt(context, false, gattCallback)
         connectionState = STATE_CONNECTING
-        setConnectionTimeout("connect", "Connection timeout.", bluetoothGatt)
+        setConnectionTimeout(key, "Connection timeout.", bluetoothGatt)
     }
 
     fun isConnected(): Boolean {
@@ -234,12 +235,14 @@ class Device(
     }
 
     fun disconnect(callback: (CallbackResponse) -> Unit) {
-        callbackMap["disconnect"] = callback
+        val key = "disconnect"
+        callbackMap[key] = callback
         if (bluetoothGatt == null) {
-            reject("disconnect", "Not connected to device.")
+            resolve(key, "Disconnected.")
+            return
         }
         bluetoothGatt?.disconnect()
-        setTimeout("disconnect", "Disconnection timeout.")
+        setTimeout(key, "Disconnection timeout.")
     }
 
     fun read(serviceUUID: UUID, characteristicUUID: UUID, callback: (CallbackResponse) -> Unit) {
@@ -247,13 +250,14 @@ class Device(
         callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
         val characteristic = service?.getCharacteristic(characteristicUUID)
-        if (characteristic != null) {
-            val result = bluetoothGatt?.readCharacteristic(characteristic)
-            if (result != true) {
-                reject(key, "Reading characteristic failed.")
-            }
-        } else {
+        if (characteristic == null) {
             reject(key, "Characteristic not found.")
+            return
+        }
+        val result = bluetoothGatt?.readCharacteristic(characteristic)
+        if (result != true) {
+            reject(key, "Reading characteristic failed.")
+            return
         }
         setTimeout(key, "Read timeout.")
     }
@@ -269,16 +273,17 @@ class Device(
         callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
         val characteristic = service?.getCharacteristic(characteristicUUID)
-        if (characteristic != null) {
-            val bytes = stringToBytes(value)
-            characteristic.value = bytes
-            characteristic.writeType = writeType
-            val result = bluetoothGatt?.writeCharacteristic(characteristic)
-            if (result != true) {
-                reject(key, "Writing characteristic failed.")
-            }
-        } else {
+        if (characteristic == null) {
             reject(key, "Characteristic not found.")
+            return
+        }
+        val bytes = stringToBytes(value)
+        characteristic.value = bytes
+        characteristic.writeType = writeType
+        val result = bluetoothGatt?.writeCharacteristic(characteristic)
+        if (result != true) {
+            reject(key, "Writing characteristic failed.")
+            return
         }
         setTimeout(key, "Write timeout.")
     }
