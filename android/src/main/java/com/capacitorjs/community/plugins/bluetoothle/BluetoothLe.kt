@@ -72,13 +72,12 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun startEnabledNotifications(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
-        createStateReceiver()
 
         try {
-            val intentFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            context.registerReceiver(stateReceiver, intentFilter);
+            createStateReceiver()
         } catch (e: Error) {
-            call.reject("Error")
+            Log.e(TAG, "Error while registering enabled state receiver: ${e.localizedMessage}")
+            call.reject("startEnabledNotifications failed.")
             return
         }
         call.resolve()
@@ -99,6 +98,8 @@ class BluetoothLe : Plugin() {
                     }
                 }
             }
+            val intentFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+            context.registerReceiver(stateReceiver, intentFilter)
         }
     }
 
@@ -199,27 +200,7 @@ class BluetoothLe : Plugin() {
 
     @PluginMethod
     fun connect(call: PluginCall) {
-        assertBluetoothAdapter(call) ?: return
-        val deviceId = call.getString("deviceId", null)
-        if (deviceId == null) {
-            call.reject("deviceId required.")
-            return
-        }
-
-        val device: Device
-        try {
-            device = Device(
-                    activity.applicationContext,
-                    bluetoothAdapter!!,
-                    deviceId
-            ) { ->
-                onDisconnect(deviceId)
-            }
-        } catch (e: IllegalArgumentException) {
-            call.reject("Invalid deviceId")
-            return
-        }
-        deviceMap[deviceId] = device
+        val device = getOrCreateDevice(call) ?: return
         device.connect { response ->
             run {
                 if (response.success) {
@@ -233,6 +214,29 @@ class BluetoothLe : Plugin() {
 
     private fun onDisconnect(deviceId: String) {
         notifyListeners("disconnected|${deviceId}", null)
+    }
+
+    @PluginMethod
+    fun createBond(call: PluginCall) {
+        val device = getOrCreateDevice(call) ?: return
+        device.createBond { response ->
+            run {
+                if (response.success) {
+                    call.resolve()
+                } else {
+                    call.reject(response.value)
+                }
+            }
+        }
+    }
+
+    @PluginMethod
+    fun isBonded(call: PluginCall) {
+        val device = getOrCreateDevice(call) ?: return
+        val isBonded = device.isBonded()
+        val result = JSObject()
+        result.put("value", isBonded)
+        call.resolve(result)
     }
 
     @PluginMethod
@@ -479,14 +483,41 @@ class BluetoothLe : Plugin() {
         )
     }
 
-
-    private fun getDevice(call: PluginCall): Device? {
-        assertBluetoothAdapter(call) ?: return null
+    private fun getDeviceId(call: PluginCall): String? {
         val deviceId = call.getString("deviceId", null)
         if (deviceId == null) {
             call.reject("deviceId required.")
             return null
         }
+        return deviceId
+    }
+
+    private fun getOrCreateDevice(call: PluginCall): Device? {
+        assertBluetoothAdapter(call) ?: return null
+        val deviceId = getDeviceId(call) ?: return null
+        val device = deviceMap[deviceId]
+        if (device != null) {
+            return device
+        }
+        try {
+            val newDevice = Device(
+                    activity.applicationContext,
+                    bluetoothAdapter!!,
+                    deviceId
+            ) { ->
+                onDisconnect(deviceId)
+            }
+            deviceMap[deviceId] = newDevice
+            return newDevice
+        } catch (e: IllegalArgumentException) {
+            call.reject("Invalid deviceId")
+            return null
+        }
+    }
+
+    private fun getDevice(call: PluginCall): Device? {
+        assertBluetoothAdapter(call) ?: return null
+        val deviceId = getDeviceId(call) ?: return null
         val device = deviceMap[deviceId]
         if (device == null || !device.isConnected()) {
             call.reject("Not connected to device.")
@@ -494,7 +525,6 @@ class BluetoothLe : Plugin() {
         }
         return device
     }
-
 
     private fun getCharacteristic(call: PluginCall): Pair<UUID, UUID>? {
         val serviceString = call.getString("service", null)

@@ -75,7 +75,7 @@ export interface BleDevice {
   uuids?: string[];
 }
 
-export interface ConnectOptions {
+export interface DeviceIdOptions {
   deviceId: string;
 }
 
@@ -96,6 +96,10 @@ export interface WriteOptions {
    * web: DataView
    */
   value: Data;
+}
+
+export interface BooleanResult {
+  value: boolean;
 }
 
 export interface ReadResult {
@@ -156,7 +160,7 @@ export interface ScanResult {
 
 export interface BluetoothLePlugin {
   initialize(): Promise<void>;
-  getEnabled(): Promise<{ value: boolean }>;
+  getEnabled(): Promise<BooleanResult>;
   startEnabledNotifications(): Promise<void>;
   stopEnabledNotifications(): Promise<void>;
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
@@ -164,7 +168,7 @@ export interface BluetoothLePlugin {
   stopLEScan(): Promise<void>;
   addListener(
     eventName: 'onEnabledChanged',
-    listenerFunc: (result: { value: boolean }) => void,
+    listenerFunc: (result: BooleanResult) => void,
   ): PluginListenerHandle;
   addListener(
     eventName: string,
@@ -174,8 +178,10 @@ export interface BluetoothLePlugin {
     eventName: 'onScanResult',
     listenerFunc: (result: ScanResultInternal) => void,
   ): PluginListenerHandle;
-  connect(options: ConnectOptions): Promise<void>;
-  disconnect(options: ConnectOptions): Promise<void>;
+  connect(options: DeviceIdOptions): Promise<void>;
+  createBond(options: DeviceIdOptions): Promise<void>;
+  isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
+  disconnect(options: DeviceIdOptions): Promise<void>;
   read(options: ReadOptions): Promise<ReadResult>;
   write(options: WriteOptions): Promise<void>;
   writeWithoutResponse(options: WriteOptions): Promise<void>;
