@@ -8,7 +8,8 @@ import {
 import type {
   BleDevice,
   BluetoothLePlugin,
-  ConnectOptions,
+  BooleanResult,
+  DeviceIdOptions,
   ReadOptions,
   ReadResult,
   RequestBleDeviceOptions,
@@ -33,7 +34,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
-  async getEnabled(): Promise<{ value: true }> {
+  async getEnabled(): Promise<BooleanResult> {
     // not available on web
     return { value: true };
   }
@@ -106,7 +107,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     this.scan = null;
   }
 
-  async connect(options: ConnectOptions): Promise<void> {
+  async connect(options: DeviceIdOptions): Promise<void> {
     const device = await this.getDevice(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnected);
     device.addEventListener('gattserverdisconnected', this.onDisconnected);
@@ -139,7 +140,15 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     BluetoothLe.notifyListeners(key, null);
   }
 
-  async disconnect(options: ConnectOptions): Promise<void> {
+  async createBond(): Promise<void> {
+    throw new Error('Unavailable');
+  }
+
+  async isBonded(): Promise<BooleanResult> {
+    throw new Error('Unavailable');
+  }
+
+  async disconnect(options: DeviceIdOptions): Promise<void> {
     this.getDevice(options.deviceId).gatt?.disconnect();
   }
 

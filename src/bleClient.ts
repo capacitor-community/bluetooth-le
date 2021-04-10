@@ -74,6 +74,20 @@ export interface BleClientInterface {
   ): Promise<void>;
 
   /**
+   * Create a bond with a peripheral BLE device.
+   * Only available on Android.
+   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   */
+  createBond(deviceId: string): Promise<void>;
+
+  /**
+   * Report whether a peripheral BLE device is bonded.
+   * Only available on Android.
+   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   */
+  isBonded(deviceId: string): Promise<boolean>;
+
+  /**
    * Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
@@ -247,6 +261,20 @@ class BleClientClass implements BleClientInterface {
       }
       await BluetoothLe.connect({ deviceId });
     });
+  }
+
+  async createBond(deviceId: string): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.createBond({ deviceId });
+    });
+  }
+
+  async isBonded(deviceId: string): Promise<boolean> {
+    const isBonded = await this.queue(async () => {
+      const result = await BluetoothLe.isBonded({ deviceId });
+      return result.value;
+    });
+    return isBonded;
   }
 
   async disconnect(deviceId: string): Promise<void> {

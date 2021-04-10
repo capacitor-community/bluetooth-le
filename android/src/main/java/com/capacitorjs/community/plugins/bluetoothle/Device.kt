@@ -1,8 +1,10 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
 import android.bluetooth.*
-import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Handler
 import android.util.Log
 import java.util.*
@@ -36,6 +38,7 @@ class Device(
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
     private var timeoutMap = HashMap<String, Handler>()
     private var setNotificationsKey = ""
+    private var bondStateReceiver: BroadcastReceiver? = null
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
@@ -172,6 +175,62 @@ class Device(
         if (result != true) {
             reject("connect", "Starting requestMtu failed.")
         }
+    }
+
+    fun createBond(callback: (CallbackResponse) -> Unit) {
+        val key = "createBond"
+        callbackMap[key] = callback
+        try {
+            createBondStateReceiver()
+        } catch (e: Error) {
+            Log.e(TAG, "Error while registering bondStateReceiver: ${e.localizedMessage}")
+            reject(key, "Creating bond failed.")
+            return
+        }
+        val result = device.createBond()
+        if (!result) {
+            reject(key, "Creating bond failed.")
+            return
+        }
+        // if already bonded, resolve immediately
+        if (isBonded()) {
+            resolve(key, "Creating bond succeeded.")
+            return
+        }
+        // otherwise, wait for bond state change
+    }
+
+    private fun createBondStateReceiver() {
+        if (bondStateReceiver == null) {
+            bondStateReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    val action = intent.action
+                    if (action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
+                        val key = "createBond"
+                        val updatedDevice = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                        // BroadcastReceiver receives bond state updates from all devices, need to filter by device
+                        if (device.address == updatedDevice?.address) {
+                            val bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
+                            val previousBondState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
+                            Log.d(TAG, "Bond state transition $previousBondState -> $bondState")
+                            if (bondState == BluetoothDevice.BOND_BONDED) {
+                                resolve(key, "Creating bond succeeded.")
+                            } else if (previousBondState == BluetoothDevice.BOND_BONDING && bondState == BluetoothDevice.BOND_NONE) {
+                                reject(key, "Creating bond failed.")
+                            } else if (bondState == -1) {
+                                reject(key, "Creating bond failed.")
+                            }
+                        }
+                    }
+                }
+            }
+            val intentFilter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+            context.registerReceiver(bondStateReceiver, intentFilter)
+        }
+    }
+
+    fun isBonded(): Boolean {
+        return device.bondState == BluetoothDevice.BOND_BONDED
     }
 
     fun disconnect(callback: (CallbackResponse) -> Unit) {

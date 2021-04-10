@@ -127,6 +127,14 @@ public class BluetoothLe: CAPPlugin {
 
     }
 
+    @objc func createBond(_ call: CAPPluginCall) {
+        call.reject("Unavailable")
+    }
+
+    @objc func isBonded(_ call: CAPPluginCall) {
+        call.reject("Unavailable")
+    }
+
     @objc func disconnect(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }

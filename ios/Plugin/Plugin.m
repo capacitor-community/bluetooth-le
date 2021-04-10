@@ -12,6 +12,8 @@ CAP_PLUGIN(BluetoothLe, "BluetoothLe",
            CAP_PLUGIN_METHOD(requestLEScan, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(stopLEScan, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(connect, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(createBond, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(isBonded, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(disconnect, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(read, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(write, CAPPluginReturnPromise);
