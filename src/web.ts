@@ -147,11 +147,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     BluetoothLe.notifyListeners(key, null);
   }
 
-  async createBond(_options: DeviceIdOptions): Promise<void> {
+  async createBond(): Promise<void> {
     throw new Error('Unavailable');
   }
 
-  async isBonded(_options: DeviceIdOptions): Promise<BooleanResult> {
+  async isBonded(): Promise<BooleanResult> {
     throw new Error('Unavailable');
   }
 
