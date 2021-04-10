@@ -299,27 +299,39 @@ class Device(
         }
         val service = bluetoothGatt?.getService(serviceUUID)
         val characteristic = service?.getCharacteristic(characteristicUUID)
-        if (characteristic != null) {
-            val result = bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
-            val descriptor = characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG))
-            if (enable) {
-                if ((characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-                    descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                } else if ((characteristic.properties and BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
-                    descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-                }
-            } else {
-                descriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-            }
-            val resultDesc = bluetoothGatt?.writeDescriptor(descriptor)
-            if (result == true && resultDesc == true) {
-                // wait for onDescriptorWrite
-            } else {
-                reject(key, "Setting notification failed.")
+        if (characteristic == null) {
+            reject(key, "Characteristic not found.")
+            return
+        }
+
+        val result = bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
+        if (result != true) {
+            reject(key, "Setting notification failed.")
+            return
+        }
+
+        val descriptor = characteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG))
+        if (descriptor == null) {
+            reject(key, "Setting notification failed.")
+            return
+        }
+
+        if (enable) {
+            if ((characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            } else if ((characteristic.properties and BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+                descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             }
         } else {
-            reject(key, "Characteristic not found.")
+            descriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
         }
+
+        val resultDesc = bluetoothGatt?.writeDescriptor(descriptor)
+        if (resultDesc != true) {
+            reject(key, "Setting notification failed.")
+            return
+        }
+        // wait for onDescriptorWrite
     }
 
     private fun resolve(key: String, value: String) {
