@@ -241,7 +241,7 @@ class BluetoothLe : Plugin() {
 
     @PluginMethod
     fun disconnect(call: PluginCall) {
-        val device = getDevice(call) ?: return
+        val device = getOrCreateDevice(call) ?: return
         device.disconnect { response ->
             run {
                 if (response.success) {
