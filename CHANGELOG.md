@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/capacitor-community/bluetooth-le/compare/v0.5.1...v0.6.0) (2021-04-10)
+
+
+### Features
+
+* **android:** add createBond and isBonded ([c9e8688](https://github.com/capacitor-community/bluetooth-le/commit/c9e868896cf452e426a204878293a630880a4922))
+
+
+### Bug Fixes
+
+* **android:** do not crash when using startNotifications on characteristic that does not support notifications ([44bc318](https://github.com/capacitor-community/bluetooth-le/commit/44bc31825921dbb5f9d581519d789171c4161df1))
+* **android:** do not reject disconnect call when already disconnected ([82c3e6e](https://github.com/capacitor-community/bluetooth-le/commit/82c3e6e5e861223d974944f9198c429e125887ed))
+* **ios:** do not reject disconnect call when already disconnected ([e6873e6](https://github.com/capacitor-community/bluetooth-le/commit/e6873e6eff64d7df99b9409762fc924986fe90fb))
+
 ## [1.0.0-3](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0-2...v1.0.0-3) (2021-03-21)
 
 
