@@ -43,6 +43,8 @@ Below is an index of all the methods available.
 - [`requestLEScan(...)`](#requestlescan)
 - [`stopLEScan()`](#stoplescan)
 - [`connect(...)`](#connect)
+- [`createBond(...)`](#createbond)
+- [`isBonded(...)`](#isbonded)
 - [`disconnect(...)`](#disconnect)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
@@ -406,6 +408,38 @@ Connect to a peripheral BLE device. For an example, see [usage](#usage).
 | ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **`deviceId`**     | <code>string</code>                          | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
 | **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code> | Optional disconnect callback function that will be used when the device disconnects                            |
+
+---
+
+### createBond(...)
+
+```typescript
+createBond(deviceId: string) => Promise<void>
+```
+
+Create a bond with a peripheral BLE device.
+Only available on Android.
+
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+---
+
+### isBonded(...)
+
+```typescript
+isBonded(deviceId: string) => Promise<boolean>
+```
+
+Report whether a peripheral BLE device is bonded.
+Only available on Android.
+
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+**Returns:** <code>Promise&lt;boolean&gt;</code>
 
 ---
 
