@@ -409,6 +409,18 @@ Connect to a peripheral BLE device. For an example, see [usage](#usage).
 | **`deviceId`**     | <code>string</code>                          | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
 | **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code> | Optional disconnect callback function that will be used when the device disconnects                            |
 
+On some Android devices `connect()` may fail when the device was connected before, even if the device is not actually connected.
+In that case you should first call `disconnect()`, e.g.:
+
+```typesceript
+const device = await BleClient.requestDevice({ 
+   // ...
+});
+// ...
+await BleClient.disconnect(device.deviceId);
+await BleClient.connect(device.deviceId);
+```
+
 ---
 
 ### createBond(...)
