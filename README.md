@@ -641,6 +641,22 @@ const HEART_RATE_SERVICE = numberToUUID(0x180d);
 // '0000180d-0000-1000-8000-00805f9b34fb'
 ```
 
+## Troubleshooting
+
+#### Connection fails on Android
+
+On some Android devices `connect()` may fail when the device was connected before, even if the device is not actually connected.
+In that case you should first call `disconnect()`, e.g.:
+
+```typesceript
+const device = await BleClient.requestDevice({
+   // ...
+});
+// ...
+await BleClient.disconnect(device.deviceId);
+await BleClient.connect(device.deviceId);
+```
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
