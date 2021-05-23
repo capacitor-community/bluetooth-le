@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import java.util.*
 import kotlin.collections.HashMap
@@ -364,7 +365,7 @@ class Device(
     }
 
     private fun setTimeout(key: String, message: String, timeout: Long = DEFAULT_TIMEOUT) {
-        val handler = Handler()
+        val handler = Handler(Looper.getMainLooper())
         timeoutMap[key] = handler
         handler.postDelayed({
             reject(key, message)
@@ -372,7 +373,7 @@ class Device(
     }
 
     private fun setConnectionTimeout(key: String, message: String, gatt: BluetoothGatt?, timeout: Long = CONNECTION_TIMEOUT) {
-        val handler = Handler()
+        val handler = Handler(Looper.getMainLooper())
         timeoutMap[key] = handler
         handler.postDelayed({
             gatt?.disconnect()

@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
@@ -95,7 +96,7 @@ class DeviceScanner(
             isScanning = true
             bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
             if (showDialog) {
-                dialogHandler = Handler()
+                dialogHandler = Handler(Looper.getMainLooper())
                 showDeviceList()
             } else {
                 savedCallback?.invoke(ScanResponse(
@@ -173,7 +174,7 @@ class DeviceScanner(
 
     private fun setTimeoutForStopScanning() {
         if (scanDuration != null) {
-            stopScanHandler = Handler()
+            stopScanHandler = Handler(Looper.getMainLooper())
             stopScanHandler?.postDelayed(
                     {
                         stopScanning()
