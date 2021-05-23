@@ -23,6 +23,13 @@
 | ------------- | ----------------------------------- | ------ |
 | Patrick Wespi | [pwespi](https://github.com/pwespi) |        |
 
+## Versions
+
+| Plugin | Capacitor | Documentation                                                                     |
+| ------ | --------- | --------------------------------------------------------------------------------- |
+| 1.x    | 3.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/main/README.md) |
+| 0.x    | 2.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md)  |
+
 ## Introduction
 
 This is a Capacitor plugin for Bluetooth Low Energy. It supports the web, Android and iOS.
@@ -59,12 +66,7 @@ Below is an index of all the methods available.
 ## Installation
 
 ```
-# for Capacitor v2
-npm install @capacitor-community/bluetooth-le@latest
-npx cap sync
-
-# for Capacitor v3
-npm install @capacitor-community/bluetooth-le@next
+npm install @capacitor-community/bluetooth-le
 npx cap sync
 ```
 
