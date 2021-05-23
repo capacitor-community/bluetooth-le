@@ -11,7 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AlertDialog
+import android.app.AlertDialog
 
 
 class ScanResponse(
