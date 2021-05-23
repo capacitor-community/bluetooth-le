@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [1.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0-4...v1.0.0) (2021-05-23)
 
+* release for Capacitor 3.0
 
 ### Bug Fixes
 
 * **android:** explicitly set looper for handlers ([4ebe4fe](https://github.com/capacitor-community/bluetooth-le/commit/4ebe4fea1cdada6a2a5a9e8e308755285513007f))
-* **android:** use AlertDialog from android.app instead off androidx.appcompat.app ([9c4bbeb](https://github.com/capacitor-community/bluetooth-le/commit/9c4bbeb941dc9f2815c4fa2cc3e23e9476a0c035))
+* **android:** use AlertDialog from android.app instead of androidx.appcompat.app ([9c4bbeb](https://github.com/capacitor-community/bluetooth-le/commit/9c4bbeb941dc9f2815c4fa2cc3e23e9476a0c035))
 
 ## [1.0.0-4](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0-3...v1.0.0-4) (2021-04-10)
 
