@@ -99,34 +99,7 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 
 ### Android
 
-On Android, register the plugin in your main activity (this is only required for Capacitor 2):
-
-`./android/app/src/main/java/<PATH>/MainActivity.java`:
-
-```diff
-+ import com.capacitorjs.community.plugins.bluetoothle.BluetoothLe;
-
-public class MainActivity extends BridgeActivity {
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    // Initializes the Bridge
-    this.init(
-        savedInstanceState,
-        new ArrayList<Class<? extends Plugin>>() {
-          {
-            // Additional plugins you've installed go here
-            // Ex: add(TotallyAwesomePlugin.class);
-+           add(BluetoothLe.class);
-          }
-        }
-      );
-  }
-}
-
-```
+On Android, no further steps are required to use the plugin (if you are using Capacitor 2, see [here](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md#android)).
 
 ## Configuration
 
@@ -176,8 +149,7 @@ It is recommended to not use the plugin class directly. There is a wrapper class
 import { BleClient } from '@capacitor-community/bluetooth-le';
 
 // DO NOT use this
-import { Plugins } from '@capacitor/core';
-const { BluetoothLe } = Plugins;
+import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 ```
 
 Here is an example of how to use the plugin. It shows how to read the heart rate from a BLE heart rate monitor such as the Polar H10.
