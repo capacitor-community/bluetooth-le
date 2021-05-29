@@ -29,8 +29,31 @@ declare module '@capacitor/cli' {
 }
 
 export interface DisplayStrings {
-  scanning: string;
-  cancel: string;
-  availableDevices: string;
-  noDeviceFound: string;
+  /**
+   * @since 0.0.1
+   * @default "Scanning..."
+   * @example "Am Scannen..."
+   */
+  scanning?: string;
+
+  /**
+   * @since 0.0.1
+   * @default "Cancel"
+   * @example "Abbrechen"
+   */
+  cancel?: string;
+
+  /**
+   * @since 0.0.1
+   * @default "Available devices"
+   * @example "Verfügbare Geräte"
+   */
+  availableDevices?: string;
+
+  /**
+   * @since 0.0.1
+   * @default "No device found"
+   * @example "Kein Gerät gefunden"
+   */
+  noDeviceFound?: string;
 }

@@ -31,7 +31,7 @@ class DeviceScanner(
         private val context: Context,
         private val bluetoothAdapter: BluetoothAdapter,
         private val scanDuration: Long?,
-        private val displayStrings: DisplayStrings?,
+        private val displayStrings: DisplayStrings,
         private val showDialog: Boolean,
 ) {
     companion object {
@@ -123,9 +123,9 @@ class DeviceScanner(
         if (showDialog) {
             dialogHandler?.post {
                 if (deviceList.getCount() == 0) {
-                    dialog?.setTitle(displayStrings?.noDeviceFound)
+                    dialog?.setTitle(displayStrings.noDeviceFound)
                 } else {
-                    dialog?.setTitle(displayStrings?.availableDevices)
+                    dialog?.setTitle(displayStrings.availableDevices)
                 }
             }
         }
@@ -137,7 +137,7 @@ class DeviceScanner(
     private fun showDeviceList() {
         dialogHandler?.post {
             val builder = AlertDialog.Builder(context)
-            builder.setTitle(displayStrings?.scanning)
+            builder.setTitle(displayStrings.scanning)
             builder.setCancelable(true)
             adapter = ArrayAdapter(
                     context,
@@ -151,7 +151,7 @@ class DeviceScanner(
                 savedCallback?.invoke(ScanResponse(true, device.address, device))
                 savedCallback = null
             }
-            builder.setNegativeButton(displayStrings?.cancel) { dialog, _ ->
+            builder.setNegativeButton(displayStrings.cancel) { dialog, _ ->
                 stopScanning()
                 dialog.cancel()
                 savedCallback?.invoke(ScanResponse(false,

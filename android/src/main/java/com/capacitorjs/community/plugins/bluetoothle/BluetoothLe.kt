@@ -46,6 +46,11 @@ class BluetoothLe : Plugin() {
     private var stateReceiver: BroadcastReceiver? = null
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
+    private var displayStrings: DisplayStrings? = null
+
+    override fun load() {
+        displayStrings = getDisplayStrings()
+    }
 
     @PluginMethod()
     fun initialize(call: PluginCall) {
@@ -134,19 +139,33 @@ class BluetoothLe : Plugin() {
     }
 
     @PluginMethod
+    fun setDisplayStrings(call: PluginCall) {
+        displayStrings = DisplayStrings(
+            call.getString("scanning",
+                displayStrings!!.scanning) as String,
+            call.getString("cancel",
+                displayStrings!!.cancel) as String,
+            call.getString("availableDevices",
+                displayStrings!!.availableDevices) as String,
+            call.getString("noDeviceFound",
+                displayStrings!!.noDeviceFound) as String,
+        )
+        call.resolve()
+    }
+
+    @PluginMethod
     fun requestDevice(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
         val scanFilters = getScanFilters(call) ?: return
         val scanSettings = getScanSettings(call) ?: return
         val namePrefix = call.getString("namePrefix", "") as String
-        val displayStrings = getDisplayStrings()
 
         deviceScanner?.stopScanning()
         deviceScanner = DeviceScanner(
                 context,
                 bluetoothAdapter!!,
-                MAX_SCAN_DURATION,
-                displayStrings,
+                scanDuration = MAX_SCAN_DURATION,
+                displayStrings = displayStrings!!,
                 showDialog = true,
         )
         deviceScanner?.startScanning(
@@ -186,7 +205,7 @@ class BluetoothLe : Plugin() {
                 context,
                 bluetoothAdapter!!,
                 scanDuration = null,
-                displayStrings = null,
+                displayStrings = displayStrings!!,
                 showDialog = false,
         )
         deviceScanner?.startScanning(

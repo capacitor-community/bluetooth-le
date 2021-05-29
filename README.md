@@ -46,6 +46,7 @@ Below is an index of all the methods available.
 - [`getEnabled()`](#getenabled)
 - [`startEnabledNotifications(...)`](#startenablednotifications)
 - [`stopEnabledNotifications()`](#stopenablednotifications)
+- [`setDisplayStrings(...)`](#setdisplaystrings)
 - [`requestDevice(...)`](#requestdevice)
 - [`requestLEScan(...)`](#requestlescan)
 - [`stopLEScan()`](#stoplescan)
@@ -139,6 +140,8 @@ The default values are:
   }
 }
 ```
+
+The display strings can also be set at run-time using [`setDisplayStrings(...)`](#setdisplaystrings).
 
 ## Usage
 
@@ -323,6 +326,20 @@ stopEnabledNotifications() => Promise<void>
 ```
 
 Stop the enabled notifications registered with `startEnabledNotifications`.
+
+---
+
+### setDisplayStrings(...)
+
+```typescript
+setDisplayStrings(displayStrings: DisplayStrings) => Promise<void>
+```
+
+Set the strings that are displayed in the `requestDevice` dialog.
+
+| Param                | Type                                                      |
+| -------------------- | --------------------------------------------------------- |
+| **`displayStrings`** | <code><a href="#displaystrings">DisplayStrings</a></code> |
 
 ---
 
@@ -517,6 +534,15 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 ---
 
 ### Interfaces
+
+#### DisplayStrings
+
+| Prop                   | Type                | Default                          | Since |
+| ---------------------- | ------------------- | -------------------------------- | ----- |
+| **`scanning`**         | <code>string</code> | <code>"Scanning..."</code>       | 0.0.1 |
+| **`cancel`**           | <code>string</code> | <code>"Cancel"</code>            | 0.0.1 |
+| **`availableDevices`** | <code>string</code> | <code>"Available devices"</code> | 0.0.1 |
+| **`noDeviceFound`**    | <code>string</code> | <code>"No device found"</code>   | 0.0.1 |
 
 #### BleDevice
 

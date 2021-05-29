@@ -6,10 +6,14 @@ import CoreBluetooth
 public class BluetoothLe: CAPPlugin {
     private var deviceManager: DeviceManager?
     private var deviceMap = [String: Device]()
+    private var displayStrings = [String: String]()
 
+    override public func load() {
+        self.displayStrings = self.getDisplayStrings()
+    }
+    
     @objc func initialize(_ call: CAPPluginCall) {
-        let displayStrings = getConfigValue("displayStrings") as? [String: String] ?? [String: String]()
-        self.deviceManager = DeviceManager(self.bridge?.viewController, displayStrings, {(success, message) -> Void in
+        self.deviceManager = DeviceManager(self.bridge?.viewController, self.displayStrings, {(success, message) -> Void in
             if success {
                 call.resolve()
             } else {
@@ -37,9 +41,20 @@ public class BluetoothLe: CAPPlugin {
         deviceManager.unregisterStateReceiver()
         call.resolve()
     }
+    
+    @objc func setDisplayStrings(_ call: CAPPluginCall) {
+        for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {
+            if (call.getString(key) != nil) {
+                self.displayStrings[key] = call.getString(key)
+            }
+        }
+        call.resolve()
+    }
 
     @objc func requestDevice(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
+        deviceManager.setDisplayStrings(self.displayStrings)
+        
         let serviceUUIDs = self.getServiceUUIDs(call)
         let name = call.getString("name")
         let namePrefix = call.getString("namePrefix")
@@ -71,6 +86,7 @@ public class BluetoothLe: CAPPlugin {
 
     @objc func requestLEScan(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
+        
         let serviceUUIDs = self.getServiceUUIDs(call)
         let name = call.getString("name")
         let namePrefix = call.getString("namePrefix")
@@ -232,6 +248,16 @@ public class BluetoothLe: CAPPlugin {
                     call.reject(value)
                 }
             })
+    }
+    
+    private func getDisplayStrings() -> [String: String] {
+        let configDisplayStrings = getConfigValue("displayStrings") as? [String: String] ?? [String: String]()
+        var displayStrings = [String: String]()
+        displayStrings["noDeviceFound"] = configDisplayStrings["noDeviceFound"] ?? "No device found"
+        displayStrings["availableDevices"] = configDisplayStrings["availableDevices"] ?? "Available devices"
+        displayStrings["scanning"] = configDisplayStrings["scanning"] ?? "Scanning..."
+        displayStrings["cancel"] = configDisplayStrings["cancel"] ?? "Cancel"
+        return displayStrings
     }
 
     private func getDeviceManager(_ call: CAPPluginCall) -> DeviceManager? {
