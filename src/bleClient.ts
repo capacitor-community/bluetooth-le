@@ -1,6 +1,7 @@
 import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 
+import type { DisplayStrings } from './config';
 import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
   BleDevice,
@@ -38,6 +39,12 @@ export interface BleClientInterface {
    * Stop the enabled notifications registered with `startEnabledNotifications`.
    */
   stopEnabledNotifications(): Promise<void>;
+
+  /**
+   * Set the strings that are displayed in the `requestDevice` dialog.
+   * @param displayStrings
+   */
+  setDisplayStrings(displayStrings: DisplayStrings): Promise<void>;
 
   /**
    * Request a peripheral BLE device to interact with. This will scan for available devices according to the filters in the options and show a dialog to pick a device.
@@ -206,6 +213,12 @@ class BleClientClass implements BleClientInterface {
       const key = `onEnabledChanged`;
       await this.eventListeners.get(key)?.remove();
       await BluetoothLe.stopEnabledNotifications();
+    });
+  }
+
+  async setDisplayStrings(displayStrings: DisplayStrings): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.setDisplayStrings(displayStrings);
     });
   }
 

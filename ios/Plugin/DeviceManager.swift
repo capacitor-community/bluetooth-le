@@ -31,6 +31,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.callbackMap["initialize"] = callback
         self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
     }
+    
+    func setDisplayStrings(_ displayStrings: [String: String]) {
+        self.displayStrings = displayStrings
+    }
 
     // initialize
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -122,9 +126,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.stopScanWorkItem = nil
         DispatchQueue.main.async { [weak self] in
             if self?.discoveredDevices.count == 0 {
-                self?.alertController?.title = self?.displayStrings["noDeviceFound"] ?? "No device found"
+                self?.alertController?.title = self?.displayStrings["noDeviceFound"]
             } else {
-                self?.alertController?.title = self?.displayStrings["availableDevices"] ?? "Available devices"
+                self?.alertController?.title = self?.displayStrings["availableDevices"]
             }
         }
     }
@@ -165,8 +169,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
     func showDeviceList() {
         DispatchQueue.main.async { [weak self] in
-            self?.alertController = UIAlertController(title: self?.displayStrings["scanning"] ?? "Scanning...", message: nil, preferredStyle: UIAlertController.Style.alert)
-            self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"] ?? "Cancel", style: UIAlertAction.Style.cancel, handler: { (_) -> Void in
+            self?.alertController = UIAlertController(title: self?.displayStrings["scanning"], message: nil, preferredStyle: UIAlertController.Style.alert)
+            self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"], style: UIAlertAction.Style.cancel, handler: { (_) -> Void in
                 print("Cancelled request device.")
                 self?.stopScan()
                 self?.reject("startScanning", "requestDevice cancelled.")

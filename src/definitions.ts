@@ -1,5 +1,7 @@
 import type { PluginListenerHandle } from '@capacitor/core';
 
+import type { DisplayStrings } from './config';
+
 export interface RequestBleDeviceOptions {
   /**
    * Filter devices by service UUIDs.
@@ -157,6 +159,7 @@ export interface BluetoothLePlugin {
   getEnabled(): Promise<BooleanResult>;
   startEnabledNotifications(): Promise<void>;
   stopEnabledNotifications(): Promise<void>;
+  setDisplayStrings(displayStrings: DisplayStrings): Promise<void>;
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
   requestLEScan(options?: RequestBleDeviceOptions): Promise<void>;
   stopLEScan(): Promise<void>;

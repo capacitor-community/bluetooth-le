@@ -8,6 +8,7 @@ CAP_PLUGIN(BluetoothLe, "BluetoothLe",
            CAP_PLUGIN_METHOD(getEnabled, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(startEnabledNotifications, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(stopEnabledNotifications, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(setDisplayStrings, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(requestDevice, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(requestLEScan, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(stopLEScan, CAPPluginReturnPromise);
