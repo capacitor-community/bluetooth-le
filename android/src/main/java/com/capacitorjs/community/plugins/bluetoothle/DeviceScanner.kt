@@ -1,5 +1,6 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
+import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
@@ -11,28 +12,27 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.ArrayAdapter
-import android.app.AlertDialog
 
 
 class ScanResponse(
-        val success: Boolean,
-        val message: String?,
-        val device: BluetoothDevice?,
+    val success: Boolean,
+    val message: String?,
+    val device: BluetoothDevice?,
 )
 
 class DisplayStrings(
-        val scanning: String,
-        val cancel: String,
-        val availableDevices: String,
-        val noDeviceFound: String,
+    val scanning: String,
+    val cancel: String,
+    val availableDevices: String,
+    val noDeviceFound: String,
 )
 
 class DeviceScanner(
-        private val context: Context,
-        private val bluetoothAdapter: BluetoothAdapter,
-        private val scanDuration: Long?,
-        private val displayStrings: DisplayStrings,
-        private val showDialog: Boolean,
+    private val context: Context,
+    private val bluetoothAdapter: BluetoothAdapter,
+    private val scanDuration: Long?,
+    private val displayStrings: DisplayStrings,
+    private val showDialog: Boolean,
 ) {
     companion object {
         private val TAG = DeviceScanner::class.java.simpleName
@@ -76,12 +76,12 @@ class DeviceScanner(
     }
 
     fun startScanning(
-            scanFilters: List<ScanFilter>,
-            scanSettings: ScanSettings,
-            allowDuplicates: Boolean,
-            namePrefix: String,
-            callback: (ScanResponse) -> Unit,
-            scanResultCallback: ((ScanResult) -> Unit)?
+        scanFilters: List<ScanFilter>,
+        scanSettings: ScanSettings,
+        allowDuplicates: Boolean,
+        namePrefix: String,
+        callback: (ScanResponse) -> Unit,
+        scanResultCallback: ((ScanResult) -> Unit)?
     ) {
         this.savedCallback = callback
         this.scanResultCallback = scanResultCallback
@@ -99,20 +99,24 @@ class DeviceScanner(
                 dialogHandler = Handler(Looper.getMainLooper())
                 showDeviceList()
             } else {
-                savedCallback?.invoke(ScanResponse(
+                savedCallback?.invoke(
+                    ScanResponse(
                         true,
                         "Started scanning.",
                         null
-                ))
+                    )
+                )
                 savedCallback = null
             }
         } else {
             stopScanning()
-            savedCallback?.invoke(ScanResponse(
+            savedCallback?.invoke(
+                ScanResponse(
                     false,
                     "Already scanning. Stopping now.",
                     null
-            ))
+                )
+            )
             savedCallback = null
         }
     }
@@ -140,9 +144,9 @@ class DeviceScanner(
             builder.setTitle(displayStrings.scanning)
             builder.setCancelable(true)
             adapter = ArrayAdapter(
-                    context,
-                    android.R.layout.simple_selectable_list_item,
-                    deviceStrings
+                context,
+                android.R.layout.simple_selectable_list_item,
+                deviceStrings
             )
             builder.setAdapter(adapter) { dialog, index ->
                 stopScanning()
@@ -154,17 +158,25 @@ class DeviceScanner(
             builder.setNegativeButton(displayStrings.cancel) { dialog, _ ->
                 stopScanning()
                 dialog.cancel()
-                savedCallback?.invoke(ScanResponse(false,
+                savedCallback?.invoke(
+                    ScanResponse(
+                        false,
                         "requestDevice cancelled.",
-                        null))
+                        null
+                    )
+                )
                 savedCallback = null
             }
             builder.setOnCancelListener { dialog ->
                 stopScanning()
                 dialog.cancel()
-                savedCallback?.invoke(ScanResponse(false,
+                savedCallback?.invoke(
+                    ScanResponse(
+                        false,
                         "requestDevice cancelled.",
-                        null))
+                        null
+                    )
+                )
                 savedCallback = null
             }
             dialog = builder.create()
@@ -176,10 +188,10 @@ class DeviceScanner(
         if (scanDuration != null) {
             stopScanHandler = Handler(Looper.getMainLooper())
             stopScanHandler?.postDelayed(
-                    {
-                        stopScanning()
-                    },
-                    scanDuration
+                {
+                    stopScanning()
+                },
+                scanDuration
             )
         }
     }
