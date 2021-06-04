@@ -26,7 +26,7 @@ export interface BleClientInterface {
    * Reports whether BLE is enabled on this device.
    * Always returns `true` on **web**.
    */
-  getEnabled(): Promise<boolean>;
+  isEnabled(): Promise<boolean>;
 
   /**
    * Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
@@ -186,9 +186,18 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
+  /**
+   * Reports whether BLE is enabled on this device.
+   * Always returns `true` on **web**.
+   * @deprecated Use `isEnabled` instead.
+   */
   async getEnabled(): Promise<boolean> {
+    return this.isEnabled();
+  }
+
+  async isEnabled(): Promise<boolean> {
     const enabled = await this.queue(async () => {
-      const result = await BluetoothLe.getEnabled();
+      const result = await BluetoothLe.isEnabled();
       return result.value;
     });
     return enabled;

@@ -87,7 +87,7 @@ class BluetoothLe : Plugin() {
     }
 
     @PluginMethod
-    fun getEnabled(call: PluginCall) {
+    fun isEnabled(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
         val enabled = bluetoothAdapter?.isEnabled == true
         val result = JSObject()

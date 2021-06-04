@@ -22,9 +22,9 @@ public class BluetoothLe: CAPPlugin {
         })
     }
 
-    @objc func getEnabled(_ call: CAPPluginCall) {
+    @objc func isEnabled(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
-        let enabled: Bool = deviceManager.getEnabled()
+        let enabled: Bool = deviceManager.isEnabled()
         call.resolve(["value": enabled])
     }
 
