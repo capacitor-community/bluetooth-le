@@ -31,7 +31,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.callbackMap["initialize"] = callback
         self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
     }
-    
+
     func setDisplayStrings(_ displayStrings: [String: String]) {
         self.displayStrings = displayStrings
     }

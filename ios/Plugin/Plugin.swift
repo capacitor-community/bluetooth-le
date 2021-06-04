@@ -11,7 +11,7 @@ public class BluetoothLe: CAPPlugin {
     override public func load() {
         self.displayStrings = self.getDisplayStrings()
     }
-    
+
     @objc func initialize(_ call: CAPPluginCall) {
         self.deviceManager = DeviceManager(self.bridge?.viewController, self.displayStrings, {(success, message) -> Void in
             if success {
@@ -41,10 +41,10 @@ public class BluetoothLe: CAPPlugin {
         deviceManager.unregisterStateReceiver()
         call.resolve()
     }
-    
+
     @objc func setDisplayStrings(_ call: CAPPluginCall) {
         for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {
-            if (call.getString(key) != nil) {
+            if call.getString(key) != nil {
                 self.displayStrings[key] = call.getString(key)
             }
         }
@@ -54,7 +54,7 @@ public class BluetoothLe: CAPPlugin {
     @objc func requestDevice(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         deviceManager.setDisplayStrings(self.displayStrings)
-        
+
         let serviceUUIDs = self.getServiceUUIDs(call)
         let name = call.getString("name")
         let namePrefix = call.getString("namePrefix")
@@ -86,7 +86,7 @@ public class BluetoothLe: CAPPlugin {
 
     @objc func requestLEScan(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
-        
+
         let serviceUUIDs = self.getServiceUUIDs(call)
         let name = call.getString("name")
         let namePrefix = call.getString("namePrefix")
@@ -249,7 +249,7 @@ public class BluetoothLe: CAPPlugin {
                 }
             })
     }
-    
+
     private func getDisplayStrings() -> [String: String] {
         let configDisplayStrings = getConfigValue("displayStrings") as? [String: String] ?? [String: String]()
         var displayStrings = [String: String]()
