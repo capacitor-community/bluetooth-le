@@ -43,7 +43,7 @@ Below is an index of all the methods available.
 <docgen-index>
 
 - [`initialize()`](#initialize)
-- [`getEnabled()`](#getenabled)
+- [`isEnabled()`](#isenabled)
 - [`startEnabledNotifications(...)`](#startenablednotifications)
 - [`stopEnabledNotifications()`](#stopenablednotifications)
 - [`setDisplayStrings(...)`](#setdisplaystrings)
@@ -291,10 +291,10 @@ For an example, see [usage](#usage).
 
 ---
 
-### getEnabled()
+### isEnabled()
 
 ```typescript
-getEnabled() => Promise<boolean>
+isEnabled() => Promise<boolean>
 ```
 
 Reports whether BLE is enabled on this device.

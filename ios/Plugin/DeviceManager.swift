@@ -61,7 +61,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
     }
 
-    func getEnabled() -> Bool {
+    func isEnabled() -> Bool {
         return self.centralManager.state == CBManagerState.poweredOn
     }
 

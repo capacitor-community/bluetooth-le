@@ -34,7 +34,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
-  async getEnabled(): Promise<BooleanResult> {
+  async isEnabled(): Promise<BooleanResult> {
     // not available on web
     return { value: true };
   }

@@ -156,7 +156,7 @@ export interface ScanResult {
 
 export interface BluetoothLePlugin {
   initialize(): Promise<void>;
-  getEnabled(): Promise<BooleanResult>;
+  isEnabled(): Promise<BooleanResult>;
   startEnabledNotifications(): Promise<void>;
   stopEnabledNotifications(): Promise<void>;
   setDisplayStrings(displayStrings: DisplayStrings): Promise<void>;

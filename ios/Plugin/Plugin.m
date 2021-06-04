@@ -5,7 +5,7 @@
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
 CAP_PLUGIN(BluetoothLe, "BluetoothLe",
            CAP_PLUGIN_METHOD(initialize, CAPPluginReturnPromise);
-           CAP_PLUGIN_METHOD(getEnabled, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(isEnabled, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(startEnabledNotifications, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(stopEnabledNotifications, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(setDisplayStrings, CAPPluginReturnPromise);
