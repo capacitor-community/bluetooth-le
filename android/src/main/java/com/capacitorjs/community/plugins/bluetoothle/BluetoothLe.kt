@@ -127,7 +127,11 @@ class BluetoothLe : Plugin() {
                         val enabled = state == BluetoothAdapter.STATE_ON
                         val result = JSObject()
                         result.put("value", enabled)
-                        notifyListeners("onEnabledChanged", result)
+                        try {
+                            notifyListeners("onEnabledChanged", result)
+                        } catch (e: ConcurrentModificationException) {
+                            Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+                        }
                     }
                 }
             }
@@ -240,7 +244,11 @@ class BluetoothLe : Plugin() {
             { result ->
                 run {
                     val scanResult = getScanResult(result)
-                    notifyListeners("onScanResult", scanResult)
+                    try {
+                        notifyListeners("onScanResult", scanResult)
+                    } catch (e: ConcurrentModificationException) {
+                        Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+                    }
                 }
             }
         )
@@ -268,7 +276,11 @@ class BluetoothLe : Plugin() {
     }
 
     private fun onDisconnect(deviceId: String) {
-        notifyListeners("disconnected|${deviceId}", null)
+        try {
+            notifyListeners("disconnected|${deviceId}", null)
+        } catch (e: ConcurrentModificationException) {
+            Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+        }
     }
 
     @PluginMethod
@@ -382,7 +394,11 @@ class BluetoothLe : Plugin() {
                         "notification|${device.getId()}|${(characteristic.first)}|${(characteristic.second)}"
                     val ret = JSObject()
                     ret.put("value", response.value)
-                    notifyListeners(key, ret)
+                    try {
+                        notifyListeners(key, ret)
+                    } catch (e: ConcurrentModificationException) {
+                        Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+                    }
                 }
             },
             { response ->
