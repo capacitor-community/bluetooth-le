@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0...v1.1.0) (2021-06-05)
+
+
+### Features
+
+* add setDisplayStrings method ([f3f7e96](https://github.com/capacitor-community/bluetooth-le/commit/f3f7e965f2fe9014bb85e97cc13ec2378bf627b8))
+
+
+### Bug Fixes
+
+* **android:** handle ConcurrentModificationException in notifyListeners ([12925e0](https://github.com/capacitor-community/bluetooth-le/commit/12925e08444e8f741a35bc8547626427fce8a82b))
+* deprecated getEnabled and use isEnabled ([e47017b](https://github.com/capacitor-community/bluetooth-le/commit/e47017ba97c96e249da11ee77c02765d060a7084))
+
 ## [1.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0-4...v1.0.0) (2021-05-23)
 
 * release for Capacitor 3.0
