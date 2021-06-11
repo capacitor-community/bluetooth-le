@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.0...v1.1.1) (2021-06-11)
+
+
+### Bug Fixes
+
+* reject write call when value contains invalid data ([24e0c7a](https://github.com/capacitor-community/bluetooth-le/commit/24e0c7a24d3040faf1c088c90dd10fc946c6e4c5))
+
 ## [1.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.0.0...v1.1.0) (2021-06-05)
 
 
