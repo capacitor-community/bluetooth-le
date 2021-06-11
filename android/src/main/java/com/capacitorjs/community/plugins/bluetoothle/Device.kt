@@ -280,6 +280,10 @@ class Device(
             reject(key, "Characteristic not found.")
             return
         }
+        if (value == "") {
+            reject(key, "Invalid data.")
+            return
+        }
         val bytes = stringToBytes(value)
         characteristic.value = bytes
         characteristic.writeType = writeType

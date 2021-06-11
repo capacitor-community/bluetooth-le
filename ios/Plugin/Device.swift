@@ -113,6 +113,10 @@ class Device: NSObject, CBPeripheralDelegate {
             self.reject(key, "Characteristic not found.")
             return
         }
+        if value == "" {
+            self.reject(key, "Invalid data.")
+            return
+        }
         let data: Data = stringToData(value)
         self.peripheral.writeValue(data, for: characteristic, type: writeType)
         if writeType == CBCharacteristicWriteType.withResponse {

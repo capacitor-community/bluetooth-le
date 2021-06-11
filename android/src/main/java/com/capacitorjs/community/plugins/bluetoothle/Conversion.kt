@@ -11,6 +11,11 @@ fun bytesToString(bytes: ByteArray): String {
 }
 
 fun stringToBytes(value: String): ByteArray {
+    if (value == "") {
+        val bytes = ByteArray(1)
+        bytes[0] = 0
+        return bytes
+    }
     val hexValues = value.split(" ")
     val bytes = ByteArray(hexValues.size)
     for (i in hexValues.indices) {
