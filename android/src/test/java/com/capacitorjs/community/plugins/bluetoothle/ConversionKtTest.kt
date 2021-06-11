@@ -21,6 +21,15 @@ class ConversionKtTest : TestCase() {
         }
     }
 
+    fun testEmptyStringToBytes() {
+        val input = ""
+        val output = stringToBytes(input)
+        val expected = byteArrayOfInts(0x00)
+        expected.forEachIndexed { index, byte ->
+            assertEquals(byte, output[index])
+        }
+    }
+
     fun testHexToByte() {
         assertEquals(0.toByte(), hexToByte("00"))
         assertEquals(205.toByte(), hexToByte("CD"))

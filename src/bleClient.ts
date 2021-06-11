@@ -328,6 +328,9 @@ class BleClientClass implements BleClientInterface {
     value: DataView,
   ): Promise<void> {
     return this.queue(async () => {
+      if (!value?.buffer) {
+        throw new Error('Invalid data.');
+      }
       let writeValue: DataView | string = value;
       if (Capacitor.getPlatform() !== 'web') {
         // on native we can only write strings
@@ -349,6 +352,9 @@ class BleClientClass implements BleClientInterface {
     value: DataView,
   ): Promise<void> {
     await this.queue(async () => {
+      if (!value?.buffer) {
+        throw new Error('Invalid data.');
+      }
       let writeValue: DataView | string = value;
       if (Capacitor.getPlatform() !== 'web') {
         // on native we can only write strings
