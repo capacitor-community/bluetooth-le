@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -154,7 +155,7 @@ class Device(
     }
 
     /**
-     * Async actions that will be executed (see gattCallback)
+     * Actions that will be executed (see gattCallback)
      * - connect to gatt server
      * - discover services
      * - request MTU
@@ -162,7 +163,22 @@ class Device(
     fun connect(callback: (CallbackResponse) -> Unit) {
         val key = "connect"
         callbackMap[key] = callback
-        bluetoothGatt = device.connectGatt(context, false, gattCallback)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothGatt =
+                device.connectGatt(
+                    context,
+                    false,
+                    gattCallback,
+                    BluetoothDevice.TRANSPORT_LE
+                )
+        } else {
+            bluetoothGatt =
+                device.connectGatt(
+                    context,
+                    false,
+                    gattCallback
+                )
+        }
         connectionState = STATE_CONNECTING
         setConnectionTimeout(key, "Connection timeout.", bluetoothGatt)
     }
