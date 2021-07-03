@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.1...v1.1.2) (2021-07-03)
+
+
+### Bug Fixes
+
+* **android:** set transport for GATT connections to remote dual-mode devices to BLE, closes [#138](https://github.com/capacitor-community/bluetooth-le/issues/138) ([a321aab](https://github.com/capacitor-community/bluetooth-le/commit/a321aabd75fda38205477eec972dfc4ac425d4ad))
+* **web:** use writeValueWithResponse instead of deprecated writeValue ([85f1afe](https://github.com/capacitor-community/bluetooth-le/commit/85f1afea39e1e9eef7050a93e65cf31be8f6a9b6))
+
 ### [1.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.0...v1.1.1) (2021-06-11)
 
 
