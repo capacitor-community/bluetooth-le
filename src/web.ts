@@ -179,7 +179,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     } else {
       dataView = options.value;
     }
-    await characteristic?.writeValue(dataView);
+    await characteristic?.writeValueWithResponse(dataView);
   }
 
   async writeWithoutResponse(options: WriteOptions): Promise<void> {
