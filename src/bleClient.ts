@@ -60,10 +60,7 @@ export interface BleClientInterface {
    * @param options
    * @param callback
    */
-  requestLEScan(
-    options: RequestBleDeviceOptions,
-    callback: (result: ScanResult) => void,
-  ): Promise<void>;
+  requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) => void): Promise<void>;
 
   /**
    * Stop scanning for BLE devices. For an example, see [usage](#usage).
@@ -75,10 +72,7 @@ export interface BleClientInterface {
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
    */
-  connect(
-    deviceId: string,
-    onDisconnect?: (deviceId: string) => void,
-  ): Promise<void>;
+  connect(deviceId: string, onDisconnect?: (deviceId: string) => void): Promise<void>;
 
   /**
    * Create a bond with a peripheral BLE device.
@@ -106,11 +100,7 @@ export interface BleClientInterface {
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    */
-  read(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-  ): Promise<DataView>;
+  read(deviceId: string, service: string, characteristic: string): Promise<DataView>;
 
   /**
    * Write a value to a characteristic. For an example, see [usage](#usage).
@@ -119,12 +109,7 @@ export interface BleClientInterface {
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
    */
-  write(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-    value: DataView,
-  ): Promise<void>;
+  write(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void>;
 
   /**
    * Write a value to a characteristic without waiting for a response.
@@ -133,12 +118,7 @@ export interface BleClientInterface {
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
    */
-  writeWithoutResponse(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-    value: DataView,
-  ): Promise<void>;
+  writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void>;
 
   /**
    * Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
@@ -151,7 +131,7 @@ export interface BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    callback: (value: DataView) => void,
+    callback: (value: DataView) => void
   ): Promise<void>;
 
   /**
@@ -160,11 +140,7 @@ export interface BleClientInterface {
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    */
-  stopNotifications(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-  ): Promise<void>;
+  stopNotifications(deviceId: string, service: string, characteristic: string): Promise<void>;
 }
 
 class BleClientClass implements BleClientInterface {
@@ -203,13 +179,11 @@ class BleClientClass implements BleClientInterface {
     return enabled;
   }
 
-  async startEnabledNotifications(
-    callback: (value: boolean) => void,
-  ): Promise<void> {
+  async startEnabledNotifications(callback: (value: boolean) => void): Promise<void> {
     await this.queue(async () => {
       const key = `onEnabledChanged`;
       await this.eventListeners.get(key)?.remove();
-      const listener = await BluetoothLe.addListener(key, result => {
+      const listener = await BluetoothLe.addListener(key, (result) => {
         callback(result.value);
       });
       this.eventListeners.set(key, listener);
@@ -239,23 +213,15 @@ class BleClientClass implements BleClientInterface {
     return result;
   }
 
-  async requestLEScan(
-    options: RequestBleDeviceOptions,
-    callback: (result: ScanResult) => void,
-  ): Promise<void> {
+  async requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) => void): Promise<void> {
     await this.queue(async () => {
       await this.scanListener?.remove();
-      this.scanListener = await BluetoothLe.addListener(
-        'onScanResult',
-        (result: ScanResultInternal) => {
-          result.manufacturerData = this.convertObject(result.manufacturerData);
-          result.serviceData = this.convertObject(result.serviceData);
-          result.rawAdvertisement = result.rawAdvertisement
-            ? this.convertValue(result.rawAdvertisement)
-            : undefined;
-          callback(result as ScanResult);
-        },
-      );
+      this.scanListener = await BluetoothLe.addListener('onScanResult', (result: ScanResultInternal) => {
+        result.manufacturerData = this.convertObject(result.manufacturerData);
+        result.serviceData = this.convertObject(result.serviceData);
+        result.rawAdvertisement = result.rawAdvertisement ? this.convertValue(result.rawAdvertisement) : undefined;
+        callback(result as ScanResult);
+      });
       await BluetoothLe.requestLEScan(options);
     });
   }
@@ -268,10 +234,7 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async connect(
-    deviceId: string,
-    onDisconnect?: (deviceId: string) => void,
-  ): Promise<void> {
+  async connect(deviceId: string, onDisconnect?: (deviceId: string) => void): Promise<void> {
     await this.queue(async () => {
       if (onDisconnect) {
         const key = `disconnected|${deviceId}`;
@@ -305,11 +268,7 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async read(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-  ): Promise<DataView> {
+  async read(deviceId: string, service: string, characteristic: string): Promise<DataView> {
     const value = await this.queue(async () => {
       const result = await BluetoothLe.read({
         deviceId,
@@ -321,12 +280,7 @@ class BleClientClass implements BleClientInterface {
     return value;
   }
 
-  async write(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-    value: DataView,
-  ): Promise<void> {
+  async write(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void> {
     return this.queue(async () => {
       if (!value?.buffer) {
         throw new Error('Invalid data.');
@@ -349,7 +303,7 @@ class BleClientClass implements BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    value: DataView,
+    value: DataView
   ): Promise<void> {
     await this.queue(async () => {
       if (!value?.buffer) {
@@ -373,17 +327,14 @@ class BleClientClass implements BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    callback: (value: DataView) => void,
+    callback: (value: DataView) => void
   ): Promise<void> {
     await this.queue(async () => {
       const key = `notification|${deviceId}|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();
-      const listener = await BluetoothLe.addListener(
-        key,
-        (event: ReadResult) => {
-          callback(this.convertValue(event?.value));
-        },
-      );
+      const listener = await BluetoothLe.addListener(key, (event: ReadResult) => {
+        callback(this.convertValue(event?.value));
+      });
       this.eventListeners.set(key, listener);
       await BluetoothLe.startNotifications({
         deviceId,
@@ -393,11 +344,7 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async stopNotifications(
-    deviceId: string,
-    service: string,
-    characteristic: string,
-  ): Promise<void> {
+  async stopNotifications(deviceId: string, service: string, characteristic: string): Promise<void> {
     await this.queue(async () => {
       const key = `notification|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();
@@ -419,9 +366,7 @@ class BleClientClass implements BleClientInterface {
     return value;
   }
 
-  private convertObject(obj?: {
-    [key: string]: Data;
-  }): { [key: string]: DataView } | undefined {
+  private convertObject(obj?: { [key: string]: Data }): { [key: string]: DataView } | undefined {
     if (obj === undefined) {
       return undefined;
     }

@@ -10,13 +10,13 @@ export function hexStringToDataView(value: string): DataView {
   const numbers: number[] = value
     .trim()
     .split(' ')
-    .map(s => parseInt(s, 16));
+    .map((s) => parseInt(s, 16));
   return numbersToDataView(numbers);
 }
 
 export function dataViewToHexString(value: DataView): string {
   return dataViewToNumbers(value)
-    .map(n => {
+    .map((n) => {
       let s = n.toString(16);
       if (s.length == 1) {
         s = '0' + s;
@@ -27,7 +27,7 @@ export function dataViewToHexString(value: DataView): string {
 }
 
 export function textToDataView(value: string): DataView {
-  return numbersToDataView(value.split('').map(s => s.charCodeAt(0)));
+  return numbersToDataView(value.split('').map((s) => s.charCodeAt(0)));
 }
 
 export function dataViewToText(value: DataView): string {
@@ -53,9 +53,7 @@ export function webUUIDToString(uuid: string | number): string {
   }
 }
 
-export function mapToObject<V>(
-  map?: Map<string | number, V>,
-): { [key: string]: V } | undefined {
+export function mapToObject<V>(map?: Map<string | number, V>): { [key: string]: V } | undefined {
   const obj: { [key: string]: V } = {};
   if (!map) {
     return undefined;

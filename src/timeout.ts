@@ -1,8 +1,4 @@
-export async function runWithTimeout(
-  promise: Promise<unknown>,
-  time: number,
-  exception: symbol,
-): Promise<unknown> {
+export async function runWithTimeout(promise: Promise<unknown>, time: number, exception: symbol): Promise<unknown> {
   let timer: NodeJS.Timeout;
   return Promise.race([
     promise,

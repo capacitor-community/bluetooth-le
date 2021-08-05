@@ -163,18 +163,9 @@ export interface BluetoothLePlugin {
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
   requestLEScan(options?: RequestBleDeviceOptions): Promise<void>;
   stopLEScan(): Promise<void>;
-  addListener(
-    eventName: 'onEnabledChanged',
-    listenerFunc: (result: BooleanResult) => void,
-  ): PluginListenerHandle;
-  addListener(
-    eventName: string,
-    listenerFunc: (event: ReadResult) => void,
-  ): PluginListenerHandle;
-  addListener(
-    eventName: 'onScanResult',
-    listenerFunc: (result: ScanResultInternal) => void,
-  ): PluginListenerHandle;
+  addListener(eventName: 'onEnabledChanged', listenerFunc: (result: BooleanResult) => void): PluginListenerHandle;
+  addListener(eventName: string, listenerFunc: (event: ReadResult) => void): PluginListenerHandle;
+  addListener(eventName: 'onScanResult', listenerFunc: (result: ScanResultInternal) => void): PluginListenerHandle;
   connect(options: DeviceIdOptions): Promise<void>;
   createBond(options: DeviceIdOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;

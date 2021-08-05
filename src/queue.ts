@@ -6,6 +6,6 @@ export function getQueue(enabled: boolean): Queue {
   if (enabled) {
     return throat(1);
   } else {
-    return fn => fn();
+    return (fn) => fn();
   }
 }
