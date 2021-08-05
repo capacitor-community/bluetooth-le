@@ -63,9 +63,7 @@ describe('textToDataView', () => {
     const result = textToDataView('Hello world');
     expect(result.byteLength).toEqual(11);
     expect(result.byteOffset).toEqual(0);
-    expect(dataViewToHexString(result)).toEqual(
-      '48 65 6c 6c 6f 20 77 6f 72 6c 64',
-    );
+    expect(dataViewToHexString(result)).toEqual('48 65 6c 6c 6f 20 77 6f 72 6c 64');
   });
 });
 

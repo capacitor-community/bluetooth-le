@@ -1,10 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import {
-  hexStringToDataView,
-  mapToObject,
-  webUUIDToString,
-} from './conversion';
+import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
 import type {
   BleDevice,
   BluetoothLePlugin,
@@ -68,14 +64,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     const filters = this.getFilters(options);
     await this.stopLEScan();
     this.discoverdDevices = new Map<string, boolean>();
-    navigator.bluetooth.removeEventListener(
-      'advertisementreceived',
-      this.onAdvertisemendReceived as EventListener,
-    );
-    navigator.bluetooth.addEventListener(
-      'advertisementreceived',
-      this.onAdvertisemendReceived,
-    );
+    navigator.bluetooth.removeEventListener('advertisementreceived', this.onAdvertisemendReceived as EventListener);
+    navigator.bluetooth.addEventListener('advertisementreceived', this.onAdvertisemendReceived);
     this.scan = await navigator.bluetooth.requestLEScan({
       filters: filters.length ? filters : undefined,
       acceptAllAdvertisements: filters.length === 0,
@@ -120,11 +110,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       throw new Error('No gatt server available.');
     }
     try {
-      await runWithTimeout(
-        device.gatt.connect(),
-        this.CONNECTION_TIMEOUT,
-        timeoutError,
-      );
+      await runWithTimeout(device.gatt.connect(), this.CONNECTION_TIMEOUT, timeoutError);
     } catch (error) {
       // cancel pending connect call, does not work yet in chromium because of a bug:
       // https://bugs.chromium.org/p/chromium/issues/detail?id=684073
@@ -156,12 +142,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     this.getDevice(options.deviceId).gatt?.disconnect();
   }
 
-  async getCharacteristic(
-    options: ReadOptions | WriteOptions,
-  ): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
-    const service = await this.getDevice(
-      options.deviceId,
-    ).gatt?.getPrimaryService(options?.service);
+  async getCharacteristic(options: ReadOptions | WriteOptions): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
+    const service = await this.getDevice(options.deviceId).gatt?.getPrimaryService(options?.service);
     return service?.getCharacteristic(options?.characteristic);
   }
 
@@ -195,14 +177,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 
   async startNotifications(options: ReadOptions): Promise<void> {
     const characteristic = await this.getCharacteristic(options);
-    characteristic?.removeEventListener(
-      'characteristicvaluechanged',
-      this.onCharacteristicValueChanged,
-    );
-    characteristic?.addEventListener(
-      'characteristicvaluechanged',
-      this.onCharacteristicValueChanged,
-    );
+    characteristic?.removeEventListener('characteristicvaluechanged', this.onCharacteristicValueChanged);
+    characteristic?.addEventListener('characteristicvaluechanged', this.onCharacteristicValueChanged);
     await characteristic?.startNotifications();
   }
 
@@ -220,9 +196,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     await characteristic?.stopNotifications();
   }
 
-  private getFilters(
-    options?: RequestBleDeviceOptions,
-  ): BluetoothRequestDeviceFilter[] {
+  private getFilters(options?: RequestBleDeviceOptions): BluetoothRequestDeviceFilter[] {
     const filters: BluetoothRequestDeviceFilter[] = [];
     for (const service of options?.services ?? []) {
       filters.push({
@@ -243,9 +217,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private getDevice(deviceId: string): BluetoothDevice {
     const device = this.deviceMap.get(deviceId);
     if (device === undefined) {
-      throw new Error(
-        'Device not found. Call "requestDevice" or "requestLEScan" first.',
-      );
+      throw new Error('Device not found. Call "requestDevice" or "requestLEScan" first.');
     }
     return device;
   }
