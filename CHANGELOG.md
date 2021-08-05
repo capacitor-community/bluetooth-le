@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.3](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.2...v1.1.3) (2021-08-05)
+
+
+### Bug Fixes
+
+* allow uppercase UUIDs and validate format ([14f654e](https://github.com/capacitor-community/bluetooth-le/commit/14f654e0397b2d5f73d27385e3cd03f00c8fefc0))
+
 ### [1.1.2](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.1...v1.1.2) (2021-07-03)
 
 
