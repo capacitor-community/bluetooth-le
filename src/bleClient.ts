@@ -13,6 +13,7 @@ import type {
 } from './definitions';
 import { BluetoothLe } from './plugin';
 import { getQueue } from './queue';
+import { validateUUID } from './validators';
 
 export interface BleClientInterface {
   /**
@@ -269,6 +270,8 @@ class BleClientClass implements BleClientInterface {
   }
 
   async read(deviceId: string, service: string, characteristic: string): Promise<DataView> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
     const value = await this.queue(async () => {
       const result = await BluetoothLe.read({
         deviceId,
@@ -281,6 +284,8 @@ class BleClientClass implements BleClientInterface {
   }
 
   async write(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
     return this.queue(async () => {
       if (!value?.buffer) {
         throw new Error('Invalid data.');
@@ -305,6 +310,8 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     value: DataView
   ): Promise<void> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
     await this.queue(async () => {
       if (!value?.buffer) {
         throw new Error('Invalid data.');
@@ -329,6 +336,8 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     callback: (value: DataView) => void
   ): Promise<void> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
     await this.queue(async () => {
       const key = `notification|${deviceId}|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();
@@ -345,6 +354,8 @@ class BleClientClass implements BleClientInterface {
   }
 
   async stopNotifications(deviceId: string, service: string, characteristic: string): Promise<void> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
     await this.queue(async () => {
       const key = `notification|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();

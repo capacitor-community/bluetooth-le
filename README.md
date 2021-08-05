@@ -554,14 +554,14 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 
 #### RequestBleDeviceOptions
 
-| Prop                   | Type                                          | Description                                                                                                                                                                                                                                                            |
-| ---------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`services`**         | <code>string[]</code>                         | Filter devices by service UUIDs. UUIDs have to be specified as 128 bit UUID strings in lowercase, e.g. ['0000180d-0000-1000-8000-00805f9b34fb'] There is a helper function to convert numbers to UUIDs. e.g. [numberToUUID(0x180f)]. (see [UUID format](#uuid-format)) |
-| **`name`**             | <code>string</code>                           | Filter devices by name                                                                                                                                                                                                                                                 |
-| **`namePrefix`**       | <code>string</code>                           | Filter devices by name prefix                                                                                                                                                                                                                                          |
-| **`optionalServices`** | <code>string[]</code>                         | For **web**, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                                        |
-| **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                             |
-| **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                                       |
+| Prop                   | Type                                          | Description                                                                                                                                                                                                                                               |
+| ---------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`services`**         | <code>string[]</code>                         | Filter devices by service UUIDs. UUIDs have to be specified as 128 bit UUID strings, e.g. ['0000180d-0000-1000-8000-00805f9b34fb'] There is a helper function to convert numbers to UUIDs. e.g. [numberToUUID(0x180f)]. (see [UUID format](#uuid-format)) |
+| **`name`**             | <code>string</code>                           | Filter devices by name                                                                                                                                                                                                                                    |
+| **`namePrefix`**       | <code>string</code>                           | Filter devices by name prefix                                                                                                                                                                                                                             |
+| **`optionalServices`** | <code>string[]</code>                         | For **web**, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                           |
+| **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                |
+| **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                          |
 
 #### ScanResult
 
@@ -632,7 +632,7 @@ buffer as needed.
 
 ### UUID format
 
-All UUIDs have to be provided in 128 bit format as string (lowercase), e.g. `'0000180d-0000-1000-8000-00805f9b34fb'`. There is a helper function to convert 16 bit UUID numbers to string:
+All UUIDs have to be provided in 128 bit format as string, e.g. `'0000180d-0000-1000-8000-00805f9b34fb'`. There is a helper function to convert 16 bit UUID numbers to string:
 
 ```typescript
 import { numberToUUID } from '@capacitor-community/bluetooth-le';
