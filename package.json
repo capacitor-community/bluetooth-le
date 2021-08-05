@@ -38,7 +38,7 @@
   "devDependencies": {
     "@capacitor/android": "^3.1.2",
     "@capacitor/cli": "^3.1.2",
-    "@capacitor/core": "^3.0.2",
+    "@capacitor/core": "^3.1.2",
     "@capacitor/docgen": "^0.0.17",
     "@capacitor/ios": "^3.1.2",
     "@ionic/eslint-config": "^0.3.0",
