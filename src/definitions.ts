@@ -5,7 +5,7 @@ import type { DisplayStrings } from './config';
 export interface RequestBleDeviceOptions {
   /**
    * Filter devices by service UUIDs.
-   * UUIDs have to be specified as 128 bit UUID strings in lowercase,
+   * UUIDs have to be specified as 128 bit UUID strings,
    * e.g. ['0000180d-0000-1000-8000-00805f9b34fb']
    * There is a helper function to convert numbers to UUIDs.
    * e.g. [numberToUUID(0x180f)]. (see [UUID format](#uuid-format))
