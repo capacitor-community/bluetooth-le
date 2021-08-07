@@ -1,3 +1,4 @@
+import { numberToUUID } from './conversion';
 import { validateUUID } from './validators';
 
 describe('Validate UUID', () => {
@@ -18,7 +19,12 @@ describe('Validate UUID', () => {
     expect(() => validateUUID(0x180d)).toThrowError('type number');
   });
 
-  it('should throw an error for a uuid missing dash', () => {
+  it('should validate a transformed number', () => {
+    const output = validateUUID(numberToUUID(0x180d));
+    expect(output).toBe(hr);
+  });
+
+  it('should throw an error for a uuid missing a dash', () => {
     expect(() => validateUUID(hr.replace('-', ''))).toThrowError('format');
   });
 });

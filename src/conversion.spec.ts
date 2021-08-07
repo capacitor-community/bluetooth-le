@@ -6,6 +6,8 @@ import {
   dataViewToNumbers,
   dataViewToText,
   textToDataView,
+  webUUIDToString,
+  mapToObject,
 } from './conversion';
 
 describe('numbersToDataView', () => {
@@ -80,5 +82,39 @@ describe('numberToUUID', () => {
     const value = 0x180d;
     const result = numberToUUID(value);
     expect(result).toEqual('0000180d-0000-1000-8000-00805f9b34fb');
+  });
+});
+
+describe('webUUIDToString', () => {
+  it('should convert a number to string UUID', () => {
+    const value = 0x180d;
+    const result = webUUIDToString(value);
+    expect(result).toEqual('0000180d-0000-1000-8000-00805f9b34fb');
+  });
+
+  it('should keep a string UUID', () => {
+    const value = '0000180d-0000-1000-8000-00805f9b34fb';
+    const result = webUUIDToString(value);
+    expect(result).toEqual('0000180d-0000-1000-8000-00805f9b34fb');
+  });
+
+  it('should throw an error on undefined', () => {
+    const value = undefined;
+    expect(() => webUUIDToString(value as any)).toThrowError('Invalid');
+  });
+});
+
+describe('mapToObject', () => {
+  it('should convert a map to an object with sting keys', () => {
+    const map = new Map();
+    map.set(1, 1);
+    map.set('a', 'a');
+    const result = mapToObject(map);
+    expect(result).toEqual({ '1': 1, a: 'a' });
+  });
+
+  it('should return undefined for undefined input', () => {
+    expect(mapToObject()).toBeUndefined();
+    expect(mapToObject(undefined)).toBeUndefined();
   });
 });
