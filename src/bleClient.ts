@@ -196,6 +196,7 @@ class BleClientClass implements BleClientInterface {
     await this.queue(async () => {
       const key = `onEnabledChanged`;
       await this.eventListeners.get(key)?.remove();
+      this.eventListeners.delete(key);
       await BluetoothLe.stopEnabledNotifications();
     });
   }
@@ -357,7 +358,7 @@ class BleClientClass implements BleClientInterface {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
     await this.queue(async () => {
-      const key = `notification|${service}|${characteristic}`;
+      const key = `notification|${deviceId}|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();
       this.eventListeners.delete(key);
       await BluetoothLe.stopNotifications({
