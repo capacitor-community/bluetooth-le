@@ -73,7 +73,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     });
   }
 
-  private onAdvertisemendReceived(event: BluetoothAdvertisementEvent) {
+  private onAdvertisemendReceived(event: BluetoothAdvertisementEvent): void {
     // do not use `this` in event listener
     const deviceId = event.device.id;
     BluetoothLe.deviceMap.set(deviceId, event.device);
@@ -123,7 +123,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
-  private onDisconnected(event: Event) {
+  private onDisconnected(event: Event): void {
     // do not use `this` in event listener
     const deviceId = (event.target as BluetoothDevice).id;
     const key = `disconnected|${deviceId}`;
@@ -182,7 +182,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     await characteristic?.startNotifications();
   }
 
-  private onCharacteristicValueChanged(event: Event) {
+  private onCharacteristicValueChanged(event: Event): void {
     // do not use `this` in event listener
     const characteristic = event.target as BluetoothRemoteGATTCharacteristic;
     const key = `notification|${characteristic.service?.device.id}|${characteristic.service?.uuid}|${characteristic.uuid}`;
