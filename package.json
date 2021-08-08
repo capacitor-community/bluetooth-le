@@ -23,6 +23,7 @@
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "version:dev": "npm version --no-git-tag-version $(git describe)",
     "release": "standard-version",

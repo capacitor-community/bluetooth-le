@@ -64,3 +64,6 @@ captures/
 .externalNativeBuild
 
 .vscode
+
+# test coverage
+coverage/
