@@ -1,5 +1,5 @@
 export async function runWithTimeout(promise: Promise<unknown>, time: number, exception: symbol): Promise<unknown> {
-  let timer: NodeJS.Timeout;
+  let timer: ReturnType<typeof setTimeout>;
   return Promise.race([
     promise,
     new Promise((_, reject) => {
