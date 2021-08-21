@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.3...v1.2.0) (2021-08-21)
+
+
+### Features
+
+* **all:** add getDevices and getConnectedDevices ([768745c](https://github.com/capacitor-community/bluetooth-le/commit/768745cf38c61a88f356fee5a443e927b50636ef))
+
+
+### Bug Fixes
+
+* fix type of ScanResult ([0b1ccfe](https://github.com/capacitor-community/bluetooth-le/commit/0b1ccfec98164252a5fe85f9fae0d33317d5d257))
+* properly remove event listeners when stopping notifications ([145ec13](https://github.com/capacitor-community/bluetooth-le/commit/145ec13d254a07dbf64224c915c6155668a10d91))
+* **web:** fix availability check ([965ff3d](https://github.com/capacitor-community/bluetooth-le/commit/965ff3d52c66232271854338f072bcaf3f19e34c))
+
 ### [1.1.3](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.2...v1.1.3) (2021-08-05)
 
 
