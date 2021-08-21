@@ -33,7 +33,7 @@ describe('BluetoothLe web', () => {
   });
 
   it('should initialize', async () => {
-    mockBluetooth.getAvailability.mockReturnValue(true);
+    mockBluetooth.getAvailability.mockReturnValue(Promise.resolve(true));
     await BluetoothLe.initialize();
     expect(BluetoothLe).toBeTruthy();
   });
