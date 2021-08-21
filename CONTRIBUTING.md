@@ -49,10 +49,17 @@ This template is integrated with ESLint, Prettier, and SwiftLint. Using these to
    # if there are linting errors
    npm run fmt
    ```
+1. Run tests
+   ```bash
+   npm run test
+   ```
 1. Update `usage` in README if necessary
 1. Merge to main
 1. Create a new version
    ```bash
+   # dry run
+   npm run release -- --dry-run
+   # release
    npm run release
    # or
    npm run release:minor
