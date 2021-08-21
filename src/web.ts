@@ -25,7 +25,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
       throw new Error('Web Bluetooth API not available in this browser.');
     }
-    if (!navigator.bluetooth.getAvailability()) {
+    const isAvailable = await navigator.bluetooth.getAvailability();
+    if (!isAvailable) {
       throw new Error('No Bluetooth radio available.');
     }
   }
