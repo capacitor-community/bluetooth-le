@@ -1,10 +1,7 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothManager
+import android.bluetooth.*
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
@@ -259,6 +256,36 @@ class BluetoothLe : Plugin() {
         assertBluetoothAdapter(call) ?: return
         deviceScanner?.stopScanning()
         call.resolve()
+    }
+
+    @PluginMethod
+    fun getDevices(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        val deviceIds = call.getArray("deviceIds").toList<String>()
+        var bleDevices = JSArray()
+        deviceIds.forEach { deviceId ->
+            val bleDevice = JSObject()
+            bleDevice.put("deviceId", deviceId)
+            bleDevices.put(bleDevice)
+        }
+        val result = JSObject()
+        result.put("devices", bleDevices)
+        call.resolve(result)
+    }
+
+    @PluginMethod
+    fun getConnectedDevices(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        val bluetoothManager = (activity.getSystemService(Context.BLUETOOTH_SERVICE)
+                as BluetoothManager)
+        val devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        val bleDevices = JSArray()
+        devices.forEach { device ->
+            bleDevices.put(getBleDevice(device))
+        }
+        val result = JSObject()
+        result.put("devices", bleDevices)
+        call.resolve(result)
     }
 
     @PluginMethod

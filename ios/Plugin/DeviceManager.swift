@@ -178,9 +178,21 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self?.viewController?.present((self?.alertController)!, animated: true, completion: nil)
         }
     }
-
-    func getDevice(_ deviceId: String) -> Device? {
-        return self.discoveredDevices[deviceId]
+    
+    func getDevices(_ deviceUUIDs: [UUID]) -> [Device] {
+        let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: deviceUUIDs)
+        let devices = peripherals.map({peripheral in
+            return Device(peripheral)
+        })
+        return devices
+    }
+    
+    func getConnectedDevices(_ serviceUUIDs: [CBUUID]) -> [Device] {
+        let peripherals = self.centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
+        let devices = peripherals.map({peripheral in
+            return Device(peripheral)
+        })
+        return devices
     }
 
     func connect(_ device: Device, _ callback: @escaping Callback) {
@@ -238,6 +250,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             return
         }
         self.resolve(key, "Successfully disconnected.")
+    }
+    
+    func getDevice(_ deviceId: String) -> Device? {
+        return self.discoveredDevices[deviceId]
     }
 
     private func passesNameFilter(peripheralName: String?) -> Bool {

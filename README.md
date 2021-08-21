@@ -50,6 +50,8 @@ Below is an index of all the methods available.
 - [`requestDevice(...)`](#requestdevice)
 - [`requestLEScan(...)`](#requestlescan)
 - [`stopLEScan()`](#stoplescan)
+- [`getDevices(...)`](#getdevices)
+- [`getConnectedDevices(...)`](#getconnecteddevices)
 - [`connect(...)`](#connect)
 - [`createBond(...)`](#createbond)
 - [`isBonded(...)`](#isbonded)
@@ -361,6 +363,44 @@ stopLEScan() => Promise<void>
 ```
 
 Stop scanning for BLE devices. For an example, see [usage](#usage).
+
+---
+
+### getDevices(...)
+
+```typescript
+getDevices(deviceIds: string[]) => Promise<BleDevice[]>
+```
+
+On iOS and web, if you want to connect to a previously connected device without scanning first, you can use `getDevice`.
+Uses [retrievePeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1519127-retrieveperipherals) on iOS and
+[getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
+On Android, you can directly connect to the device with the deviceId.
+
+| Param           | Type                  | Description                                                             |
+| --------------- | --------------------- | ----------------------------------------------------------------------- |
+| **`deviceIds`** | <code>string[]</code> | List of device IDs, e.g. saved from a previous app run. No used on web. |
+
+**Returns:** <code>Promise&lt;BleDevice[]&gt;</code>
+
+---
+
+### getConnectedDevices(...)
+
+```typescript
+getConnectedDevices(services: string[]) => Promise<BleDevice[]>
+```
+
+Get a list of currently connected devices.
+Uses [retrieveConnectedPeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1518924-retrieveconnectedperipherals) on iOS,
+[getConnectedDevices](<https://developer.android.com/reference/android/bluetooth/BluetoothManager#getConnectedDevices(int)>) on Android
+and [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
+
+| Param          | Type                  | Description                                                                                                              |
+| -------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **`services`** | <code>string[]</code> | List of services to filter the devices by. If no service is specified, no devices will be returned. Only applies to iOS. |
+
+**Returns:** <code>Promise&lt;BleDevice[]&gt;</code>
 
 ---
 
