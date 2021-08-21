@@ -75,6 +75,14 @@ export interface DeviceIdOptions {
   deviceId: string;
 }
 
+export interface GetDevicesOptions {
+  deviceIds: string[];
+}
+
+export interface GetConnectedDevicesOptions {
+  services: string[];
+}
+
 export interface ReadOptions {
   deviceId: string;
   service: string;
@@ -96,6 +104,10 @@ export interface WriteOptions {
 
 export interface BooleanResult {
   value: boolean;
+}
+
+export interface GetDevicesResult {
+  devices: BleDevice[];
 }
 
 export interface ReadResult {
@@ -163,6 +175,8 @@ export interface BluetoothLePlugin {
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
   requestLEScan(options?: RequestBleDeviceOptions): Promise<void>;
   stopLEScan(): Promise<void>;
+  getDevices(options: GetDevicesOptions): Promise<GetDevicesResult>;
+  getConnectedDevices(options: GetConnectedDevicesOptions): Promise<GetDevicesResult>;
   addListener(eventName: 'onEnabledChanged', listenerFunc: (result: BooleanResult) => void): PluginListenerHandle;
   addListener(eventName: string, listenerFunc: (event: ReadResult) => void): PluginListenerHandle;
   addListener(eventName: 'onScanResult', listenerFunc: (result: ScanResultInternal) => void): PluginListenerHandle;

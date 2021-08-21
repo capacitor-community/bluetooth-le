@@ -69,6 +69,24 @@ export interface BleClientInterface {
   stopLEScan(): Promise<void>;
 
   /**
+   * On iOS and web, if you want to connect to a previously connected device without scanning first, you can use `getDevice`.
+   * Uses [retrievePeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1519127-retrieveperipherals) on iOS and
+   * [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
+   * On Android, you can directly connect to the device with the deviceId.
+   * @param deviceIds List of device IDs, e.g. saved from a previous app run. No used on web.
+   */
+  getDevices(deviceIds: string[]): Promise<BleDevice[]>;
+
+  /**
+   * Get a list of currently connected devices.
+   * Uses [retrieveConnectedPeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1518924-retrieveconnectedperipherals) on iOS,
+   * [getConnectedDevices](https://developer.android.com/reference/android/bluetooth/BluetoothManager#getConnectedDevices(int)) on Android
+   * and [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
+   * @param services List of services to filter the devices by. If no service is specified, no devices will be returned. Only applies to iOS.
+   */
+  getConnectedDevices(services: string[]): Promise<BleDevice[]>;
+
+  /**
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
@@ -238,6 +256,20 @@ class BleClientClass implements BleClientInterface {
       await this.scanListener?.remove();
       this.scanListener = null;
       await BluetoothLe.stopLEScan();
+    });
+  }
+
+  async getDevices(deviceIds: string[]): Promise<BleDevice[]> {
+    return this.queue(async () => {
+      const result = await BluetoothLe.getDevices({ deviceIds });
+      return result.devices;
+    });
+  }
+
+  async getConnectedDevices(services: string[]): Promise<BleDevice[]> {
+    return this.queue(async () => {
+      const result = await BluetoothLe.getConnectedDevices({ services });
+      return result.devices;
     });
   }
 

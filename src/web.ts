@@ -6,6 +6,9 @@ import type {
   BluetoothLePlugin,
   BooleanResult,
   DeviceIdOptions,
+  GetConnectedDevicesOptions,
+  GetDevicesOptions,
+  GetDevicesResult,
   ReadOptions,
   ReadResult,
   RequestBleDeviceOptions,
@@ -16,7 +19,7 @@ import { runWithTimeout } from './timeout';
 
 export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private deviceMap = new Map<string, BluetoothDevice>();
-  private discoverdDevices = new Map<string, boolean>();
+  private discoveredDevices = new Map<string, boolean>();
   private scan: BluetoothLEScan | null = null;
   private requestBleDeviceOptions: RequestBleDeviceOptions | undefined;
   private CONNECTION_TIMEOUT = 10000;
@@ -64,9 +67,9 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     this.requestBleDeviceOptions = options;
     const filters = this.getFilters(options);
     await this.stopLEScan();
-    this.discoverdDevices = new Map<string, boolean>();
-    navigator.bluetooth.removeEventListener('advertisementreceived', this.onAdvertisemendReceived as EventListener);
-    navigator.bluetooth.addEventListener('advertisementreceived', this.onAdvertisemendReceived);
+    this.discoveredDevices = new Map<string, boolean>();
+    navigator.bluetooth.removeEventListener('advertisementreceived', this.onAdvertisementReceived as EventListener);
+    navigator.bluetooth.addEventListener('advertisementreceived', this.onAdvertisementReceived);
     this.scan = await navigator.bluetooth.requestLEScan({
       filters: filters.length ? filters : undefined,
       acceptAllAdvertisements: filters.length === 0,
@@ -74,13 +77,13 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     });
   }
 
-  private onAdvertisemendReceived(event: BluetoothAdvertisingEvent): void {
+  private onAdvertisementReceived(event: BluetoothAdvertisingEvent): void {
     // do not use `this` in event listener
     const deviceId = event.device.id;
     BluetoothLe.deviceMap.set(deviceId, event.device);
-    const isNew = !BluetoothLe.discoverdDevices.has(deviceId);
+    const isNew = !BluetoothLe.discoveredDevices.has(deviceId);
     if (isNew || BluetoothLe.requestBleDeviceOptions?.allowDuplicates) {
-      BluetoothLe.discoverdDevices.set(deviceId, true);
+      BluetoothLe.discoveredDevices.set(deviceId, true);
       const device = BluetoothLe.getBleDevice(event.device);
       const result: ScanResultInternal = {
         device,
@@ -102,8 +105,32 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     this.scan = null;
   }
 
+  async getDevices(_options: GetDevicesOptions): Promise<GetDevicesResult> {
+    const devices = await navigator.bluetooth.getDevices();
+    const bleDevices = devices.map((device) => {
+      this.deviceMap.set(device.id, device);
+      const bleDevice = this.getBleDevice(device);
+      return bleDevice;
+    });
+    return { devices: bleDevices };
+  }
+
+  async getConnectedDevices(_options: GetConnectedDevicesOptions): Promise<GetDevicesResult> {
+    const devices = await navigator.bluetooth.getDevices();
+    const bleDevices = devices
+      .filter((device) => {
+        return device.gatt?.connected;
+      })
+      .map((device) => {
+        this.deviceMap.set(device.id, device);
+        const bleDevice = this.getBleDevice(device);
+        return bleDevice;
+      });
+    return { devices: bleDevices };
+  }
+
   async connect(options: DeviceIdOptions): Promise<void> {
-    const device = await this.getDevice(options.deviceId);
+    const device = this.getDeviceFromMap(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnected);
     device.addEventListener('gattserverdisconnected', this.onDisconnected);
     const timeoutError = Symbol();
@@ -140,11 +167,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async disconnect(options: DeviceIdOptions): Promise<void> {
-    this.getDevice(options.deviceId).gatt?.disconnect();
+    this.getDeviceFromMap(options.deviceId).gatt?.disconnect();
   }
 
   async getCharacteristic(options: ReadOptions | WriteOptions): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
-    const service = await this.getDevice(options.deviceId).gatt?.getPrimaryService(options?.service);
+    const service = await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryService(options?.service);
     return service?.getCharacteristic(options?.characteristic);
   }
 
@@ -215,10 +242,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return filters;
   }
 
-  private getDevice(deviceId: string): BluetoothDevice {
+  private getDeviceFromMap(deviceId: string): BluetoothDevice {
     const device = this.deviceMap.get(deviceId);
     if (device === undefined) {
-      throw new Error('Device not found. Call "requestDevice" or "requestLEScan" first.');
+      throw new Error('Device not found. Call "requestDevice", "requestLEScan" or "getDevices" first.');
     }
     return device;
   }

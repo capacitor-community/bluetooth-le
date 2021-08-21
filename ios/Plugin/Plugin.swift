@@ -4,6 +4,7 @@ import CoreBluetooth
 
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
+    typealias BleDevice = [String: Any]
     private var deviceManager: DeviceManager?
     private var deviceMap = [String: Device]()
     private var displayStrings = [String: String]()
@@ -73,7 +74,7 @@ public class BluetoothLe: CAPPlugin {
                         return
                     }
                     self.deviceMap[device.getId()] = device
-                    let bleDevice = self.getBleDevice(device)
+                    let bleDevice: BleDevice = self.getBleDevice(device)
                     call.resolve(bleDevice)
                 } else {
                     call.reject(message)
@@ -116,6 +117,40 @@ public class BluetoothLe: CAPPlugin {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         deviceManager.stopScan()
         call.resolve()
+    }
+    
+    @objc func getDevices(_ call: CAPPluginCall) {
+        guard let deviceManager = self.getDeviceManager(call) else { return }
+        guard let deviceIds = call.getArray("deviceIds", String.self) else {
+            call.reject("deviceIds must be provided")
+            return
+        }
+        let deviceUUIDs: [UUID] = deviceIds.compactMap({ deviceId in
+            return UUID(uuidString: deviceId)
+        })        
+        let devices: [Device] = deviceManager.getDevices(deviceUUIDs)
+        let bleDevices: [BleDevice] = devices.map({device in
+            self.deviceMap[device.getId()] = device
+            return self.getBleDevice(device)
+        })
+        call.resolve(["devices": bleDevices])
+    }
+    
+    @objc func getConnectedDevices(_ call: CAPPluginCall) {
+        guard let deviceManager = self.getDeviceManager(call) else { return }
+        guard let services = call.getArray("services", String.self) else {
+            call.reject("services must be provided")
+            return
+        }
+        let serviceUUIDs: [CBUUID] = services.compactMap({ service in
+            return CBUUID(string: service)
+        })
+        let devices: [Device] = deviceManager.getConnectedDevices(serviceUUIDs)
+        let bleDevices: [BleDevice] = devices.map({device in
+            self.deviceMap[device.getId()] = device
+            return self.getBleDevice(device)
+        })
+        call.resolve(["devices": bleDevices])
     }
 
     @objc func connect(_ call: CAPPluginCall) {
@@ -282,7 +317,7 @@ public class BluetoothLe: CAPPlugin {
             return nil
         }
         guard let device = self.deviceMap[deviceId] else {
-            call.reject("Device not found. Call 'requestDevice' or 'requestLEScan' first.")
+            call.reject("Device not found. Call 'requestDevice', 'requestLEScan' or 'getDevices' first.")
             return nil
         }
         if checkConnection {
@@ -309,7 +344,7 @@ public class BluetoothLe: CAPPlugin {
         return (serviceUUID, characteristicUUID)
     }
 
-    private func getBleDevice(_ device: Device) -> [String: Any] {
+    private func getBleDevice(_ device: Device) -> BleDevice {
         var bleDevice = [
             "deviceId": device.getId()
         ]

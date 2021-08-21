@@ -8,9 +8,9 @@ import { BluetoothLe } from './web';
 
 interface BluetoothLeWithPrivate extends BluetoothLePlugin {
   deviceMap: Map<string, BluetoothDevice>;
-  discoverdDevices: Map<string, boolean>;
+  discoveredDevices: Map<string, boolean>;
   scan: BluetoothLEScan | null;
-  onAdvertisemendReceived: (event: BluetoothAdvertisingEvent) => void;
+  onAdvertisementReceived: (event: BluetoothAdvertisingEvent) => void;
   onDisconnected: (event: Event) => void;
 }
 
@@ -87,11 +87,11 @@ describe('BluetoothLe web', () => {
     await BluetoothLe.requestLEScan();
     expect(mockBluetooth.removeEventListener).toHaveBeenCalledWith(
       'advertisementreceived',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisemendReceived
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceived
     );
     expect(mockBluetooth.addEventListener).toHaveBeenCalledWith(
       'advertisementreceived',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisemendReceived
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceived
     );
     expect(mockBluetooth.requestLEScan).toHaveBeenCalledWith({ filters: undefined, acceptAllAdvertisements: true });
   });
