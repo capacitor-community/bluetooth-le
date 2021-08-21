@@ -109,8 +109,8 @@ export interface ReadResult {
 export interface ScanResultInternal<T = Data> {
   device: BleDevice;
   localName?: string;
-  rssi: number;
-  txPower: number;
+  rssi?: number;
+  txPower?: number;
   manufacturerData?: { [key: string]: T };
   serviceData?: { [key: string]: T };
   uuids?: string[];
@@ -131,11 +131,11 @@ export interface ScanResult {
   /**
    * Received Signal Strength Indication.
    */
-  rssi: number;
+  rssi?: number;
   /**
    * Transmit power in dBm. A value of 127 indicates that it is not available.
    */
-  txPower: number;
+  txPower?: number;
   /**
    * Manufacturer data, key is a company identifier and value is the data.
    */

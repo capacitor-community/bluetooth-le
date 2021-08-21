@@ -218,11 +218,16 @@ class BleClientClass implements BleClientInterface {
   async requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) => void): Promise<void> {
     await this.queue(async () => {
       await this.scanListener?.remove();
-      this.scanListener = await BluetoothLe.addListener('onScanResult', (result: ScanResultInternal) => {
-        result.manufacturerData = this.convertObject(result.manufacturerData);
-        result.serviceData = this.convertObject(result.serviceData);
-        result.rawAdvertisement = result.rawAdvertisement ? this.convertValue(result.rawAdvertisement) : undefined;
-        callback(result as ScanResult);
+      this.scanListener = await BluetoothLe.addListener('onScanResult', (resultInternal: ScanResultInternal) => {
+        const result: ScanResult = {
+          ...resultInternal,
+          manufacturerData: this.convertObject(resultInternal.manufacturerData),
+          serviceData: this.convertObject(resultInternal.serviceData),
+          rawAdvertisement: resultInternal.rawAdvertisement
+            ? this.convertValue(resultInternal.rawAdvertisement)
+            : undefined,
+        };
+        callback(result);
       });
       await BluetoothLe.requestLEScan(options);
     });

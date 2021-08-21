@@ -73,7 +73,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     });
   }
 
-  private onAdvertisemendReceived(event: BluetoothAdvertisementEvent): void {
+  private onAdvertisemendReceived(event: BluetoothAdvertisingEvent): void {
     // do not use `this` in event listener
     const deviceId = event.device.id;
     BluetoothLe.deviceMap.set(deviceId, event.device);
@@ -196,8 +196,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     await characteristic?.stopNotifications();
   }
 
-  private getFilters(options?: RequestBleDeviceOptions): BluetoothRequestDeviceFilter[] {
-    const filters: BluetoothRequestDeviceFilter[] = [];
+  private getFilters(options?: RequestBleDeviceOptions): BluetoothLEScanFilter[] {
+    const filters: BluetoothLEScanFilter[] = [];
     for (const service of options?.services ?? []) {
       filters.push({
         services: [service],
