@@ -10,7 +10,7 @@ interface BluetoothLeWithPrivate extends BluetoothLePlugin {
   deviceMap: Map<string, BluetoothDevice>;
   discoverdDevices: Map<string, boolean>;
   scan: BluetoothLEScan | null;
-  onAdvertisemendReceived: (event: BluetoothAdvertisementEvent) => void;
+  onAdvertisemendReceived: (event: BluetoothAdvertisingEvent) => void;
   onDisconnected: (event: Event) => void;
 }
 
