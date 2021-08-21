@@ -118,7 +118,7 @@ public class BluetoothLe: CAPPlugin {
         deviceManager.stopScan()
         call.resolve()
     }
-    
+
     @objc func getDevices(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         guard let deviceIds = call.getArray("deviceIds", String.self) else {
@@ -127,7 +127,7 @@ public class BluetoothLe: CAPPlugin {
         }
         let deviceUUIDs: [UUID] = deviceIds.compactMap({ deviceId in
             return UUID(uuidString: deviceId)
-        })        
+        })
         let devices: [Device] = deviceManager.getDevices(deviceUUIDs)
         let bleDevices: [BleDevice] = devices.map({device in
             self.deviceMap[device.getId()] = device
@@ -135,7 +135,7 @@ public class BluetoothLe: CAPPlugin {
         })
         call.resolve(["devices": bleDevices])
     }
-    
+
     @objc func getConnectedDevices(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
         guard let services = call.getArray("services", String.self) else {

@@ -178,7 +178,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self?.viewController?.present((self?.alertController)!, animated: true, completion: nil)
         }
     }
-    
+
     func getDevices(_ deviceUUIDs: [UUID]) -> [Device] {
         let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: deviceUUIDs)
         let devices = peripherals.map({peripheral in
@@ -186,7 +186,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         })
         return devices
     }
-    
+
     func getConnectedDevices(_ serviceUUIDs: [CBUUID]) -> [Device] {
         let peripherals = self.centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
         let devices = peripherals.map({peripheral in
@@ -251,7 +251,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
         self.resolve(key, "Successfully disconnected.")
     }
-    
+
     func getDevice(_ deviceId: String) -> Device? {
         return self.discoveredDevices[deviceId]
     }
