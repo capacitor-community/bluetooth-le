@@ -19,9 +19,16 @@ func stringToData(_ dataString: String) -> Data {
 }
 
 func cbuuidToString(_ uuid: CBUUID) -> String {
-    var str = uuid.uuidString.lowercased()
+    // declare as optional because of https://github.com/capacitor-community/bluetooth-le/issues/170
+    let uuidString: String? = uuid.uuidString
+    var str = uuidString!.lowercased()
     if str.count == 4 {
-        str = "0000" + str + "-0000-1000-8000-00805f9b34fb"
+        str = "0000\(str)-0000-1000-8000-00805f9b34fb"
     }
     return str
+}
+
+func cbuuidToStringUppercase(_ uuid: CBUUID) -> String {
+    let str = cbuuidToString(uuid)
+    return str.uppercased()
 }

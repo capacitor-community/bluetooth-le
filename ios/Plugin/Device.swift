@@ -59,7 +59,7 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    private func getCharacterisitic(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID) -> CBCharacteristic? {
+    private func getCharacteristic(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID) -> CBCharacteristic? {
         for service in peripheral.services ?? [] {
             if service.uuid == serviceUUID {
                 for characteristic in service.characteristics ?? [] {
@@ -75,7 +75,7 @@ class Device: NSObject, CBPeripheralDelegate {
     func read(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ callback: @escaping Callback) {
         let key = "read|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         self.callbackMap[key] = callback
-        guard let characteristic = self.getCharacterisitic(serviceUUID, characteristicUUID) else {
+        guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
             self.reject(key, "Characteristic not found.")
             return
         }
@@ -109,7 +109,7 @@ class Device: NSObject, CBPeripheralDelegate {
     func write(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ value: String, _ writeType: CBCharacteristicWriteType, _ callback: @escaping Callback) {
         let key = "write|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         self.callbackMap[key] = callback
-        guard let characteristic = self.getCharacterisitic(serviceUUID, characteristicUUID) else {
+        guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
             self.reject(key, "Characteristic not found.")
             return
         }
@@ -148,7 +148,7 @@ class Device: NSObject, CBPeripheralDelegate {
         if notifyCallback != nil {
             self.callbackMap[notifyKey] = notifyCallback
         }
-        guard let characteristic = self.getCharacterisitic(serviceUUID, characteristicUUID) else {
+        guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
             self.reject(key, "Characteristic not found.")
             return
         }
@@ -167,14 +167,8 @@ class Device: NSObject, CBPeripheralDelegate {
     }
 
     private func getKey(_ prefix: String, _ characteristic: CBCharacteristic) -> String {
-        var serviceUUIDString = characteristic.service.uuid.uuidString
-        if serviceUUIDString.count == 4 {
-            serviceUUIDString = "0000\(serviceUUIDString)-0000-1000-8000-00805F9B34FB"
-        }
-        var characteristicUUIDString = characteristic.uuid.uuidString
-        if characteristicUUIDString.count == 4 {
-            characteristicUUIDString = "0000\(characteristicUUIDString)-0000-1000-8000-00805F9B34FB"
-        }
+        let serviceUUIDString = cbuuidToStringUppercase(characteristic.service.uuid)
+        let characteristicUUIDString = cbuuidToStringUppercase(characteristic.uuid)
         return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
     }
 
