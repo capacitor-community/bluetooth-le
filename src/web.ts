@@ -27,11 +27,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 
   async initialize(): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
-      throw new Error('Web Bluetooth API not available in this browser.');
+      throw this.unavailable('Web Bluetooth API not available in this browser.');
     }
     const isAvailable = await navigator.bluetooth.getAvailability();
     if (!isAvailable) {
-      throw new Error('No Bluetooth radio available.');
+      throw this.unavailable('No Bluetooth radio available.');
     }
   }
 
@@ -160,11 +160,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async createBond(_options: DeviceIdOptions): Promise<void> {
-    throw new Error('Unavailable');
+    throw this.unavailable('createBond is not available on web.');
   }
 
   async isBonded(_options: DeviceIdOptions): Promise<BooleanResult> {
-    throw new Error('Unavailable');
+    throw this.unavailable('isBonded is not available on web.');
   }
 
   async disconnect(options: DeviceIdOptions): Promise<void> {
@@ -177,7 +177,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async readRssi(_options: DeviceIdOptions): Promise<ReadRssiResult> {
-    throw new Error('readRssi is not available on web');
+    throw this.unavailable('readRssi is not available on web.');
   }
 
   async read(options: ReadOptions): Promise<ReadResult> {
