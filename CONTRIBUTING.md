@@ -80,7 +80,7 @@ This template is integrated with ESLint, Prettier, and SwiftLint. Using these to
    # or for a prerelease
    npm publish --tag next
    # or for a development release
-   npm run publish:dev
+   npm publish --tag dev
    ```
 1. Push git tag
    ```
