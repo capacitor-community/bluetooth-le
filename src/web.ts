@@ -11,6 +11,7 @@ import type {
   GetDevicesResult,
   ReadOptions,
   ReadResult,
+  ReadRssiResult,
   RequestBleDeviceOptions,
   ScanResultInternal,
   WriteOptions,
@@ -158,11 +159,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     BluetoothLe.notifyListeners(key, null);
   }
 
-  async createBond(): Promise<void> {
+  async createBond(_options: DeviceIdOptions): Promise<void> {
     throw new Error('Unavailable');
   }
 
-  async isBonded(): Promise<BooleanResult> {
+  async isBonded(_options: DeviceIdOptions): Promise<BooleanResult> {
     throw new Error('Unavailable');
   }
 
@@ -173,6 +174,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   async getCharacteristic(options: ReadOptions | WriteOptions): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
     const service = await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryService(options?.service);
     return service?.getCharacteristic(options?.characteristic);
+  }
+
+  async readRssi(_options: DeviceIdOptions): Promise<ReadRssiResult> {
+    throw new Error('readRssi is not available on web');
   }
 
   async read(options: ReadOptions): Promise<ReadResult> {

@@ -349,6 +349,22 @@ class BluetoothLe : Plugin() {
     }
 
     @PluginMethod
+    fun readRssi(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        device.readRssi { response ->
+            run {
+                if (response.success) {
+                    val ret = JSObject()
+                    ret.put("value", response.value)
+                    call.resolve(ret)
+                } else {
+                    call.reject(response.value)
+                }
+            }
+        }
+    }
+
+    @PluginMethod
     fun read(call: PluginCall) {
         val device = getDevice(call) ?: return
         val characteristic = getCharacteristic(call) ?: return

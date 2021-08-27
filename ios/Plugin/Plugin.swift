@@ -198,6 +198,20 @@ public class BluetoothLe: CAPPlugin {
         })
     }
 
+    @objc func readRssi(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        device.readRssi({(success, value) -> Void in
+            if success {
+                call.resolve([
+                    "value": value
+                ])
+            } else {
+                call.reject(value)
+            }
+        })
+    }
+
     @objc func read(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }

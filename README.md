@@ -56,6 +56,7 @@ Below is an index of all the methods available.
 - [`createBond(...)`](#createbond)
 - [`isBonded(...)`](#isbonded)
 - [`disconnect(...)`](#disconnect)
+- [`readRssi(...)`](#readrssi)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
 - [`writeWithoutResponse(...)`](#writewithoutresponse)
@@ -462,6 +463,22 @@ Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+---
+
+### readRssi(...)
+
+```typescript
+readRssi(deviceId: string) => Promise<number>
+```
+
+Read the RSSI value of a connected device.
+
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+**Returns:** <code>Promise&lt;number&gt;</code>
 
 ---
 
