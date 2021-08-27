@@ -110,6 +110,10 @@ export interface GetDevicesResult {
   devices: BleDevice[];
 }
 
+export interface ReadRssiResult {
+  value: string;
+}
+
 export interface ReadResult {
   /**
    * android, ios: string
@@ -184,6 +188,7 @@ export interface BluetoothLePlugin {
   createBond(options: DeviceIdOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;
+  readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
   read(options: ReadOptions): Promise<ReadResult>;
   write(options: WriteOptions): Promise<void>;
   writeWithoutResponse(options: WriteOptions): Promise<void>;

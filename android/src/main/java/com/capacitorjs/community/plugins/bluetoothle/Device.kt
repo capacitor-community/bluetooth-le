@@ -86,6 +86,16 @@ class Device(
             resolve("connect", "Connected.")
         }
 
+        override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
+            super.onReadRemoteRssi(gatt, rssi, status)
+            val key = "readRssi"
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                resolve(key, rssi.toString())
+            } else {
+                reject(key, "Reading RSSI failed.")
+            }
+        }
+
         override fun onCharacteristicRead(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic,
@@ -262,6 +272,17 @@ class Device(
         }
         bluetoothGatt?.disconnect()
         setTimeout(key, "Disconnection timeout.")
+    }
+
+    fun readRssi(callback: (CallbackResponse) -> Unit) {
+        val key = "readRssi"
+        callbackMap[key] = callback
+        val result = bluetoothGatt?.readRemoteRssi()
+        if (result != true) {
+            reject(key, "Reading RSSI failed.")
+            return
+        }
+        setTimeout(key, "Reading RSSI timeout.")
     }
 
     fun read(serviceUUID: UUID, characteristicUUID: UUID, callback: (CallbackResponse) -> Unit) {

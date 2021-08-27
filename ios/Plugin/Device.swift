@@ -59,6 +59,23 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
+    func readRssi(_ callback: @escaping Callback) {
+        let key = "readRssi"
+        self.callbackMap[key] = callback
+        print("Reading RSSI value")
+        self.peripheral.readRSSI()
+        self.setTimeout(key, "Reading RSSI timeout.")
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
+        let key = "readRssi"
+        if error != nil {
+            self.reject(key, error!.localizedDescription)
+            return
+        }
+        self.resolve(key, RSSI.stringValue)
+    }
+
     private func getCharacteristic(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID) -> CBCharacteristic? {
         for service in peripheral.services ?? [] {
             if service.uuid == serviceUUID {

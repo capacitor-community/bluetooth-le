@@ -114,6 +114,12 @@ export interface BleClientInterface {
   disconnect(deviceId: string): Promise<void>;
 
   /**
+   * Read the RSSI value of a connected device.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   */
+  readRssi(deviceId: string): Promise<number>;
+
+  /**
    * Read the value of a characteristic. For an example, see [usage](#usage).
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
@@ -305,6 +311,14 @@ class BleClientClass implements BleClientInterface {
     await this.queue(async () => {
       await BluetoothLe.disconnect({ deviceId });
     });
+  }
+
+  async readRssi(deviceId: string): Promise<number> {
+    const value = await this.queue(async () => {
+      const result = await BluetoothLe.readRssi({ deviceId });
+      return parseFloat(result.value);
+    });
+    return value;
   }
 
   async read(deviceId: string, service: string, characteristic: string): Promise<DataView> {
