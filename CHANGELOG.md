@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.2.0...v1.3.0) (2021-08-27)
+
+
+### Features
+
+* **android, ios:** add readRssi method to read RSSI value of a connected device ([4b3fc05](https://github.com/capacitor-community/bluetooth-le/commit/4b3fc051d9c32fd7a37c43e6f65f1a322b64c3ef))
+
+
+### Bug Fixes
+
+* **ios:** fix callback key in case of optional CBUUID ([d8b54ac](https://github.com/capacitor-community/bluetooth-le/commit/d8b54acca1dd3e46543010e8c4c3d41740d452a0))
+
 ## [1.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.1.3...v1.2.0) (2021-08-21)
 
 
