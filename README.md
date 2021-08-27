@@ -473,6 +473,7 @@ readRssi(deviceId: string) => Promise<number>
 ```
 
 Read the RSSI value of a connected device.
+Not available on web.
 
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |

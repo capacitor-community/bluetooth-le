@@ -115,6 +115,7 @@ export interface BleClientInterface {
 
   /**
    * Read the RSSI value of a connected device.
+   * Not available on web.
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   readRssi(deviceId: string): Promise<number>;
