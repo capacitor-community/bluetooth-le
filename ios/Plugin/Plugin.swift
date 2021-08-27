@@ -179,11 +179,11 @@ public class BluetoothLe: CAPPlugin {
     }
 
     @objc func createBond(_ call: CAPPluginCall) {
-        call.reject("Unavailable")
+        call.unavailable("createBond is not available on iOS.")
     }
 
     @objc func isBonded(_ call: CAPPluginCall) {
-        call.reject("Unavailable")
+        call.unavailable("isBonded is not available on iOS.")
     }
 
     @objc func disconnect(_ call: CAPPluginCall) {
