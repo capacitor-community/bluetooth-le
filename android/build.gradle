@@ -7,14 +7,15 @@ ext {
 }
 
 buildscript {
-    ext.kotlinVersion = project.hasProperty('kotlinVersion') ? rootProject.ext.kotlinVersion : '1.4.20'
+    ext.kotlinVersion = project.hasProperty('kotlinVersion') ? rootProject.ext.kotlinVersion : '1.5.10'
+    ext.coreKtx = project.hasProperty('coreKtx') ? rootProject.ext.coreKtx : '1.6.0'
 
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath 'com.android.tools.build:gradle:4.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
@@ -61,6 +62,6 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
-    implementation "androidx.core:core-ktx:+"
+    implementation "androidx.core:core-ktx:$coreKtx"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 }
