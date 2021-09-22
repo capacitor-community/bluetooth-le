@@ -184,7 +184,13 @@ class Device: NSObject, CBPeripheralDelegate {
     }
 
     private func getKey(_ prefix: String, _ characteristic: CBCharacteristic) -> String {
-        let serviceUUIDString = cbuuidToStringUppercase(characteristic.service.uuid)
+        let serviceUUIDString: String
+        let service: CBService? = characteristic.service
+        if service != nil {
+            serviceUUIDString = cbuuidToStringUppercase(service!.uuid)
+        } else {
+            serviceUUIDString = "UNKNOWN-SERVICE"
+        }
         let characteristicUUIDString = cbuuidToStringUppercase(characteristic.uuid)
         return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
     }
