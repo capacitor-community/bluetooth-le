@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.3.0...v1.3.1) (2021-09-22)
+
+
+### Bug Fixes
+
+* **ios:** fix service being nullable in new CBCharacteristic (xcode 13) ([#197](https://github.com/capacitor-community/bluetooth-le/issues/197)) ([469c6eb](https://github.com/capacitor-community/bluetooth-le/commit/469c6eb75f7bb1bebb32a60fe094a1f3bb93a56e)), closes [#196](https://github.com/capacitor-community/bluetooth-le/issues/196) [#196](https://github.com/capacitor-community/bluetooth-le/issues/196)
+
 ## [1.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.2.0...v1.3.0) (2021-08-27)
 
 
