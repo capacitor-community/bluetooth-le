@@ -183,8 +183,13 @@ class Device: NSObject, CBPeripheralDelegate {
         self.resolve(key, "Successfully set notifications.")
     }
 
-    private func getKey(_ prefix: String, _ characteristic: CBCharacteristic) -> String {
-        let serviceUUIDString = cbuuidToStringUppercase(characteristic.service.uuid)
+     private func getKey(_ prefix: String, _ characteristic: CBCharacteristic) -> String {
+        let serviceUUIDString: String
+        if (characteristic.service?.uuid == nil) {
+            serviceUUIDString = "UNKNOWN-SERVICE"
+        } else {
+            serviceUUIDString = cbuuidToStringUppercase(characteristic.service!.uuid)
+        }
         let characteristicUUIDString = cbuuidToStringUppercase(characteristic.uuid)
         return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
     }
