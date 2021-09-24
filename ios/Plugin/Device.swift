@@ -113,7 +113,7 @@ class Device: NSObject, CBPeripheralDelegate {
             return
         }
         if characteristic.value == nil {
-            self.reject(key, "Characterisitc contains no value.")
+            self.reject(key, "Characteristic contains no value.")
             return
         }
         // reading

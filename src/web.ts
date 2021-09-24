@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { BleCharacteristic, BleService } from '.';
+import type { BleCharacteristic, BleCharacteristicProperties, BleService } from '.';
 import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
 import type {
   BleDevice,
@@ -174,33 +174,33 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   async getServices(options: DeviceIdOptions): Promise<BleServices> {
-    const services = await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryServices();
-    if (services) {
-      const bleServices: BleService[] = [];
-      for (const service of services) {
-        const characteristics = await service.getCharacteristics();
-        const bleCharacteristics: BleCharacteristic[] = characteristics.map((c) => {
-          return {
-            uuid: c.uuid,
-            properties: {
-              broadcast: c.properties.broadcast,
-              read: c.properties.read,
-              writeWithoutResponse: c.properties.writeWithoutResponse,
-              write: c.properties.write,
-              notify: c.properties.notify,
-              indicate: c.properties.indicate,
-              authenticatedSignedWrites: c.properties.authenticatedSignedWrites,
-              reliableWrite: c.properties.reliableWrite,
-              writableAuxiliaries: c.properties.writableAuxiliaries,
-            },
-          };
-        });
-        bleServices.push({ uuid: service.uuid, characteristics: bleCharacteristics });
-      }
-      return { services: bleServices };
-    } else {
-      return { services: [] };
+    const services = (await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryServices()) ?? [];
+    const bleServices: BleService[] = [];
+    for (const service of services) {
+      const characteristics = await service.getCharacteristics();
+      const bleCharacteristics: BleCharacteristic[] = characteristics.map((characteristic) => {
+        return {
+          uuid: characteristic.uuid,
+          properties: this.getProperties(characteristic),
+        };
+      });
+      bleServices.push({ uuid: service.uuid, characteristics: bleCharacteristics });
     }
+    return { services: bleServices };
+  }
+
+  private getProperties(characteristic: BluetoothRemoteGATTCharacteristic): BleCharacteristicProperties {
+    return {
+      broadcast: characteristic.properties.broadcast,
+      read: characteristic.properties.read,
+      writeWithoutResponse: characteristic.properties.writeWithoutResponse,
+      write: characteristic.properties.write,
+      notify: characteristic.properties.notify,
+      indicate: characteristic.properties.indicate,
+      authenticatedSignedWrites: characteristic.properties.authenticatedSignedWrites,
+      reliableWrite: characteristic.properties.reliableWrite,
+      writableAuxiliaries: characteristic.properties.writableAuxiliaries,
+    };
   }
 
   private async getCharacteristic(

@@ -357,41 +357,8 @@ class BluetoothLe : Plugin() {
             val bleCharacteristics = JSArray()
             service.characteristics.forEach { characteristic ->
                 val bleCharacteristic = JSObject()
-                val properties = JSObject()
-                properties.put(
-                    "broadcast",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_BROADCAST > 0
-                )
-                properties.put(
-                    "read",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ > 0
-                )
-                properties.put(
-                    "writeWithoutResponse",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0
-                )
-                properties.put(
-                    "write",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE > 0
-                )
-                properties.put(
-                    "notify",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0
-                )
-                properties.put(
-                    "indicate",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0
-                )
-                properties.put(
-                    "authenticatedSignedWrites",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE > 0
-                )
-                properties.put(
-                    "extendedProperties",
-                    characteristic.properties and BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS > 0
-                )
                 bleCharacteristic.put("uuid", characteristic.uuid)
-                bleCharacteristic.put("properties", properties)
+                bleCharacteristic.put("properties", getProperties(characteristic))
                 bleCharacteristics.put(bleCharacteristic)
             }
             val bleService = JSObject()
@@ -402,6 +369,43 @@ class BluetoothLe : Plugin() {
         val ret = JSObject()
         ret.put("services", bleServices)
         call.resolve(ret)
+    }
+
+    private fun getProperties(characteristic: BluetoothGattCharacteristic): JSObject {
+        val properties = JSObject()
+        properties.put(
+            "broadcast",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_BROADCAST > 0
+        )
+        properties.put(
+            "read",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ > 0
+        )
+        properties.put(
+            "writeWithoutResponse",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0
+        )
+        properties.put(
+            "write",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE > 0
+        )
+        properties.put(
+            "notify",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0
+        )
+        properties.put(
+            "indicate",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0
+        )
+        properties.put(
+            "authenticatedSignedWrites",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE > 0
+        )
+        properties.put(
+            "extendedProperties",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS > 0
+        )
+        return properties
     }
 
     @PluginMethod
