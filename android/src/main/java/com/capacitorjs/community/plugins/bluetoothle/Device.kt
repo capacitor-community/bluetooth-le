@@ -274,6 +274,10 @@ class Device(
         setTimeout(key, "Disconnection timeout.")
     }
 
+    fun getServices(): MutableList<BluetoothGattService> {
+        return bluetoothGatt?.services ?: mutableListOf<BluetoothGattService>()
+    }
+
     fun readRssi(callback: (CallbackResponse) -> Unit) {
         val key = "readRssi"
         callbackMap[key] = callback

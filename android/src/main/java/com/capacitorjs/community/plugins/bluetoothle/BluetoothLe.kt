@@ -349,6 +349,66 @@ class BluetoothLe : Plugin() {
     }
 
     @PluginMethod
+    fun getServices(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val services = device.getServices()
+        val bleServices = JSArray()
+        services.forEach { service ->
+            val bleCharacteristics = JSArray()
+            service.characteristics.forEach { characteristic ->
+                val bleCharacteristic = JSObject()
+                bleCharacteristic.put("uuid", characteristic.uuid)
+                bleCharacteristic.put("properties", getProperties(characteristic))
+                bleCharacteristics.put(bleCharacteristic)
+            }
+            val bleService = JSObject()
+            bleService.put("uuid", service.uuid)
+            bleService.put("characteristics", bleCharacteristics)
+            bleServices.put(bleService)
+        }
+        val ret = JSObject()
+        ret.put("services", bleServices)
+        call.resolve(ret)
+    }
+
+    private fun getProperties(characteristic: BluetoothGattCharacteristic): JSObject {
+        val properties = JSObject()
+        properties.put(
+            "broadcast",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_BROADCAST > 0
+        )
+        properties.put(
+            "read",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ > 0
+        )
+        properties.put(
+            "writeWithoutResponse",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0
+        )
+        properties.put(
+            "write",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_WRITE > 0
+        )
+        properties.put(
+            "notify",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0
+        )
+        properties.put(
+            "indicate",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0
+        )
+        properties.put(
+            "authenticatedSignedWrites",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE > 0
+        )
+        properties.put(
+            "extendedProperties",
+            characteristic.properties and BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS > 0
+        )
+        return properties
+    }
+
+    @PluginMethod
     fun readRssi(call: PluginCall) {
         val device = getDevice(call) ?: return
         device.readRssi { response ->

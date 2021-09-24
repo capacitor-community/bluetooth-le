@@ -56,6 +56,7 @@ Below is an index of all the methods available.
 - [`createBond(...)`](#createbond)
 - [`isBonded(...)`](#isbonded)
 - [`disconnect(...)`](#disconnect)
+- [`getServices(...)`](#getservices)
 - [`readRssi(...)`](#readrssi)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
@@ -466,6 +467,22 @@ Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
 
 ---
 
+### getServices(...)
+
+```typescript
+getServices(deviceId: string) => Promise<BleService[]>
+```
+
+Get services and characteristics of device.
+
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+**Returns:** <code>Promise&lt;BleService[]&gt;</code>
+
+---
+
 ### readRssi(...)
 
 ```typescript
@@ -652,6 +669,37 @@ buffer as needed.
 | Method    | Signature                                                                               | Description                                                     |
 | --------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **slice** | (begin: number, end?: number \| undefined) =&gt; <a href="#arraybuffer">ArrayBuffer</a> | Returns a section of an <a href="#arraybuffer">ArrayBuffer</a>. |
+
+#### BleService
+
+| Prop                  | Type                             |
+| --------------------- | -------------------------------- |
+| **`uuid`**            | <code>string</code>              |
+| **`characteristics`** | <code>BleCharacteristic[]</code> |
+
+#### BleCharacteristic
+
+| Prop             | Type                                                                                |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| **`uuid`**       | <code>string</code>                                                                 |
+| **`properties`** | <code><a href="#blecharacteristicproperties">BleCharacteristicProperties</a></code> |
+
+#### BleCharacteristicProperties
+
+| Prop                             | Type                 |
+| -------------------------------- | -------------------- |
+| **`broadcast`**                  | <code>boolean</code> |
+| **`read`**                       | <code>boolean</code> |
+| **`writeWithoutResponse`**       | <code>boolean</code> |
+| **`write`**                      | <code>boolean</code> |
+| **`notify`**                     | <code>boolean</code> |
+| **`indicate`**                   | <code>boolean</code> |
+| **`authenticatedSignedWrites`**  | <code>boolean</code> |
+| **`reliableWrite`**              | <code>boolean</code> |
+| **`writableAuxiliaries`**        | <code>boolean</code> |
+| **`extendedProperties`**         | <code>boolean</code> |
+| **`notifyEncryptionRequired`**   | <code>boolean</code> |
+| **`indicateEncryptionRequired`** | <code>boolean</code> |
 
 ### Enums
 

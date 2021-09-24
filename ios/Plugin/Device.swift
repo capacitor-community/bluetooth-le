@@ -59,6 +59,10 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
+    func getServices() -> [CBService] {
+        return self.peripheral.services ?? []
+    }
+
     func readRssi(_ callback: @escaping Callback) {
         let key = "readRssi"
         self.callbackMap[key] = callback
@@ -109,7 +113,7 @@ class Device: NSObject, CBPeripheralDelegate {
             return
         }
         if characteristic.value == nil {
-            self.reject(key, "Characterisitc contains no value.")
+            self.reject(key, "Characteristic contains no value.")
             return
         }
         // reading
