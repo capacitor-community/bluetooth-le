@@ -51,7 +51,7 @@ This template is integrated with ESLint, Prettier, and SwiftLint. Using these to
    ```
 1. Run tests
    ```bash
-   npm run test
+   npm run verify
    ```
 1. Update `usage` in README if necessary
 1. Merge to main
