@@ -679,10 +679,27 @@ buffer as needed.
 
 #### BleCharacteristic
 
-| Prop             | Type                |
-| ---------------- | ------------------- |
-| **`uuid`**       | <code>string</code> |
-| **`properties`** | <code>any</code>    |
+| Prop             | Type                                                                                |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| **`uuid`**       | <code>string</code>                                                                 |
+| **`properties`** | <code><a href="#blecharacteristicproperties">BleCharacteristicProperties</a></code> |
+
+#### BleCharacteristicProperties
+
+| Prop                             | Type                 |
+| -------------------------------- | -------------------- |
+| **`broadcast`**                  | <code>boolean</code> |
+| **`read`**                       | <code>boolean</code> |
+| **`writeWithoutResponse`**       | <code>boolean</code> |
+| **`write`**                      | <code>boolean</code> |
+| **`notify`**                     | <code>boolean</code> |
+| **`indicate`**                   | <code>boolean</code> |
+| **`authenticatedSignedWrites`**  | <code>boolean</code> |
+| **`reliableWrite`**              | <code>boolean</code> |
+| **`writableAuxiliaries`**        | <code>boolean</code> |
+| **`extendedProperties`**         | <code>boolean</code> |
+| **`notifyEncryptionRequired`**   | <code>boolean</code> |
+| **`indicateEncryptionRequired`** | <code>boolean</code> |
 
 ### Enums
 

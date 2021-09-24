@@ -180,7 +180,20 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       for (const service of services) {
         const characteristics = await service.getCharacteristics();
         const bleCharacteristics: BleCharacteristic[] = characteristics.map((c) => {
-          return { uuid: c.uuid, properties: c.properties };
+          return {
+            uuid: c.uuid,
+            properties: {
+              broadcast: c.properties.broadcast,
+              read: c.properties.read,
+              writeWithoutResponse: c.properties.writeWithoutResponse,
+              write: c.properties.write,
+              notify: c.properties.notify,
+              indicate: c.properties.indicate,
+              authenticatedSignedWrites: c.properties.authenticatedSignedWrites,
+              reliableWrite: c.properties.reliableWrite,
+              writableAuxiliaries: c.properties.writableAuxiliaries,
+            },
+          };
         });
         bleServices.push({ uuid: service.uuid, characteristics: bleCharacteristics });
       }

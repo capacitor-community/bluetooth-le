@@ -85,12 +85,27 @@ export interface GetConnectedDevicesOptions {
 
 export interface BleService {
   readonly uuid: string;
-  readonly characteristics?: BleCharacteristic[];
+  readonly characteristics: BleCharacteristic[];
 }
 
 export interface BleCharacteristic {
   readonly uuid: string;
-  readonly properties?: any;
+  readonly properties: BleCharacteristicProperties;
+}
+
+export interface BleCharacteristicProperties {
+  readonly broadcast: boolean;
+  readonly read: boolean;
+  readonly writeWithoutResponse: boolean;
+  readonly write: boolean;
+  readonly notify: boolean;
+  readonly indicate: boolean;
+  readonly authenticatedSignedWrites: boolean;
+  readonly reliableWrite?: boolean;
+  readonly writableAuxiliaries?: boolean;
+  readonly extendedProperties?: boolean;
+  readonly notifyEncryptionRequired?: boolean;
+  readonly indicateEncryptionRequired?: boolean;
 }
 
 export interface BleServices {
