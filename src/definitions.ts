@@ -83,6 +83,20 @@ export interface GetConnectedDevicesOptions {
   services: string[];
 }
 
+export interface BleService {
+  readonly uuid: string;
+  readonly characteristics?: BleCharacteristic[];
+}
+
+export interface BleCharacteristic {
+  readonly uuid: string;
+  readonly properties?: any;
+}
+
+export interface BleServices {
+  services: BleService[];
+}
+
 export interface ReadOptions {
   deviceId: string;
   service: string;
@@ -188,6 +202,7 @@ export interface BluetoothLePlugin {
   createBond(options: DeviceIdOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;
+  getServices(options: DeviceIdOptions): Promise<BleServices>;
   readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
   read(options: ReadOptions): Promise<ReadResult>;
   write(options: WriteOptions): Promise<void>;

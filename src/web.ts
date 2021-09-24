@@ -1,8 +1,10 @@
 import { WebPlugin } from '@capacitor/core';
 
+import type { BleCharacteristic, BleService } from '.';
 import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
 import type {
   BleDevice,
+  BleServices,
   BluetoothLePlugin,
   BooleanResult,
   DeviceIdOptions,
@@ -171,7 +173,26 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     this.getDeviceFromMap(options.deviceId).gatt?.disconnect();
   }
 
-  async getCharacteristic(options: ReadOptions | WriteOptions): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
+  async getServices(options: DeviceIdOptions): Promise<BleServices> {
+    const services = await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryServices();
+    if (services) {
+      const bleServices: BleService[] = [];
+      for (const service of services) {
+        const characteristics = await service.getCharacteristics();
+        const bleCharacteristics: BleCharacteristic[] = characteristics.map((c) => {
+          return { uuid: c.uuid, properties: c.properties };
+        });
+        bleServices.push({ uuid: service.uuid, characteristics: bleCharacteristics });
+      }
+      return { services: bleServices };
+    } else {
+      return { services: [] };
+    }
+  }
+
+  private async getCharacteristic(
+    options: ReadOptions | WriteOptions
+  ): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
     const service = await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryService(options?.service);
     return service?.getCharacteristic(options?.characteristic);
   }

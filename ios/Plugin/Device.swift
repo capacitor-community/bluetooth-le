@@ -59,6 +59,10 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
+    func getServices() -> [CBService] {
+        return self.peripheral.services ?? []
+    }
+
     func readRssi(_ callback: @escaping Callback) {
         let key = "readRssi"
         self.callbackMap[key] = callback

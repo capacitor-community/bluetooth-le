@@ -5,6 +5,8 @@ import CoreBluetooth
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
+    typealias BleService = [String: Any]
+    typealias BleCharacteristic = [String: Any]
     private var deviceManager: DeviceManager?
     private var deviceMap = [String: Device]()
     private var displayStrings = [String: String]()
@@ -196,6 +198,38 @@ public class BluetoothLe: CAPPlugin {
                 call.reject(message)
             }
         })
+    }
+
+    @objc func getServices(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        let services = device.getServices()
+        var bleServices = [BleService]()
+        for service in services {
+            var bleCharacteristics = [BleCharacteristic]()
+            for characteristic in service.characteristics ?? [] {
+                bleCharacteristics.append([
+                    "uuid": cbuuidToString(characteristic.uuid),
+                    "properties": [
+                        "broadcast": characteristic.properties.contains(CBCharacteristicProperties.broadcast),
+                        "read": characteristic.properties.contains(CBCharacteristicProperties.read),
+                        "writeWithoutResponse": characteristic.properties.contains(CBCharacteristicProperties.writeWithoutResponse),
+                        "write": characteristic.properties.contains(CBCharacteristicProperties.write),
+                        "notify": characteristic.properties.contains(CBCharacteristicProperties.notify),
+                        "indicate": characteristic.properties.contains(CBCharacteristicProperties.indicate),
+                        "authenticatedSignedWrites": characteristic.properties.contains(CBCharacteristicProperties.authenticatedSignedWrites),
+                        "extendedProperties": characteristic.properties.contains(CBCharacteristicProperties.extendedProperties),
+                        "notifyEncryptionRequired": characteristic.properties.contains(CBCharacteristicProperties.notifyEncryptionRequired),
+                        "indicateEncryptionRequired": characteristic.properties.contains(CBCharacteristicProperties.indicateEncryptionRequired)
+                    ]
+                ])
+            }
+            bleServices.append([
+                "uuid": cbuuidToString(service.uuid),
+                "characteristics": bleCharacteristics
+            ])
+        }
+        call.resolve(["services": bleServices])
     }
 
     @objc func readRssi(_ call: CAPPluginCall) {

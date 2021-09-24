@@ -5,6 +5,7 @@ import type { DisplayStrings } from './config';
 import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
   BleDevice,
+  BleService,
   Data,
   ReadResult,
   RequestBleDeviceOptions,
@@ -112,6 +113,12 @@ export interface BleClientInterface {
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   disconnect(deviceId: string): Promise<void>;
+
+  /**
+   * Get services and characteristics of device.
+   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   */
+  getServices(deviceId: string): Promise<BleService[]>;
 
   /**
    * Read the RSSI value of a connected device.
@@ -312,6 +319,14 @@ class BleClientClass implements BleClientInterface {
     await this.queue(async () => {
       await BluetoothLe.disconnect({ deviceId });
     });
+  }
+
+  async getServices(deviceId: string): Promise<BleService[]> {
+    const services = await this.queue(async () => {
+      const result = await BluetoothLe.getServices({ deviceId });
+      return result.services;
+    });
+    return services;
   }
 
   async readRssi(deviceId: string): Promise<number> {
