@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.3.1...v1.4.0) (2021-09-24)
+
+
+### Features
+
+* **all:** add getServices method ([#200](https://github.com/capacitor-community/bluetooth-le/issues/200)) ([557ef12](https://github.com/capacitor-community/bluetooth-le/commit/557ef12ee960f0e78d10dbf0b0045a4be8eccb0c))
+
+
+### Bug Fixes
+
+* **android:** make core-ktx version configurable and set default to 1.6.0 ([#199](https://github.com/capacitor-community/bluetooth-le/issues/199)) ([f1357d9](https://github.com/capacitor-community/bluetooth-le/commit/f1357d939e4528dd316e4a89683b81e300af5d0c))
+
 ### [1.3.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.3.0...v1.3.1) (2021-09-22)
 
 
