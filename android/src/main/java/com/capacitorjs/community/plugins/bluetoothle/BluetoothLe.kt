@@ -18,6 +18,11 @@ import com.getcapacitor.annotation.Permission
 import com.getcapacitor.annotation.PermissionCallback
 import java.util.*
 import kotlin.collections.ArrayList
+import android.location.LocationManager
+import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
+import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
+import androidx.core.location.LocationManagerCompat
+
 
 @CapacitorPlugin(
     name = "BluetoothLe",
@@ -143,6 +148,30 @@ class BluetoothLe : Plugin() {
             context.unregisterReceiver(stateReceiver)
         }
         stateReceiver = null
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun isLocationEnabled(call: PluginCall) {
+        val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val enabled = LocationManagerCompat.isLocationEnabled(lm)
+        Log.d(TAG, "location $enabled")
+        val result = JSObject()
+        result.put("value", enabled)
+        call.resolve(result)
+    }
+
+    @PluginMethod
+    fun openLocationSettings(call: PluginCall) {
+        val intent = Intent(ACTION_LOCATION_SOURCE_SETTINGS)
+        getActivity().startActivity(intent);
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun openBluetoothSettings(call: PluginCall) {
+        val intent = Intent(ACTION_BLUETOOTH_SETTINGS)
+        getActivity().startActivity(intent);
         call.resolve()
     }
 

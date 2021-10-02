@@ -44,6 +44,19 @@ public class BluetoothLe: CAPPlugin {
         deviceManager.unregisterStateReceiver()
         call.resolve()
     }
+    
+    @objc func isLocationEnabled(_ call: CAPPluginCall) {
+        call.unavailable("isLocationEnabled is not available on iOS.")
+    }
+    
+    @objc func openLocationSettings(_ call: CAPPluginCall) {
+        call.unavailable("openLocationSettings is not available on iOS.")
+    }
+    
+    @objc func openBluetoothSettings(_ call: CAPPluginCall) {
+        call.unavailable("openBluetoothSettings is not available on iOS.")
+    }
+    
 
     @objc func setDisplayStrings(_ call: CAPPluginCall) {
         for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {

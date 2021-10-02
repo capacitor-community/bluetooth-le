@@ -50,6 +50,18 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     // not available on web
   }
 
+  async isLocationEnabled(): Promise<BooleanResult> {
+    throw this.unavailable('isLocationEnabled is not available on web.');
+  }
+
+  async openLocationSettings(): Promise<void> {
+    throw this.unavailable('openLocationSettings is not available on web.');
+  }
+
+  async openBluetoothSettings(): Promise<void> {
+    throw this.unavailable('openBluetoothSettings is not available on web.');
+  }
+
   async setDisplayStrings(): Promise<void> {
     // not available on web
   }
