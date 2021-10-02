@@ -43,6 +43,24 @@ export interface BleClientInterface {
   stopEnabledNotifications(): Promise<void>;
 
   /**
+   * Reports whether Location Services are enabled on this device.
+   * Only available on **Android**.
+   */
+  isLocationEnabled(): Promise<boolean>;
+
+  /**
+   * Open Location settings.
+   * Only available on **Android**.
+   */
+  openLocationSettings(): Promise<void>;
+
+  /**
+   * Open Bluetooth settings.
+   * Only available on **Android**.
+   */
+  openBluetoothSettings(): Promise<void>;
+
+  /**
    * Set the strings that are displayed in the `requestDevice` dialog.
    * @param displayStrings
    */
@@ -230,6 +248,26 @@ class BleClientClass implements BleClientInterface {
       await this.eventListeners.get(key)?.remove();
       this.eventListeners.delete(key);
       await BluetoothLe.stopEnabledNotifications();
+    });
+  }
+
+  async isLocationEnabled(): Promise<boolean> {
+    const enabled = await this.queue(async () => {
+      const result = await BluetoothLe.isLocationEnabled();
+      return result.value;
+    });
+    return enabled;
+  }
+
+  async openLocationSettings(): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.openLocationSettings();
+    });
+  }
+
+  async openBluetoothSettings(): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.openBluetoothSettings();
     });
   }
 

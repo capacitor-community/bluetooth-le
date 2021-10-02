@@ -46,6 +46,9 @@ Below is an index of all the methods available.
 - [`isEnabled()`](#isenabled)
 - [`startEnabledNotifications(...)`](#startenablednotifications)
 - [`stopEnabledNotifications()`](#stopenablednotifications)
+- [`isLocationEnabled()`](#islocationenabled)
+- [`openLocationSettings()`](#openlocationsettings)
+- [`openBluetoothSettings()`](#openbluetoothsettings)
 - [`setDisplayStrings(...)`](#setdisplaystrings)
 - [`requestDevice(...)`](#requestdevice)
 - [`requestLEScan(...)`](#requestlescan)
@@ -307,6 +310,41 @@ stopEnabledNotifications() => Promise<void>
 ```
 
 Stop the enabled notifications registered with `startEnabledNotifications`.
+
+---
+
+### isLocationEnabled()
+
+```typescript
+isLocationEnabled() => Promise<boolean>
+```
+
+Reports whether Location Services are enabled on this device.
+Only available on **Android**.
+
+**Returns:** <code>Promise&lt;boolean&gt;</code>
+
+---
+
+### openLocationSettings()
+
+```typescript
+openLocationSettings() => Promise<void>
+```
+
+Open Location settings.
+Only available on **Android**.
+
+---
+
+### openBluetoothSettings()
+
+```typescript
+openBluetoothSettings() => Promise<void>
+```
+
+Open Bluetooth settings.
+Only available on **Android**.
 
 ---
 
