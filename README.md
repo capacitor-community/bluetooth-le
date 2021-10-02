@@ -284,7 +284,7 @@ For an example, see [usage](#usage).
 isEnabled() => Promise<boolean>
 ```
 
-Reports whether BLE is enabled on this device.
+Reports whether Bluetooth is enabled on this device.
 Always returns `true` on **web**.
 
 **Returns:** <code>Promise&lt;boolean&gt;</code>
@@ -297,6 +297,9 @@ Always returns `true` on **web**.
 enable() => Promise<void>
 ```
 
+Enable Bluetooth.
+Only available on **Android**.
+
 ---
 
 ### disable()
@@ -304,6 +307,9 @@ enable() => Promise<void>
 ```typescript
 disable() => Promise<void>
 ```
+
+Disable Bluetooth.
+Only available on **Android**.
 
 ---
 
@@ -313,12 +319,12 @@ disable() => Promise<void>
 startEnabledNotifications(callback: (value: boolean) => void) => Promise<void>
 ```
 
-Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
+Register a callback function that will be invoked when Bluetooth is enabled (true) or disabled (false) on this device.
 Not available on **web** (the callback will never be invoked).
 
-| Param          | Type                                     | Description                                          |
-| -------------- | ---------------------------------------- | ---------------------------------------------------- |
-| **`callback`** | <code>(value: boolean) =&gt; void</code> | Callback function to use when the BLE state changes. |
+| Param          | Type                                     | Description                                                |
+| -------------- | ---------------------------------------- | ---------------------------------------------------------- |
+| **`callback`** | <code>(value: boolean) =&gt; void</code> | Callback function to use when the Bluetooth state changes. |
 
 ---
 
@@ -375,6 +381,9 @@ openAppSettings() => Promise<void>
 
 Open App settings.
 Only available on **iOS**.
+On **iOS** when a user declines the request to use Bluetooth on the first call of `initialize`, it is not possible
+to request for Bluetooth again from within the app. In this case Bluetooth has to be enabled in the app settings
+for the app to use it.
 
 ---
 
