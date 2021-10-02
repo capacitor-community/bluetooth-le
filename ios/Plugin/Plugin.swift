@@ -30,6 +30,14 @@ public class BluetoothLe: CAPPlugin {
         let enabled: Bool = deviceManager.isEnabled()
         call.resolve(["value": enabled])
     }
+    
+    @objc func enable(_ call: CAPPluginCall) {
+        call.unavailable("enable is not available on iOS.")
+    }
+    
+    @objc func disable(_ call: CAPPluginCall) {
+        call.unavailable("disable is not available on iOS.")
+    }
 
     @objc func startEnabledNotifications(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }

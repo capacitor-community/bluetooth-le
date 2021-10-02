@@ -42,6 +42,14 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return { value: true };
   }
 
+  async enable(): Promise<void> {
+    throw this.unavailable('enable is not available on web.');
+  }
+
+  async disable(): Promise<void> {
+    throw this.unavailable('disable is not available on web.');
+  }
+
   async startEnabledNotifications(): Promise<void> {
     // not available on web
   }

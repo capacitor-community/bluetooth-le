@@ -25,15 +25,27 @@ export interface BleClientInterface {
   initialize(): Promise<void>;
 
   /**
-   * Reports whether BLE is enabled on this device.
+   * Reports whether Bluetooth is enabled on this device.
    * Always returns `true` on **web**.
    */
   isEnabled(): Promise<boolean>;
 
   /**
-   * Register a callback function that will be invoked when BLE is enabled (true) or disabled (false) on this device.
+   * Enable Bluetooth.
+   * Only available on **Android**.
+   */
+  enable(): Promise<void>;
+
+  /**
+   * Disable Bluetooth.
+   * Only available on **Android**.
+   */
+  disable(): Promise<void>;
+
+  /**
+   * Register a callback function that will be invoked when Bluetooth is enabled (true) or disabled (false) on this device.
    * Not available on **web** (the callback will never be invoked).
-   * @param callback Callback function to use when the BLE state changes.
+   * @param callback Callback function to use when the Bluetooth state changes.
    */
   startEnabledNotifications(callback: (value: boolean) => void): Promise<void>;
 
@@ -228,6 +240,18 @@ class BleClientClass implements BleClientInterface {
       return result.value;
     });
     return enabled;
+  }
+
+  async enable(): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.enable();
+    });
+  }
+
+  async disable(): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.disable();
+    });
   }
 
   async startEnabledNotifications(callback: (value: boolean) => void): Promise<void> {
