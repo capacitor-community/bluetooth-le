@@ -70,6 +70,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     throw this.unavailable('openBluetoothSettings is not available on web.');
   }
 
+  async openAppSettings(): Promise<void> {
+    throw this.unavailable('openAppSettings is not available on web.');
+  }
+
   async setDisplayStrings(): Promise<void> {
     // not available on web
   }

@@ -190,6 +190,11 @@ class BluetoothLe : Plugin() {
     }
 
     @PluginMethod
+    fun openAppSettings(call: PluginCall) {
+        call.unavailable("openAppSettings is not available on Android.")
+    }
+
+    @PluginMethod
     fun setDisplayStrings(call: PluginCall) {
         displayStrings = DisplayStrings(
             call.getString(

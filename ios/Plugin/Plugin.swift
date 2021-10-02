@@ -65,6 +65,25 @@ public class BluetoothLe: CAPPlugin {
         call.unavailable("openBluetoothSettings is not available on iOS.")
     }
     
+    @objc func openAppSettings(_ call: CAPPluginCall) {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+            call.reject("Cannot open app settings.")
+            return
+        }
+
+        
+        DispatchQueue.main.async {
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                    call.resolve([
+                        "value": success
+                    ])
+                })
+            } else {
+                call.reject("Cannot open app settings.")
+            }
+        }
+    }
 
     @objc func setDisplayStrings(_ call: CAPPluginCall) {
         for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {
