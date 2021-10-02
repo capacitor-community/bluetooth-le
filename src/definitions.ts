@@ -209,6 +209,7 @@ export interface BluetoothLePlugin {
   isLocationEnabled(): Promise<BooleanResult>;
   openLocationSettings(): Promise<void>;
   openBluetoothSettings(): Promise<void>;
+  openAppSettings(): Promise<void>;
   setDisplayStrings(displayStrings: DisplayStrings): Promise<void>;
   requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice>;
   requestLEScan(options?: RequestBleDeviceOptions): Promise<void>;

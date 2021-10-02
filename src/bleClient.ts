@@ -73,6 +73,15 @@ export interface BleClientInterface {
   openBluetoothSettings(): Promise<void>;
 
   /**
+   * Open App settings.
+   * Only available on **iOS**.
+   * On **iOS** when a user declines the request to use Bluetooth on the first call of `initialize`, it is not possible
+   * to request for Bluetooth again from within the app. In this case Bluetooth has to be enabled in the app settings
+   * for the app to use it.
+   */
+  openAppSettings(): Promise<void>;
+
+  /**
    * Set the strings that are displayed in the `requestDevice` dialog.
    * @param displayStrings
    */
@@ -292,6 +301,12 @@ class BleClientClass implements BleClientInterface {
   async openBluetoothSettings(): Promise<void> {
     await this.queue(async () => {
       await BluetoothLe.openBluetoothSettings();
+    });
+  }
+
+  async openAppSettings(): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.openAppSettings();
     });
   }
 

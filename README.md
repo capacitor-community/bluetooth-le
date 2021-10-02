@@ -51,6 +51,7 @@ Below is an index of all the methods available.
 - [`isLocationEnabled()`](#islocationenabled)
 - [`openLocationSettings()`](#openlocationsettings)
 - [`openBluetoothSettings()`](#openbluetoothsettings)
+- [`openAppSettings()`](#openappsettings)
 - [`setDisplayStrings(...)`](#setdisplaystrings)
 - [`requestDevice(...)`](#requestdevice)
 - [`requestLEScan(...)`](#requestlescan)
@@ -363,6 +364,17 @@ openBluetoothSettings() => Promise<void>
 
 Open Bluetooth settings.
 Only available on **Android**.
+
+---
+
+### openAppSettings()
+
+```typescript
+openAppSettings() => Promise<void>
+```
+
+Open App settings.
+Only available on **iOS**.
 
 ---
 
