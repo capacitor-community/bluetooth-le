@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.4.0...v1.5.0) (2021-10-02)
+
+
+### Features
+
+* **android:** add enable and disable methods ([53f1b3d](https://github.com/capacitor-community/bluetooth-le/commit/53f1b3db51a4cc00547307b46e6dbde50c895d28))
+* **android:** add new methods isLocationEnabled, openLocationSettings and openBluetoothSettings ([4c1cc60](https://github.com/capacitor-community/bluetooth-le/commit/4c1cc60b76736c0693d7c7bfab1e093710289c68))
+* **ios:** add openAppSettings method ([f57fac7](https://github.com/capacitor-community/bluetooth-le/commit/f57fac7fa7689b472b27d7c16dbfc594d9ef3a2c))
+
 ## [1.4.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.3.1...v1.4.0) (2021-09-24)
 
 
