@@ -44,6 +44,8 @@ Below is an index of all the methods available.
 
 - [`initialize()`](#initialize)
 - [`isEnabled()`](#isenabled)
+- [`enable()`](#enable)
+- [`disable()`](#disable)
 - [`startEnabledNotifications(...)`](#startenablednotifications)
 - [`stopEnabledNotifications()`](#stopenablednotifications)
 - [`isLocationEnabled()`](#islocationenabled)
@@ -285,6 +287,22 @@ Reports whether BLE is enabled on this device.
 Always returns `true` on **web**.
 
 **Returns:** <code>Promise&lt;boolean&gt;</code>
+
+---
+
+### enable()
+
+```typescript
+enable() => Promise<void>
+```
+
+---
+
+### disable()
+
+```typescript
+disable() => Promise<void>
+```
 
 ---
 

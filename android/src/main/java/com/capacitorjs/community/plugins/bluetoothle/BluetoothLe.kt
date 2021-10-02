@@ -10,18 +10,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.ParcelUuid
+import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
+import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
 import android.util.Log
+import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.*
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
 import com.getcapacitor.annotation.PermissionCallback
 import java.util.*
 import kotlin.collections.ArrayList
-import android.location.LocationManager
-import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
-import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
-import androidx.core.location.LocationManagerCompat
 
 
 @CapacitorPlugin(
@@ -100,6 +100,20 @@ class BluetoothLe : Plugin() {
         val result = JSObject()
         result.put("value", enabled)
         call.resolve(result)
+    }
+
+    @PluginMethod
+    fun enable(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        bluetoothAdapter?.enable()
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun disable(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
+        bluetoothAdapter?.disable()
+        call.resolve()
     }
 
     @PluginMethod
