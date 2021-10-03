@@ -30,11 +30,11 @@ public class BluetoothLe: CAPPlugin {
         let enabled: Bool = deviceManager.isEnabled()
         call.resolve(["value": enabled])
     }
-    
+
     @objc func enable(_ call: CAPPluginCall) {
         call.unavailable("enable is not available on iOS.")
     }
-    
+
     @objc func disable(_ call: CAPPluginCall) {
         call.unavailable("disable is not available on iOS.")
     }
@@ -52,26 +52,25 @@ public class BluetoothLe: CAPPlugin {
         deviceManager.unregisterStateReceiver()
         call.resolve()
     }
-    
+
     @objc func isLocationEnabled(_ call: CAPPluginCall) {
         call.unavailable("isLocationEnabled is not available on iOS.")
     }
-    
+
     @objc func openLocationSettings(_ call: CAPPluginCall) {
         call.unavailable("openLocationSettings is not available on iOS.")
     }
-    
+
     @objc func openBluetoothSettings(_ call: CAPPluginCall) {
         call.unavailable("openBluetoothSettings is not available on iOS.")
     }
-    
+
     @objc func openAppSettings(_ call: CAPPluginCall) {
         guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
             call.reject("Cannot open app settings.")
             return
         }
 
-        
         DispatchQueue.main.async {
             if UIApplication.shared.canOpenURL(settingsUrl) {
                 UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
