@@ -74,6 +74,8 @@ Below is an index of all the methods available.
 
 </docgen-index>
 
+See [Platform Support](#platform-support) for an overview of supported methods on Android, iOS and web.
+
 ## Installation
 
 ```
@@ -260,6 +262,47 @@ export async function scan(): Promise<void> {
   }
 }
 ```
+
+## Platform Support
+
+_Note_: web support depends on the browser, see [implementation status](https://github.com/WebBluetoothCG/web-bluetooth/blob/main/implementation-status.md).
+
+| method                                                         | Android | iOS | web |
+| -------------------------------------------------------------- | :-----: | :-: | :-: |
+| [`initialize()`](#initialize)                                  |   ✅    | ✅  | ✅  |
+| [`isEnabled()`](#isenabled)                                    |   ✅    | ✅  | --  |
+| [`enable()`](#enable)                                          |   ✅    | ❌  | ❌  |
+| [`disable()`](#disable)                                        |   ✅    | ❌  | ❌  |
+| [`startEnabledNotifications(...)`](#startenablednotifications) |   ✅    | ✅  | --  |
+| [`stopEnabledNotifications()`](#stopenablednotifications)      |   ✅    | ✅  | --  |
+| [`isLocationEnabled()`](#islocationenabled)                    |   ✅    | ❌  | ❌  |
+| [`openLocationSettings()`](#openlocationsettings)              |   ✅    | ❌  | ❌  |
+| [`openBluetoothSettings()`](#openbluetoothsettings)            |   ✅    | ❌  | ❌  |
+| [`openAppSettings()`](#openappsettings)                        |   ❌    | ✅  | ❌  |
+| [`setDisplayStrings(...)`](#setdisplaystrings)                 |   ✅    | ✅  | --  |
+| [`requestDevice(...)`](#requestdevice)                         |   ✅    | ✅  | ✅  |
+| [`requestLEScan(...)`](#requestlescan)                         |   ✅    | ✅  | 🚩  |
+| [`stopLEScan()`](#stoplescan)                                  |   ✅    | ✅  | 🚩  |
+| [`getDevices(...)`](#getdevices)                               |   ✅    | ✅  | 🚩  |
+| [`getConnectedDevices(...)`](#getconnecteddevices)             |   ✅    | ✅  | 🚩  |
+| [`connect(...)`](#connect)                                     |   ✅    | ✅  | ✅  |
+| [`createBond(...)`](#createbond)                               |   ✅    | ❌  | ❌  |
+| [`isBonded(...)`](#isbonded)                                   |   ✅    | ❌  | ❌  |
+| [`disconnect(...)`](#disconnect)                               |   ✅    | ✅  | ✅  |
+| [`getServices(...)`](#getservices)                             |   ✅    | ✅  | ✅  |
+| [`readRssi(...)`](#readrssi)                                   |   ✅    | ✅  | ❌  |
+| [`read(...)`](#read)                                           |   ✅    | ✅  | ✅  |
+| [`write(...)`](#write)                                         |   ✅    | ✅  | ✅  |
+| [`writeWithoutResponse(...)`](#writewithoutresponse)           |   ✅    | ✅  | ✅  |
+| [`startNotifications(...)`](#startnotifications)               |   ✅    | ✅  | ✅  |
+| [`stopNotifications(...)`](#stopnotifications)                 |   ✅    | ✅  | ✅  |
+
+#### Legend
+
+- ✅ supported
+- ❌ not supported (throws an `unavailable` error)
+- 🚩 behind a flag in Chrome (see [implementation status](https://github.com/WebBluetoothCG/web-bluetooth/blob/main/implementation-status.md))
+- -- not supported, but does not throw an error
 
 ## API
 
