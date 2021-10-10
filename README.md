@@ -262,6 +262,8 @@ export async function scan(): Promise<void> {
   }
 }
 ```
+## Usage (Ionic/React)
+- [BLE Tester](https://github.com/sourcya/ble-tester)
 
 ## Platform Support
 
