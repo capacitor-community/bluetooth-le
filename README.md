@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-4-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-5-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -875,6 +875,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://twitter.com/dennisameling"><img src="https://avatars.githubusercontent.com/u/17739158?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dennis Ameling</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=dennisameling" title="Code">💻</a></td>
     <td align="center"><a href="http://squio.nl"><img src="https://avatars.githubusercontent.com/u/169410?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Johannes la Poutre</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=squio" title="Documentation">📖</a> <a href="https://github.com/capacitor-community/bluetooth-le/commits?author=squio" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/sultanmyrza"><img src="https://avatars.githubusercontent.com/u/12681781?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kasymbekov Sultanmyrza</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=sultanmyrza" title="Code">💻</a></td>
+    <td align="center"><a href="https://sourcya.com"><img src="https://avatars.githubusercontent.com/u/9040320?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mutasim Issa</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=mutasimissa" title="Documentation">📖</a></td>
   </tr>
 </table>
 
