@@ -42,6 +42,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mutasimissa",
+      "name": "Mutasim Issa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9040320?v=4",
+      "profile": "https://sourcya.com",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
