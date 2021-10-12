@@ -40,7 +40,7 @@
     "@capacitor/android": "^3.2.4",
     "@capacitor/cli": "^3.2.4",
     "@capacitor/core": "^3.2.4",
-    "@capacitor/docgen": "^0.0.17",
+    "@capacitor/docgen": "^0.0.18",
     "@capacitor/ios": "^3.2.4",
     "@ionic/eslint-config": "^0.3.0",
     "@ionic/prettier-config": "^2.0.0",
