@@ -262,8 +262,12 @@ export async function scan(): Promise<void> {
   }
 }
 ```
-## Usage (Ionic/React)
-- [BLE Tester](https://github.com/sourcya/ble-tester)
+
+## Example Applications
+
+- [BLE Tester](https://github.com/sourcya/ble-tester) (Ionic/React)
+- [OpenGoPro](https://github.com/gopro/OpenGoPro/tree/main/demos/ionic/file_transfer) (Ionic/Angular)
+- [Quasar BLE](https://github.com/nunogois/quasar-ble) (Quasar/Vue)
 
 ## Platform Support
 
