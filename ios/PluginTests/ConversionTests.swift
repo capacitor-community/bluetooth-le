@@ -31,6 +31,7 @@ class ConversionTests: XCTestCase {
 
     func testCbuuidToString() throws {
         XCTAssertEqual(cbuuidToString(CBUUID(string: "180D")), "0000180d-0000-1000-8000-00805f9b34fb")
+        XCTAssertEqual(cbuuidToString(CBUUID(string: "AAAA180D")), "aaaa180d-0000-1000-8000-00805f9b34fb")
         XCTAssertEqual(cbuuidToString(CBUUID(string: "fb005c80-02e7-f387-1cad-8acd2d8df0c8")), "fb005c80-02e7-f387-1cad-8acd2d8df0c8")
     }
 

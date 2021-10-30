@@ -24,6 +24,8 @@ func cbuuidToString(_ uuid: CBUUID) -> String {
     var str = uuidString!.lowercased()
     if str.count == 4 {
         str = "0000\(str)-0000-1000-8000-00805f9b34fb"
+    } else if str.count == 8 {
+        str = "\(str)-0000-1000-8000-00805f9b34fb"
     }
     return str
 }
