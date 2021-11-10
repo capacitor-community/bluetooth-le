@@ -67,6 +67,8 @@ Below is an index of all the methods available.
 - [`read(...)`](#read)
 - [`write(...)`](#write)
 - [`writeWithoutResponse(...)`](#writewithoutresponse)
+- [`readDescriptor(...)`](#readdescriptor)
+- [`writeDescriptor(...)`](#writedescriptor)
 - [`startNotifications(...)`](#startnotifications)
 - [`stopNotifications(...)`](#stopnotifications)
 - [Interfaces](#interfaces)
@@ -299,6 +301,8 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`readRssi(...)`](#readrssi)                                   |   ✅    | ✅  | ❌  |
 | [`read(...)`](#read)                                           |   ✅    | ✅  | ✅  |
 | [`write(...)`](#write)                                         |   ✅    | ✅  | ✅  |
+| [`readDescriptor(...)`](#read)                                 |   ✅    | ✅  | ✅  |
+| [`writeDescriptor(...)`](#write)                               |   ✅    | ✅  | ✅  |
 | [`writeWithoutResponse(...)`](#writewithoutresponse)           |   ✅    | ✅  | ✅  |
 | [`startNotifications(...)`](#startnotifications)               |   ✅    | ✅  | ✅  |
 | [`stopNotifications(...)`](#stopnotifications)                 |   ✅    | ✅  | ✅  |
@@ -678,6 +682,43 @@ Write a value to a characteristic without waiting for a response.
 
 ---
 
+### readDescriptor(...)
+
+```typescript
+readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string) => Promise<DataView>
+```
+
+Read the value of a descriptor.
+
+| Param                | Type                | Description                                                                                                    |
+| -------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                                                          |
+| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
+| **`descriptor`**     | <code>string</code> | UUID of the descriptor (see [UUID format](#uuid-format))                                                       |
+
+**Returns:** <code>Promise&lt;<a href="#dataview">DataView</a>&gt;</code>
+
+---
+
+### writeDescriptor(...)
+
+```typescript
+writeDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string, value: DataView) => Promise<void>
+```
+
+Write a value to a descriptor.
+
+| Param                | Type                                          | Description                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
+| **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
+| **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
+| **`descriptor`**     | <code>string</code>                           | UUID of the descriptor (see [UUID format](#uuid-format))                                                                                                                                    |
+| **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+
+---
+
 ### startNotifications(...)
 
 ```typescript
@@ -805,10 +846,11 @@ buffer as needed.
 
 #### BleCharacteristic
 
-| Prop             | Type                                                                                |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| **`uuid`**       | <code>string</code>                                                                 |
-| **`properties`** | <code><a href="#blecharacteristicproperties">BleCharacteristicProperties</a></code> |
+| Prop              | Type                                                                                |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| **`uuid`**        | <code>string</code>                                                                 |
+| **`properties`**  | <code><a href="#blecharacteristicproperties">BleCharacteristicProperties</a></code> |
+| **`descriptors`** | <code>BleDescriptor[]</code>                                                        |
 
 #### BleCharacteristicProperties
 
@@ -826,6 +868,12 @@ buffer as needed.
 | **`extendedProperties`**         | <code>boolean</code> |
 | **`notifyEncryptionRequired`**   | <code>boolean</code> |
 | **`indicateEncryptionRequired`** | <code>boolean</code> |
+
+#### BleDescriptor
+
+| Prop       | Type                |
+| ---------- | ------------------- |
+| **`uuid`** | <code>string</code> |
 
 ### Enums
 

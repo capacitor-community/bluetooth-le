@@ -88,9 +88,14 @@ export interface BleService {
   readonly characteristics: BleCharacteristic[];
 }
 
+export interface BleDescriptor {
+  readonly uuid: string;
+}
+
 export interface BleCharacteristic {
   readonly uuid: string;
   readonly properties: BleCharacteristicProperties;
+  readonly descriptors: BleDescriptor[];
 }
 
 export interface BleCharacteristicProperties {
@@ -118,12 +123,31 @@ export interface ReadOptions {
   characteristic: string;
 }
 
+export interface ReadDescriptorOptions {
+  deviceId: string;
+  service: string;
+  characteristic: string;
+  descriptor: string;
+}
+
 export type Data = DataView | string;
 
 export interface WriteOptions {
   deviceId: string;
   service: string;
   characteristic: string;
+  /**
+   * android, ios: string
+   * web: DataView
+   */
+  value: Data;
+}
+
+export interface WriteDescriptorOptions {
+  deviceId: string;
+  service: string;
+  characteristic: string;
+  descriptor: string;
   /**
    * android, ios: string
    * web: DataView
@@ -227,6 +251,8 @@ export interface BluetoothLePlugin {
   readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
   read(options: ReadOptions): Promise<ReadResult>;
   write(options: WriteOptions): Promise<void>;
+  readDescriptor(options: ReadDescriptorOptions): Promise<ReadResult>;
+  writeDescriptor(options: WriteDescriptorOptions): Promise<void>;
   writeWithoutResponse(options: WriteOptions): Promise<void>;
   startNotifications(options: ReadOptions): Promise<void>;
   stopNotifications(options: ReadOptions): Promise<void>;

@@ -407,6 +407,13 @@ class BluetoothLe : Plugin() {
                 val bleCharacteristic = JSObject()
                 bleCharacteristic.put("uuid", characteristic.uuid)
                 bleCharacteristic.put("properties", getProperties(characteristic))
+                var bleDescriptors = JSArray()
+                characteristic.descriptors.forEach { descriptor ->
+                    val bleDescriptor = JSObject()
+                    bleDescriptor.put("uuid", descriptor.uuid)
+                    bleDescriptors.put(bleDescriptor)
+                }
+                bleCharacteristic.put("descriptors", bleDescriptors)
                 bleCharacteristics.put(bleCharacteristic)
             }
             val bleService = JSObject()
@@ -521,6 +528,43 @@ class BluetoothLe : Plugin() {
         }
         val writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         device.write(characteristic.first, characteristic.second, value, writeType) { response ->
+            run {
+                if (response.success) {
+                    call.resolve()
+                } else {
+                    call.reject(response.value)
+                }
+            }
+        }
+    }
+
+    @PluginMethod
+    fun readDescriptor(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val descriptor = getDescriptor(call) ?: return
+        device.readDescriptor(descriptor.first, descriptor.second, descriptor.third) { response ->
+            run {
+                if (response.success) {
+                    val ret = JSObject()
+                    ret.put("value", response.value)
+                    call.resolve(ret)
+                } else {
+                    call.reject(response.value)
+                }
+            }
+        }
+    }
+
+    @PluginMethod
+    fun writeDescriptor(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val descriptor = getDescriptor(call) ?: return
+        val value = call.getString("value", null)
+        if (value == null) {
+            call.reject("Value required.")
+            return
+        }
+        device.writeDescriptor(descriptor.first, descriptor.second, descriptor.third, value) { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -783,5 +827,22 @@ class BluetoothLe : Plugin() {
             return null
         }
         return Pair(serviceUUID, characteristicUUID)
+    }
+
+    private fun getDescriptor(call: PluginCall): Triple<UUID, UUID, UUID>? {
+        val characteristic = getCharacteristic(call) ?: return null
+        val descriptorString = call.getString("descriptor", null)
+        val descriptorUUID: UUID?
+        try {
+            descriptorUUID = UUID.fromString(descriptorString)
+        } catch (e: IllegalAccessException) {
+            call.reject("Invalid descriptor UUID.")
+            return null
+        }
+        if (descriptorUUID == null) {
+            call.reject("Descriptor UUID required.")
+            return null
+        }
+        return Triple(characteristic.first, characteristic.second, descriptorUUID)
     }
 }

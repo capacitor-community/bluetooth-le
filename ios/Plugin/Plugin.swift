@@ -7,6 +7,7 @@ public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
     typealias BleService = [String: Any]
     typealias BleCharacteristic = [String: Any]
+    typealias BleDescriptor = [String: Any]
     private var deviceManager: DeviceManager?
     private var deviceMap = [String: Device]()
     private var displayStrings = [String: String]()
@@ -247,9 +248,16 @@ public class BluetoothLe: CAPPlugin {
         for service in services {
             var bleCharacteristics = [BleCharacteristic]()
             for characteristic in service.characteristics ?? [] {
+                var bleDescriptors = [BleDescriptor]()
+                for descriptor in characteristic.descriptors ?? [] {
+                    bleDescriptors.append([
+                        "uuid": cbuuidToString(descriptor.uuid)
+                    ])
+                }
                 bleCharacteristics.append([
                     "uuid": cbuuidToString(characteristic.uuid),
-                    "properties": getProperties(characteristic)
+                    "properties": getProperties(characteristic),
+                    "descriptors": bleDescriptors
                 ])
             }
             bleServices.append([
@@ -332,6 +340,38 @@ public class BluetoothLe: CAPPlugin {
         }
         let writeType = CBCharacteristicWriteType.withoutResponse
         device.write(characteristic.0, characteristic.1, value, writeType, {(success, value) -> Void in
+            if success {
+                call.resolve()
+            } else {
+                call.reject(value)
+            }
+        })
+    }
+    
+    @objc func readDescriptor(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        guard let descriptor = self.getDescriptor(call) else { return }
+        device.readDescriptor(descriptor.0, descriptor.1, descriptor.2, {(success, value) -> Void in
+            if success {
+                call.resolve([
+                    "value": value
+                ])
+            } else {
+                call.reject(value)
+            }
+        })
+    }
+    
+    @objc func writeDescriptor(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        guard let descriptor = self.getDescriptor(call) else { return }
+        guard let value = call.getString("value") else {
+            call.reject("value must be provided")
+            return
+        }
+        device.writeDescriptor(descriptor.0, descriptor.1, descriptor.2, value, {(success, value) -> Void in
             if success {
                 call.resolve()
             } else {
@@ -433,6 +473,19 @@ public class BluetoothLe: CAPPlugin {
         }
         let characteristicUUID = CBUUID(string: characteristic)
         return (serviceUUID, characteristicUUID)
+    }
+    
+    private func getDescriptor(_ call: CAPPluginCall) -> (CBUUID, CBUUID, CBUUID)? {
+        guard let characteristic = getCharacteristic(call) else {
+            return nil
+        }
+        guard let descriptor = call.getString("descriptor") else {
+            call.reject("Descriptor UUID required.")
+            return nil
+        }
+        let descriptorUUID = CBUUID(string: descriptor)
+        
+        return (characteristic.0, characteristic.1, descriptorUUID)
     }
 
     private func getBleDevice(_ device: Device) -> BleDevice {

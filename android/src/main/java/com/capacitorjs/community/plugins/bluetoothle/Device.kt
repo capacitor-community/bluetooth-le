@@ -39,7 +39,6 @@ class Device(
     private var bluetoothGatt: BluetoothGatt? = null
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
     private var timeoutMap = HashMap<String, Handler>()
-    private var setNotificationsKey = ""
     private var bondStateReceiver: BroadcastReceiver? = null
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
@@ -144,19 +143,38 @@ class Device(
             }
         }
 
+        override fun onDescriptorRead(
+            gatt: BluetoothGatt,
+            descriptor: BluetoothGattDescriptor,
+            status: Int
+        ) {
+            super.onDescriptorRead(gatt, descriptor, status)
+            val key = "readDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                val data = descriptor.value
+                if (data != null && data.isNotEmpty()) {
+                    val value = bytesToString(data)
+                    resolve(key, value)
+                } else {
+                    reject(key, "No data received while reading descriptor.")
+                }
+            } else {
+                reject(key, "Reading descriptor failed.")
+            }
+        }
+
         override fun onDescriptorWrite(
             gatt: BluetoothGatt,
             descriptor: BluetoothGattDescriptor,
             status: Int
         ) {
             super.onDescriptorWrite(gatt, descriptor, status)
+            val key = "writeDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                resolve(setNotificationsKey, "Setting notification succeeded.")
+                resolve(key, "Descriptor successfully written.")
             } else {
-                reject(setNotificationsKey, "Setting notification failed.")
+                reject(key, "Writing descriptor failed.")
             }
-            setNotificationsKey = ""
-
         }
     }
 
@@ -343,8 +361,7 @@ class Device(
         notifyCallback: ((CallbackResponse) -> Unit)?,
         callback: (CallbackResponse) -> Unit,
     ) {
-        val key = "setNotifications|$serviceUUID|$characteristicUUID"
-        setNotificationsKey = key
+        val key = "writeDescriptor|$serviceUUID|$characteristicUUID|$CLIENT_CHARACTERISTIC_CONFIG"
         val notifyKey = "notification|$serviceUUID|$characteristicUUID"
         callbackMap[key] = callback
         if (notifyCallback != null) {
@@ -385,6 +402,62 @@ class Device(
             return
         }
         // wait for onDescriptorWrite
+    }
+
+    fun readDescriptor(serviceUUID: UUID, characteristicUUID: UUID, descriptorUUID: UUID, callback: (CallbackResponse) -> Unit) {
+        val key = "readDescriptor|$serviceUUID|$characteristicUUID|$descriptorUUID"
+        callbackMap[key] = callback
+        val service = bluetoothGatt?.getService(serviceUUID)
+        val characteristic = service?.getCharacteristic(characteristicUUID)
+        if (characteristic == null) {
+            reject(key, "Characteristic not found.")
+            return
+        }
+        val descriptor = characteristic?.getDescriptor(descriptorUUID)
+        if (descriptor == null) {
+            reject(key, "Descriptor not found.")
+            return
+        }
+        val result = bluetoothGatt?.readDescriptor(descriptor)
+        if (result != true) {
+            reject(key, "Reading descriptor failed.")
+            return
+        }
+        setTimeout(key, "Read descriptor timeout.")
+    }
+
+    fun writeDescriptor(
+            serviceUUID: UUID,
+            characteristicUUID: UUID,
+            descriptorUUID: UUID,
+            value: String,
+            callback: (CallbackResponse) -> Unit
+    ) {
+        val key = "writeDescriptor|$serviceUUID|$characteristicUUID|$descriptorUUID"
+        callbackMap[key] = callback
+        val service = bluetoothGatt?.getService(serviceUUID)
+        val characteristic = service?.getCharacteristic(characteristicUUID)
+        if (characteristic == null) {
+            reject(key, "Characteristic not found.")
+            return
+        }
+        val descriptor = characteristic?.getDescriptor(descriptorUUID)
+        if (descriptor == null) {
+            reject(key, "Descriptor not found.")
+            return
+        }
+        if (value == "") {
+            reject(key, "Invalid data.")
+            return
+        }
+        val bytes = stringToBytes(value)
+        descriptor.value = bytes
+        val result = bluetoothGatt?.writeDescriptor(descriptor)
+        if (result != true) {
+            reject(key, "Writing characteristic failed.")
+            return
+        }
+        setTimeout(key, "Write timeout.")
     }
 
     private fun resolve(key: String, value: String) {
