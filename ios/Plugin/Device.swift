@@ -9,6 +9,8 @@ class Device: NSObject, CBPeripheralDelegate {
     private var timeoutMap = [String: DispatchWorkItem]()
     private var servicesCount = 0
     private var servicesDiscovered = 0
+    private var characteristicsCount = 0
+    private var characteristicsDiscovered = 0
 
     init(_ peripheral: CBPeripheral) {
         super.init()
@@ -46,7 +48,9 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         self.servicesCount = peripheral.services?.count ?? 0
         self.servicesDiscovered = 0
-        for service in peripheral.services! {
+        self.characteristicsCount = 0
+        self.characteristicsDiscovered = 0
+        for service in peripheral.services ?? [] {
             peripheral.discoverCharacteristics(nil, for: service)
         }
     }
@@ -54,7 +58,19 @@ class Device: NSObject, CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         self.servicesDiscovered += 1
         print("didDiscoverCharacteristicsFor", self.servicesDiscovered, self.servicesCount)
-        if self.servicesDiscovered >= self.servicesCount {
+        self.characteristicsCount += service.characteristics?.count ?? 0
+        for characteristic in service.characteristics ?? [] {
+            peripheral.discoverDescriptors(for: characteristic)
+        }
+        // if the last service does not have characteristics, resolve the connect call now
+        if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
+            self.resolve("connect", "Connection successful.")
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
+        self.characteristicsDiscovered += 1
+        if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
             self.resolve("connect", "Connection successful.")
         }
     }
