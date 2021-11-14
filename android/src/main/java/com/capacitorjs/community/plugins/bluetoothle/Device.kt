@@ -149,7 +149,8 @@ class Device(
             status: Int
         ) {
             super.onDescriptorRead(gatt, descriptor, status)
-            val key = "readDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
+            val key =
+                "readDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 val data = descriptor.value
                 if (data != null && data.isNotEmpty()) {
@@ -169,7 +170,8 @@ class Device(
             status: Int
         ) {
             super.onDescriptorWrite(gatt, descriptor, status)
-            val key = "writeDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
+            val key =
+                "writeDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 resolve(key, "Descriptor successfully written.")
             } else {
@@ -404,7 +406,12 @@ class Device(
         // wait for onDescriptorWrite
     }
 
-    fun readDescriptor(serviceUUID: UUID, characteristicUUID: UUID, descriptorUUID: UUID, callback: (CallbackResponse) -> Unit) {
+    fun readDescriptor(
+        serviceUUID: UUID,
+        characteristicUUID: UUID,
+        descriptorUUID: UUID,
+        callback: (CallbackResponse) -> Unit
+    ) {
         val key = "readDescriptor|$serviceUUID|$characteristicUUID|$descriptorUUID"
         callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
@@ -427,11 +434,11 @@ class Device(
     }
 
     fun writeDescriptor(
-            serviceUUID: UUID,
-            characteristicUUID: UUID,
-            descriptorUUID: UUID,
-            value: String,
-            callback: (CallbackResponse) -> Unit
+        serviceUUID: UUID,
+        characteristicUUID: UUID,
+        descriptorUUID: UUID,
+        value: String,
+        callback: (CallbackResponse) -> Unit
     ) {
         val key = "writeDescriptor|$serviceUUID|$characteristicUUID|$descriptorUUID"
         callbackMap[key] = callback

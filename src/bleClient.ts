@@ -201,17 +201,23 @@ export interface BleClientInterface {
    */
   readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string): Promise<DataView>;
 
-   /**
-    * Write a value to a descriptor.
-    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
-    * @param service UUID of the service (see [UUID format](#uuid-format))
-    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
-    * @param descriptor UUID of the descriptor (see [UUID format](#uuid-format))
-    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
-    */
-  writeDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string, value: DataView): Promise<void>;
- 
-   /**
+  /**
+   * Write a value to a descriptor.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param service UUID of the service (see [UUID format](#uuid-format))
+   * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
+   * @param descriptor UUID of the descriptor (see [UUID format](#uuid-format))
+   * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   */
+  writeDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string,
+    value: DataView
+  ): Promise<void>;
+
+  /**
    * Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
@@ -494,7 +500,12 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string): Promise<DataView> {
+  async readDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string
+  ): Promise<DataView> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
     descriptor = validateUUID(descriptor);
@@ -510,7 +521,13 @@ class BleClientClass implements BleClientInterface {
     return value;
   }
 
-  async writeDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string, value: DataView): Promise<void> {
+  async writeDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string,
+    value: DataView
+  ): Promise<void> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
     descriptor = validateUUID(descriptor);

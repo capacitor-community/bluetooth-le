@@ -564,7 +564,12 @@ class BluetoothLe : Plugin() {
             call.reject("Value required.")
             return
         }
-        device.writeDescriptor(descriptor.first, descriptor.second, descriptor.third, value) { response ->
+        device.writeDescriptor(
+            descriptor.first,
+            descriptor.second,
+            descriptor.third,
+            value
+        ) { response ->
             run {
                 if (response.success) {
                     call.resolve()

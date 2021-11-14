@@ -67,7 +67,7 @@ class Device: NSObject, CBPeripheralDelegate {
             self.resolve("connect", "Connection successful.")
         }
     }
-    
+
     func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
         self.characteristicsDiscovered += 1
         if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
@@ -108,7 +108,7 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         return nil
     }
-    
+
     private func getDescriptor(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ descriptorUUID: CBUUID) -> CBDescriptor? {
         guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
             return nil
@@ -132,7 +132,7 @@ class Device: NSObject, CBPeripheralDelegate {
         self.peripheral.readValue(for: characteristic)
         self.setTimeout(key, "Read timeout.")
     }
-    
+
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         let key = self.getKey("read", characteristic)
         let notifyKey = self.getKey("notification", characteristic)
@@ -154,7 +154,7 @@ class Device: NSObject, CBPeripheralDelegate {
             callback!(true, valueString)
         }
     }
-    
+
     func readDescriptor(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ descriptorUUID: CBUUID, _ callback: @escaping Callback) {
         let key = "readDescriptor|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)|\(descriptorUUID.uuidString)"
         self.callbackMap[key] = callback
@@ -209,7 +209,7 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         self.resolve(key, "Successfully written value.")
     }
-    
+
     func writeDescriptor(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ descriptorUUID: CBUUID, _ value: String, _ callback: @escaping Callback) {
         let key = "writeDescriptor|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)|\(descriptorUUID.uuidString)"
         self.callbackMap[key] = callback
@@ -282,7 +282,7 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
     }
-    
+
     private func getKey(_ prefix: String, _ descriptor: CBDescriptor) -> String {
         let baseKey = self.getKey(prefix, descriptor.characteristic)
         let characteristicUUIDString = cbuuidToStringUppercase(descriptor.uuid)

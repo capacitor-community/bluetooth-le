@@ -347,7 +347,7 @@ public class BluetoothLe: CAPPlugin {
             }
         })
     }
-    
+
     @objc func readDescriptor(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
@@ -362,7 +362,7 @@ public class BluetoothLe: CAPPlugin {
             }
         })
     }
-    
+
     @objc func writeDescriptor(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
@@ -474,7 +474,7 @@ public class BluetoothLe: CAPPlugin {
         let characteristicUUID = CBUUID(string: characteristic)
         return (serviceUUID, characteristicUUID)
     }
-    
+
     private func getDescriptor(_ call: CAPPluginCall) -> (CBUUID, CBUUID, CBUUID)? {
         guard let characteristic = getCharacteristic(call) else {
             return nil
@@ -484,7 +484,7 @@ public class BluetoothLe: CAPPlugin {
             return nil
         }
         let descriptorUUID = CBUUID(string: descriptor)
-        
+
         return (characteristic.0, characteristic.1, descriptorUUID)
     }
 
