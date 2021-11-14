@@ -4,7 +4,7 @@ import CoreBluetooth
 
 let defaultConnectionTimeout: Double = 10
 
-//swiftlint:disable type_body_length
+// swiftlint:disable type_body_length
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
