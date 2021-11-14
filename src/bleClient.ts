@@ -6,6 +6,7 @@ import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
   BleDevice,
   BleService,
+  ConnectOptions,
   Data,
   ReadResult,
   RequestBleDeviceOptions,
@@ -130,8 +131,9 @@ export interface BleClientInterface {
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
+   * @param options Options for connect method
    */
-  connect(deviceId: string, onDisconnect?: (deviceId: string) => void): Promise<void>;
+  connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: ConnectOptions): Promise<void>;
 
   /**
    * Create a bond with a peripheral BLE device.
@@ -389,7 +391,7 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async connect(deviceId: string, onDisconnect?: (deviceId: string) => void): Promise<void> {
+  async connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: ConnectOptions): Promise<void> {
     await this.queue(async () => {
       if (onDisconnect) {
         const key = `disconnected|${deviceId}`;
@@ -399,7 +401,7 @@ class BleClientClass implements BleClientInterface {
         });
         this.eventListeners.set(key, listener);
       }
-      await BluetoothLe.connect({ deviceId });
+      await BluetoothLe.connect({ deviceId, ...options });
     });
   }
 

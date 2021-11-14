@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { BleCharacteristic, BleCharacteristicProperties, BleDescriptor, BleService } from '.';
+import type { BleCharacteristic, BleCharacteristicProperties, BleDescriptor, BleService, ConnectOptions } from '.';
 import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
 import type {
   BleDevice,
@@ -27,7 +27,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   private discoveredDevices = new Map<string, boolean>();
   private scan: BluetoothLEScan | null = null;
   private requestBleDeviceOptions: RequestBleDeviceOptions | undefined;
-  private CONNECTION_TIMEOUT = 10000;
+  private DEFAULT_CONNECTION_TIMEOUT = 10000;
 
   async initialize(): Promise<void> {
     if (typeof navigator === 'undefined' || !navigator.bluetooth) {
@@ -158,7 +158,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return { devices: bleDevices };
   }
 
-  async connect(options: DeviceIdOptions): Promise<void> {
+  async connect(options: DeviceIdOptions & ConnectOptions): Promise<void> {
     const device = this.getDeviceFromMap(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnected);
     device.addEventListener('gattserverdisconnected', this.onDisconnected);
@@ -167,7 +167,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       throw new Error('No gatt server available.');
     }
     try {
-      await runWithTimeout(device.gatt.connect(), this.CONNECTION_TIMEOUT, timeoutError);
+      const timeout = options.timeout ?? this.DEFAULT_CONNECTION_TIMEOUT;
+      await runWithTimeout(device.gatt.connect(), timeout, timeoutError);
     } catch (error) {
       // cancel pending connect call, does not work yet in chromium because of a bug:
       // https://bugs.chromium.org/p/chromium/issues/detail?id=684073

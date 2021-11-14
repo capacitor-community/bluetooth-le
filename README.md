@@ -539,15 +539,16 @@ and [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getD
 ### connect(...)
 
 ```typescript
-connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined) => Promise<void>
+connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined, options?: ConnectOptions | undefined) => Promise<void>
 ```
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param              | Type                                         | Description                                                                                                    |
-| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**     | <code>string</code>                          | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
-| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code> | Optional disconnect callback function that will be used when the device disconnects                            |
+| Param              | Type                                                      | Description                                                                                                    |
+| ------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**     | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code>              | Optional disconnect callback function that will be used when the device disconnects                            |
+| **`options`**      | <code><a href="#connectoptions">ConnectOptions</a></code> | Options for connect method                                                                                     |
 
 ---
 
@@ -836,6 +837,12 @@ buffer as needed.
 | Method    | Signature                                                                               | Description                                                     |
 | --------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **slice** | (begin: number, end?: number \| undefined) =&gt; <a href="#arraybuffer">ArrayBuffer</a> | Returns a section of an <a href="#arraybuffer">ArrayBuffer</a>. |
+
+#### ConnectOptions
+
+| Prop          | Type                | Description                               |
+| ------------- | ------------------- | ----------------------------------------- |
+| **`timeout`** | <code>number</code> | Timeout in milliseconds for connect call. |
 
 #### BleService
 

@@ -2,7 +2,6 @@ import Foundation
 import CoreBluetooth
 
 let defaultTimeout: Double = 5
-let connectionTimeout: Double = 10
 
 class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias Callback = (_ success: Bool, _ message: String) -> Void
@@ -195,12 +194,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         return devices
     }
 
-    func connect(_ device: Device, _ callback: @escaping Callback) {
+    func connect(_ device: Device, _ connectionTimeout: Double, _ callback: @escaping Callback) {
         let key = "connect|\(device.getId())"
         self.callbackMap[key] = callback
         print("Connecting to peripheral", device.getPeripheral())
         self.centralManager.connect(device.getPeripheral(), options: nil)
-        self.setConnectionTimeout(key, "Connection timeout.", device)
+        self.setConnectionTimeout(key, "Connection timeout.", device, connectionTimeout)
     }
 
     // didConnect
@@ -302,7 +301,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
     }
 
-    private func setConnectionTimeout(_ key: String, _ message: String, _ device: Device, _ timeout: Double = connectionTimeout) {
+    private func setConnectionTimeout(_ key: String, _ message: String, _ device: Device, _ connectionTimeout: Double) {
         let workItem = DispatchWorkItem {
             // do not call onDisconnnected, which is triggered by cancelPeripheralConnection
             let key = "onDisconnected|\(device.getId())"
@@ -311,6 +310,6 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.reject(key, message)
         }
         self.timeoutMap[key] = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + connectionTimeout, execute: workItem)
     }
 }

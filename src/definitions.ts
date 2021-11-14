@@ -74,6 +74,12 @@ export interface BleDevice {
 export interface DeviceIdOptions {
   deviceId: string;
 }
+export interface ConnectOptions {
+  /**
+   * Timeout in milliseconds for connect call.
+   */
+  timeout?: number;
+}
 
 export interface GetDevicesOptions {
   deviceIds: string[];
@@ -243,7 +249,7 @@ export interface BluetoothLePlugin {
   addListener(eventName: 'onEnabledChanged', listenerFunc: (result: BooleanResult) => void): PluginListenerHandle;
   addListener(eventName: string, listenerFunc: (event: ReadResult) => void): PluginListenerHandle;
   addListener(eventName: 'onScanResult', listenerFunc: (result: ScanResultInternal) => void): PluginListenerHandle;
-  connect(options: DeviceIdOptions): Promise<void>;
+  connect(options: DeviceIdOptions & ConnectOptions): Promise<void>;
   createBond(options: DeviceIdOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;
