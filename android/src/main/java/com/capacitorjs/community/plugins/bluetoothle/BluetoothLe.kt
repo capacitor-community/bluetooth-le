@@ -47,6 +47,7 @@ class BluetoothLe : Plugin() {
 
         // maximal scan duration for requestDevice
         private const val MAX_SCAN_DURATION: Long = 30000
+        private const val CONNECTION_TIMEOUT: Float = 10000.0F
     }
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -342,7 +343,8 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun connect(call: PluginCall) {
         val device = getOrCreateDevice(call) ?: return
-        device.connect { response ->
+        val connectionTimeout = call.getFloat("timeout", CONNECTION_TIMEOUT)!!.toLong()
+        device.connect(connectionTimeout) { response ->
             run {
                 if (response.success) {
                     call.resolve()

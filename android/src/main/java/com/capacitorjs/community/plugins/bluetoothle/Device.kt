@@ -30,7 +30,6 @@ class Device(
         private const val STATE_CONNECTED = 2
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
         private const val DEFAULT_TIMEOUT: Long = 5000
-        private const val CONNECTION_TIMEOUT: Long = 10000
         private const val REQUEST_MTU = 512
     }
 
@@ -190,7 +189,7 @@ class Device(
      * - discover services
      * - request MTU
      */
-    fun connect(callback: (CallbackResponse) -> Unit) {
+    fun connect(timeout: Long, callback: (CallbackResponse) -> Unit) {
         val key = "connect"
         callbackMap[key] = callback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -210,7 +209,7 @@ class Device(
                 )
         }
         connectionState = STATE_CONNECTING
-        setConnectionTimeout(key, "Connection timeout.", bluetoothGatt)
+        setConnectionTimeout(key, "Connection timeout.", bluetoothGatt, timeout)
     }
 
     fun isConnected(): Boolean {
@@ -503,7 +502,7 @@ class Device(
         key: String,
         message: String,
         gatt: BluetoothGatt?,
-        timeout: Long = CONNECTION_TIMEOUT
+        timeout: Long,
     ) {
         val handler = Handler(Looper.getMainLooper())
         timeoutMap[key] = handler

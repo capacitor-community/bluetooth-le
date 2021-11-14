@@ -2,6 +2,8 @@ import Foundation
 import Capacitor
 import CoreBluetooth
 
+let defaultConnectionTimeout: Double = 10
+
 //swiftlint:disable type_body_length
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
@@ -199,7 +201,13 @@ public class BluetoothLe: CAPPlugin {
     @objc func connect(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call, checkConnection: false) else { return }
-        device.setOnConnected({(success, message) -> Void in
+        var connectionTimeout = defaultConnectionTimeout
+        let timeout = call.getDouble("timeout")
+        if timeout != nil {
+            // convert from milliseconds to seconds
+            connectionTimeout = timeout! / 1000
+        }
+        device.setOnConnected(connectionTimeout, {(success, message) -> Void in
             if success {
                 // only resolve after service discovery
                 call.resolve()
@@ -211,7 +219,7 @@ public class BluetoothLe: CAPPlugin {
             let key = "disconnected|\(device.getId())"
             self.notifyListeners(key, data: nil)
         })
-        self.deviceManager?.connect(device, {(success, message) -> Void in
+        self.deviceManager?.connect(device, connectionTimeout, {(success, message) -> Void in
             if success {
                 print("Connected to peripheral. Waiting for service discovery.")
             } else {

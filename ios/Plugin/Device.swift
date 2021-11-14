@@ -34,7 +34,7 @@ class Device: NSObject, CBPeripheralDelegate {
         return self.peripheral
     }
 
-    func setOnConnected(_ callback: @escaping Callback) {
+    func setOnConnected(_ connectionTimeout: Double, _ callback: @escaping Callback) {
         let key = "connect"
         self.callbackMap[key] = callback
         self.setTimeout(key, "Connection timeout", connectionTimeout)
