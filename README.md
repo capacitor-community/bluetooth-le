@@ -286,7 +286,7 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`isLocationEnabled()`](#islocationenabled)                    |   ✅    | ❌  | ❌  |
 | [`openLocationSettings()`](#openlocationsettings)              |   ✅    | ❌  | ❌  |
 | [`openBluetoothSettings()`](#openbluetoothsettings)            |   ✅    | ❌  | ❌  |
-| [`openAppSettings()`](#openappsettings)                        |   ❌    | ✅  | ❌  |
+| [`openAppSettings()`](#openappsettings)                        |   ✅    | ✅  | ❌  |
 | [`setDisplayStrings(...)`](#setdisplaystrings)                 |   ✅    | ✅  | --  |
 | [`requestDevice(...)`](#requestdevice)                         |   ✅    | ✅  | ✅  |
 | [`requestLEScan(...)`](#requestlescan)                         |   ✅    | ✅  | 🚩  |

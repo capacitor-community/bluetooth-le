@@ -74,10 +74,10 @@ export interface BleClientInterface {
 
   /**
    * Open App settings.
-   * Only available on **iOS**.
+   * Not available on **web**.
    * On **iOS** when a user declines the request to use Bluetooth on the first call of `initialize`, it is not possible
    * to request for Bluetooth again from within the app. In this case Bluetooth has to be enabled in the app settings
-   * for the app to use it.
+   * for the app to be able use it.
    */
   openAppSettings(): Promise<void>;
 
