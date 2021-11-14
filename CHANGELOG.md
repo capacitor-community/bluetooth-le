@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.5.0...v1.6.0) (2021-11-14)
+
+
+### Features
+
+* **all:** add methods to read/write descriptors ([#236](https://github.com/capacitor-community/bluetooth-le/issues/236)) ([ea9dae3](https://github.com/capacitor-community/bluetooth-le/commit/ea9dae32e23a24900a0e5cd0f52d5994fb27a3fb))
+* **all:** make connect timeout configurable ([#242](https://github.com/capacitor-community/bluetooth-le/issues/242)) ([2364c39](https://github.com/capacitor-community/bluetooth-le/commit/2364c39580c864fab17211b16289726f214360eb))
+* **android:** implement openAppSettings for android ([#241](https://github.com/capacitor-community/bluetooth-le/issues/241)) ([29abb16](https://github.com/capacitor-community/bluetooth-le/commit/29abb1618b71ae52dca92fd6d87a9d1f8f7b7af8))
+
+
+### Bug Fixes
+
+* **ios:** fix conversion of CBUUID of length 8 ([c02e3f7](https://github.com/capacitor-community/bluetooth-le/commit/c02e3f75945c41c90a90addbb8c83c191aa2504b))
+
 ## [1.5.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.4.0...v1.5.0) (2021-10-02)
 
 
