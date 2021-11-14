@@ -11,9 +11,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.ParcelUuid
-import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
-import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
+import android.provider.Settings.*
 import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.*
@@ -178,20 +178,23 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun openLocationSettings(call: PluginCall) {
         val intent = Intent(ACTION_LOCATION_SOURCE_SETTINGS)
-        getActivity().startActivity(intent);
+        activity.startActivity(intent);
         call.resolve()
     }
 
     @PluginMethod
     fun openBluetoothSettings(call: PluginCall) {
         val intent = Intent(ACTION_BLUETOOTH_SETTINGS)
-        getActivity().startActivity(intent);
+        activity.startActivity(intent);
         call.resolve()
     }
 
     @PluginMethod
     fun openAppSettings(call: PluginCall) {
-        call.unavailable("openAppSettings is not available on Android.")
+        val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.parse("package:" + getActivity().getPackageName());
+        activity.startActivity(intent);
+        call.resolve()
     }
 
     @PluginMethod
