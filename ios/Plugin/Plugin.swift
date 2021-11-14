@@ -2,6 +2,7 @@ import Foundation
 import Capacitor
 import CoreBluetooth
 
+//swiftlint:disable type_body_length
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
