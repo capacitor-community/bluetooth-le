@@ -193,6 +193,31 @@ export interface BleClientInterface {
   writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void>;
 
   /**
+   * Read the value of a descriptor.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param service UUID of the service (see [UUID format](#uuid-format))
+   * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
+   * @param descriptor UUID of the descriptor (see [UUID format](#uuid-format))
+   */
+  readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string): Promise<DataView>;
+
+  /**
+   * Write a value to a descriptor.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param service UUID of the service (see [UUID format](#uuid-format))
+   * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
+   * @param descriptor UUID of the descriptor (see [UUID format](#uuid-format))
+   * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   */
+  writeDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string,
+    value: DataView
+  ): Promise<void>;
+
+  /**
    * Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
@@ -470,6 +495,56 @@ class BleClientClass implements BleClientInterface {
         deviceId,
         service,
         characteristic,
+        value: writeValue,
+      });
+    });
+  }
+
+  async readDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string
+  ): Promise<DataView> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
+    descriptor = validateUUID(descriptor);
+    const value = await this.queue(async () => {
+      const result = await BluetoothLe.readDescriptor({
+        deviceId,
+        service,
+        characteristic,
+        descriptor,
+      });
+      return this.convertValue(result.value);
+    });
+    return value;
+  }
+
+  async writeDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string,
+    value: DataView
+  ): Promise<void> {
+    service = validateUUID(service);
+    characteristic = validateUUID(characteristic);
+    descriptor = validateUUID(descriptor);
+    return this.queue(async () => {
+      if (!value?.buffer) {
+        throw new Error('Invalid data.');
+      }
+      let writeValue: DataView | string = value;
+      if (Capacitor.getPlatform() !== 'web') {
+        // on native we can only write strings
+        writeValue = dataViewToHexString(value);
+      }
+      await BluetoothLe.writeDescriptor({
+        deviceId,
+        service,
+        characteristic,
+        descriptor,
         value: writeValue,
       });
     });

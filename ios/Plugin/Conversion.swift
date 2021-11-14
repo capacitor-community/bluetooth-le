@@ -1,6 +1,19 @@
 import Foundation
 import CoreBluetooth
 
+func descriptorValueToString(_ value: Any) -> String {
+    if let str = value as? String {
+        return str
+    }
+    if let data = value as? Data {
+        return dataToString(data)
+    }
+    if let uuid = value as? CBUUID {
+        return uuid.uuidString
+    }
+    return ""
+}
+
 func dataToString(_ data: Data) -> String {
     var valueString = ""
     for byte in data {

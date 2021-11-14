@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { BleCharacteristic, BleCharacteristicProperties, BleService } from '.';
+import type { BleCharacteristic, BleCharacteristicProperties, BleDescriptor, BleService } from '.';
 import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
 import type {
   BleDevice,
@@ -11,12 +11,14 @@ import type {
   GetConnectedDevicesOptions,
   GetDevicesOptions,
   GetDevicesResult,
+  ReadDescriptorOptions,
   ReadOptions,
   ReadResult,
   ReadRssiResult,
   RequestBleDeviceOptions,
   ScanResultInternal,
   WriteOptions,
+  WriteDescriptorOptions,
 } from './definitions';
 import { runWithTimeout } from './timeout';
 
@@ -202,15 +204,28 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     const bleServices: BleService[] = [];
     for (const service of services) {
       const characteristics = await service.getCharacteristics();
-      const bleCharacteristics: BleCharacteristic[] = characteristics.map((characteristic) => {
-        return {
+      const bleCharacteristics: BleCharacteristic[] = [];
+      for (const characteristic of characteristics) {
+        bleCharacteristics.push({
           uuid: characteristic.uuid,
           properties: this.getProperties(characteristic),
-        };
-      });
+          descriptors: await this.getDescriptors(characteristic),
+        });
+      }
       bleServices.push({ uuid: service.uuid, characteristics: bleCharacteristics });
     }
     return { services: bleServices };
+  }
+
+  private async getDescriptors(characteristic: BluetoothRemoteGATTCharacteristic): Promise<BleDescriptor[]> {
+    try {
+      const descriptors = await characteristic.getDescriptors();
+      return descriptors.map((descriptor) => ({
+        uuid: descriptor.uuid,
+      }));
+    } catch {
+      return [];
+    }
   }
 
   private getProperties(characteristic: BluetoothRemoteGATTCharacteristic): BleCharacteristicProperties {
@@ -232,6 +247,13 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   ): Promise<BluetoothRemoteGATTCharacteristic | undefined> {
     const service = await this.getDeviceFromMap(options.deviceId).gatt?.getPrimaryService(options?.service);
     return service?.getCharacteristic(options?.characteristic);
+  }
+
+  private async getDescriptor(
+    options: ReadDescriptorOptions | WriteDescriptorOptions
+  ): Promise<BluetoothRemoteGATTDescriptor | undefined> {
+    const characteristic = await this.getCharacteristic(options);
+    return characteristic?.getDescriptor(options?.descriptor);
   }
 
   async readRssi(_options: DeviceIdOptions): Promise<ReadRssiResult> {
@@ -264,6 +286,23 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       dataView = options.value;
     }
     await characteristic?.writeValueWithoutResponse(dataView);
+  }
+
+  async readDescriptor(options: ReadDescriptorOptions): Promise<ReadResult> {
+    const descriptor = await this.getDescriptor(options);
+    const value = await descriptor?.readValue();
+    return { value };
+  }
+
+  async writeDescriptor(options: WriteDescriptorOptions): Promise<void> {
+    const descriptor = await this.getDescriptor(options);
+    let dataView: DataView;
+    if (typeof options.value === 'string') {
+      dataView = hexStringToDataView(options.value);
+    } else {
+      dataView = options.value;
+    }
+    await descriptor?.writeValue(dataView);
   }
 
   async startNotifications(options: ReadOptions): Promise<void> {
