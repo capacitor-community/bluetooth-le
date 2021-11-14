@@ -218,10 +218,14 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
   }
 
   private async getDescriptors(characteristic: BluetoothRemoteGATTCharacteristic): Promise<BleDescriptor[]> {
-    const descriptors = await characteristic.getDescriptors();
-    return descriptors.map((descriptor) => ({
-      uuid: descriptor.uuid,
-    }));
+    try {
+      const descriptors = await characteristic.getDescriptors();
+      return descriptors.map((descriptor) => ({
+        uuid: descriptor.uuid,
+      }));
+    } catch {
+      return [];
+    }
   }
 
   private getProperties(characteristic: BluetoothRemoteGATTCharacteristic): BleCharacteristicProperties {
