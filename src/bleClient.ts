@@ -137,14 +137,14 @@ export interface BleClientInterface {
 
   /**
    * Create a bond with a peripheral BLE device.
-   * Only available on Android.
+   * Only available on **Android**. On iOS bonding is handled by the OS.
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   createBond(deviceId: string): Promise<void>;
 
   /**
    * Report whether a peripheral BLE device is bonded.
-   * Only available on Android.
+   * Only available on **Android**. On iOS bonding is handled by the OS.
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   isBonded(deviceId: string): Promise<boolean>;
@@ -156,7 +156,7 @@ export interface BleClientInterface {
   disconnect(deviceId: string): Promise<void>;
 
   /**
-   * Get services and characteristics of device.
+   * Get services, characteristics and descriptors of a device.
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   getServices(deviceId: string): Promise<BleService[]>;

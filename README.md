@@ -559,7 +559,7 @@ createBond(deviceId: string) => Promise<void>
 ```
 
 Create a bond with a peripheral BLE device.
-Only available on Android.
+Only available on **Android**. On iOS bonding is handled by the OS.
 
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -574,7 +574,7 @@ isBonded(deviceId: string) => Promise<boolean>
 ```
 
 Report whether a peripheral BLE device is bonded.
-Only available on Android.
+Only available on **Android**. On iOS bonding is handled by the OS.
 
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -604,7 +604,7 @@ Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
 getServices(deviceId: string) => Promise<BleService[]>
 ```
 
-Get services and characteristics of device.
+Get services, characteristics and descriptors of a device.
 
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
