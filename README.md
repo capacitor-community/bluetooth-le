@@ -191,7 +191,8 @@ export async function main(): Promise<void> {
       optionalServices: [BATTERY_SERVICE, POLAR_PMD_SERVICE],
     });
 
-    await BleClient.connect(device.deviceId);
+    // connect to device, the onDisconnect callback is optional
+    await BleClient.connect(device.deviceId, (deviceId) => onDisconnect(deviceId));
     console.log('connected to device', device);
 
     const result = await BleClient.read(device.deviceId, HEART_RATE_SERVICE, BODY_SENSOR_LOCATION_CHARACTERISTIC);
@@ -212,6 +213,7 @@ export async function main(): Promise<void> {
       }
     );
 
+    // disconnect after 10 sec
     setTimeout(async () => {
       await BleClient.stopNotifications(device.deviceId, HEART_RATE_SERVICE, HEART_RATE_MEASUREMENT_CHARACTERISTIC);
       await BleClient.disconnect(device.deviceId);
@@ -220,6 +222,10 @@ export async function main(): Promise<void> {
   } catch (error) {
     console.error(error);
   }
+}
+
+function onDisconnect(deviceId: string): void {
+  console.log(`device ${deviceId} disconnected`);
 }
 
 function parseHeartRate(value: DataView): number {
