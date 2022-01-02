@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-6-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-7-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -942,6 +942,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/sultanmyrza"><img src="https://avatars.githubusercontent.com/u/12681781?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kasymbekov Sultanmyrza</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=sultanmyrza" title="Code">💻</a></td>
     <td align="center"><a href="https://sourcya.com"><img src="https://avatars.githubusercontent.com/u/9040320?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mutasim Issa</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=mutasimissa" title="Documentation">📖</a></td>
     <td align="center"><a href="http://www.gnucoop.com"><img src="https://avatars.githubusercontent.com/u/1615301?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Marco Marche</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=trik" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/JFKakaJFK"><img src="https://avatars.githubusercontent.com/u/13108477?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Johannes Koch</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=JFKakaJFK" title="Code">💻</a></td>
   </tr>
 </table>
 
