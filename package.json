@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/bluetooth-le",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Capacitor plugin for Bluetooth Low Energy ",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -40,7 +40,7 @@
     "@capacitor/android": "^3.3.3",
     "@capacitor/cli": "^3.3.3",
     "@capacitor/core": "^3.3.3",
-    "@capacitor/docgen": "0.0.18",
+    "@capacitor/docgen": "0.1.0",
     "@capacitor/ios": "^3.3.3",
     "@ionic/eslint-config": "^0.3.0",
     "@ionic/prettier-config": "^2.0.0",
