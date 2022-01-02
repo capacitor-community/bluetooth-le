@@ -46,6 +46,7 @@
     "@ionic/prettier-config": "^2.0.0",
     "@ionic/swiftlint-config": "^1.1.2",
     "@types/jest": "^27.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
     "eslint": "^8.6.0",
     "jest": "^27.4.5",
     "prettier": "^2.5.1",
