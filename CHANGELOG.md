@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.6.0...v1.6.1) (2022-01-02)
+
+
+### Bug Fixes
+
+* fix `numberToUUID` for values with leading zeroes ([#261](https://github.com/capacitor-community/bluetooth-le/issues/261)) ([b335dcc](https://github.com/capacitor-community/bluetooth-le/commit/b335dccb37f03667c00366a177050060f3a6ecf8))
+
 ## [1.6.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.5.0...v1.6.0) (2021-11-14)
 
 
