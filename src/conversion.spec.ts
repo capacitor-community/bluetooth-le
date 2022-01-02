@@ -54,6 +54,12 @@ describe('numberToUUID', () => {
     const result = numberToUUID(value);
     expect(result).toEqual('0000180d-0000-1000-8000-00805f9b34fb');
   });
+
+  it('should also work with leading zeroes', () => {
+    const value = 0x0042;
+    const result = numberToUUID(value);
+    expect(result).toEqual('00000042-0000-1000-8000-00805f9b34fb');
+  });
 });
 
 describe('hexStringToDataView', () => {
