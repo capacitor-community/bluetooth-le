@@ -12,9 +12,11 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.ParcelUuid
 import android.provider.Settings.*
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.*
 import com.getcapacitor.annotation.CapacitorPlugin
@@ -28,16 +30,36 @@ import kotlin.collections.ArrayList
     name = "BluetoothLe",
     permissions = [
         Permission(
-            strings = [
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ], alias = "location"
+                strings = [
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ], alias = "ACCESS_COARSE_LOCATION"
         ),
         Permission(
-            strings = [
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN
-            ], alias = "bluetooth"
+                strings = [
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                ], alias = "ACCESS_FINE_LOCATION"
+        ),
+        Permission(
+                strings = [
+                    Manifest.permission.BLUETOOTH,
+                ], alias = "BLUETOOTH"
+        ),
+        Permission(
+                strings = [
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                ], alias = "BLUETOOTH_ADMIN"
+        ),
+        Permission(
+                strings = [
+                    // Manifest.permission.BLUETOOTH_SCAN
+                    "android.permission.BLUETOOTH_SCAN",
+                ], alias = "BLUETOOTH_SCAN"
+        ),
+        Permission(
+                strings = [
+                    // Manifest.permission.BLUETOOTH_ADMIN
+                    "android.permission.BLUETOOTH_CONNECT",
+                ], alias = "BLUETOOTH_CONNECT"
         ),
     ]
 )
@@ -56,6 +78,7 @@ class BluetoothLe : Plugin() {
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
     private var displayStrings: DisplayStrings? = null
+    private var aliases: Array<String> = arrayOf<String>()
 
     override fun load() {
         displayStrings = getDisplayStrings()
@@ -63,16 +86,39 @@ class BluetoothLe : Plugin() {
 
     @PluginMethod()
     fun initialize(call: PluginCall) {
-        if (getPermissionState("location") != PermissionState.GRANTED) {
-            requestAllPermissions(call, "initializeCallback");
+        // Build.VERSION_CODES.S = 31
+        if (Build.VERSION.SDK_INT >= 31) {
+            val neverForLocation = call.getBoolean("androidNeverForLocation", false) as Boolean
+            aliases = if (neverForLocation) {
+                arrayOf<String>(
+                        "BLUETOOTH_SCAN",
+                        "BLUETOOTH_CONNECT",
+                )
+            } else {
+                arrayOf<String>(
+                        "BLUETOOTH_SCAN",
+                        "BLUETOOTH_CONNECT",
+                        "ACCESS_FINE_LOCATION",
+                )
+            }
         } else {
-            runInitialization(call);
+            aliases = arrayOf<String>(
+                    "ACCESS_COARSE_LOCATION",
+                    "ACCESS_FINE_LOCATION",
+                    "BLUETOOTH",
+                    "BLUETOOTH_ADMIN",
+            )
         }
+        requestPermissionForAliases(aliases, call, "checkPermission");
     }
 
     @PermissionCallback()
-    private fun initializeCallback(call: PluginCall) {
-        if (getPermissionState("location") == PermissionState.GRANTED) {
+    private fun checkPermission(call: PluginCall) {
+        val granted: List<Boolean> = aliases.map { alias ->
+            getPermissionState(alias) == PermissionState.GRANTED
+        }
+        // all have to be true
+        if (granted.all { it }) {
             runInitialization(call);
         } else {
             call.reject("Permission denied.")

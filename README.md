@@ -47,7 +47,7 @@ Below is an index of all the methods available.
 
 <docgen-index>
 
-- [`initialize()`](#initialize)
+- [`initialize(...)`](#initialize)
 - [`isEnabled()`](#isenabled)
 - [`enable()`](#enable)
 - [`disable()`](#disable)
@@ -120,6 +120,34 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 ### Android
 
 On Android, no further steps are required to use the plugin (if you are using Capacitor 2, see [here](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md#android)).
+
+#### (Optional) Android 12 Bluetooth permissions
+
+If your app targets Android 12 (API level 31) or higher and your app doesn't use Bluetooth scan results to derive physical location information, you can strongly assert that your app doesn't derive physical location. This allows the app to scan for Bluetooth devices without asking for location permissions. See the [Android documentation](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#declare-android12-or-higher).
+
+This requires `compileSdkVersion` and `targetSdkVersion` 31.
+
+To strongly assert that your app doesn't derive physical location, update your app's manifest file.
+
+`./android/app/src/main/AndroidManifest.xml`:
+
+```diff
+    <!-- Permissions -->
++   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
++   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
++   <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
++     android:usesPermissionFlags="neverForLocation"
++     tools:targetApi="s" />
+```
+
+And set the `androidNeverForLocation` flag to `true` when initializing the `BleClient`.
+
+```ts
+import { BleClient } from '@capacitor-community/bluetooth-le';
+await BleClient.initialize({ androidNeverForLocation: true });
+```
+
+This way the app will not ask for location permissions.
 
 ## Configuration
 
@@ -330,15 +358,19 @@ _Note_: web support depends on the browser, see [implementation status](https://
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
 
-### initialize()
+### initialize(...)
 
 ```typescript
-initialize() => Promise<void>
+initialize(options?: InitializeOptions | undefined) => Promise<void>
 ```
 
 Initialize Bluetooth Low Energy (BLE). If it fails, BLE might be unavailable on this device.
 On **Android** it will ask for the location permission. On **iOS** it will ask for the Bluetooth permission.
 For an example, see [usage](#usage).
+
+| Param         | Type                                                            |
+| ------------- | --------------------------------------------------------------- |
+| **`options`** | <code><a href="#initializeoptions">InitializeOptions</a></code> |
 
 ---
 
@@ -773,6 +805,12 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 ---
 
 ### Interfaces
+
+#### InitializeOptions
+
+| Prop                          | Type                 | Description                                                                                                                                                                                                                                                                                                                                      | Default            |
+| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| **`androidNeverForLocation`** | <code>boolean</code> | If your app doesn't use Bluetooth scan results to derive physical location information, you can strongly assert that your app doesn't derive physical location. (Android only) Requires adding 'neverForLocation' to AndroidManifest.xml https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#assert-never-for-location | <code>false</code> |
 
 #### DisplayStrings
 

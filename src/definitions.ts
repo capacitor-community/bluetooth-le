@@ -2,6 +2,18 @@ import type { PluginListenerHandle } from '@capacitor/core';
 
 import type { DisplayStrings } from './config';
 
+export interface InitializeOptions {
+  /**
+   * If your app doesn't use Bluetooth scan results to derive physical
+   * location information, you can strongly assert that your app
+   * doesn't derive physical location. (Android only)
+   * Requires adding 'neverForLocation' to AndroidManifest.xml
+   * https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#assert-never-for-location
+   * @default false
+   */
+  androidNeverForLocation?: boolean;
+}
+
 export interface RequestBleDeviceOptions {
   /**
    * Filter devices by service UUIDs.
@@ -231,7 +243,7 @@ export interface ScanResult {
 }
 
 export interface BluetoothLePlugin {
-  initialize(): Promise<void>;
+  initialize(options?: InitializeOptions): Promise<void>;
   isEnabled(): Promise<BooleanResult>;
   enable(): Promise<void>;
   disable(): Promise<void>;

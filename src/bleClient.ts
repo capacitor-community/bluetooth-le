@@ -7,6 +7,7 @@ import type {
   BleDevice,
   BleService,
   Data,
+  InitializeOptions,
   ReadResult,
   RequestBleDeviceOptions,
   ScanResult,
@@ -23,7 +24,7 @@ export interface BleClientInterface {
    * On **Android** it will ask for the location permission. On **iOS** it will ask for the Bluetooth permission.
    * For an example, see [usage](#usage).
    */
-  initialize(): Promise<void>;
+  initialize(options?: InitializeOptions): Promise<void>;
 
   /**
    * Reports whether Bluetooth is enabled on this device.
@@ -282,9 +283,9 @@ class BleClientClass implements BleClientInterface {
     this.queue = getQueue(false);
   }
 
-  async initialize(): Promise<void> {
+  async initialize(options?: InitializeOptions): Promise<void> {
     await this.queue(async () => {
-      await BluetoothLe.initialize();
+      await BluetoothLe.initialize(options);
     });
   }
 
