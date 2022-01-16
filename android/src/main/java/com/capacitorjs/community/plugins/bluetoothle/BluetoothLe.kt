@@ -30,36 +30,36 @@ import kotlin.collections.ArrayList
     name = "BluetoothLe",
     permissions = [
         Permission(
-                strings = [
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                ], alias = "ACCESS_COARSE_LOCATION"
+            strings = [
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ], alias = "ACCESS_COARSE_LOCATION"
         ),
         Permission(
-                strings = [
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                ], alias = "ACCESS_FINE_LOCATION"
+            strings = [
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ], alias = "ACCESS_FINE_LOCATION"
         ),
         Permission(
-                strings = [
-                    Manifest.permission.BLUETOOTH,
-                ], alias = "BLUETOOTH"
+            strings = [
+                Manifest.permission.BLUETOOTH,
+            ], alias = "BLUETOOTH"
         ),
         Permission(
-                strings = [
-                    Manifest.permission.BLUETOOTH_ADMIN,
-                ], alias = "BLUETOOTH_ADMIN"
+            strings = [
+                Manifest.permission.BLUETOOTH_ADMIN,
+            ], alias = "BLUETOOTH_ADMIN"
         ),
         Permission(
-                strings = [
-                    // Manifest.permission.BLUETOOTH_SCAN
-                    "android.permission.BLUETOOTH_SCAN",
-                ], alias = "BLUETOOTH_SCAN"
+            strings = [
+                // Manifest.permission.BLUETOOTH_SCAN
+                "android.permission.BLUETOOTH_SCAN",
+            ], alias = "BLUETOOTH_SCAN"
         ),
         Permission(
-                strings = [
-                    // Manifest.permission.BLUETOOTH_ADMIN
-                    "android.permission.BLUETOOTH_CONNECT",
-                ], alias = "BLUETOOTH_CONNECT"
+            strings = [
+                // Manifest.permission.BLUETOOTH_ADMIN
+                "android.permission.BLUETOOTH_CONNECT",
+            ], alias = "BLUETOOTH_CONNECT"
         ),
     ]
 )
@@ -91,22 +91,22 @@ class BluetoothLe : Plugin() {
             val neverForLocation = call.getBoolean("androidNeverForLocation", false) as Boolean
             aliases = if (neverForLocation) {
                 arrayOf<String>(
-                        "BLUETOOTH_SCAN",
-                        "BLUETOOTH_CONNECT",
+                    "BLUETOOTH_SCAN",
+                    "BLUETOOTH_CONNECT",
                 )
             } else {
                 arrayOf<String>(
-                        "BLUETOOTH_SCAN",
-                        "BLUETOOTH_CONNECT",
-                        "ACCESS_FINE_LOCATION",
+                    "BLUETOOTH_SCAN",
+                    "BLUETOOTH_CONNECT",
+                    "ACCESS_FINE_LOCATION",
                 )
             }
         } else {
             aliases = arrayOf<String>(
-                    "ACCESS_COARSE_LOCATION",
-                    "ACCESS_FINE_LOCATION",
-                    "BLUETOOTH",
-                    "BLUETOOTH_ADMIN",
+                "ACCESS_COARSE_LOCATION",
+                "ACCESS_FINE_LOCATION",
+                "BLUETOOTH",
+                "BLUETOOTH_ADMIN",
             )
         }
         requestPermissionForAliases(aliases, call, "checkPermission");
