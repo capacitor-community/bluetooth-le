@@ -48,6 +48,7 @@ class BluetoothLe : Plugin() {
         // maximal scan duration for requestDevice
         private const val MAX_SCAN_DURATION: Long = 30000
         private const val CONNECTION_TIMEOUT: Float = 10000.0F
+        private const val DEFAULT_TIMEOUT: Float = 5000.0F
     }
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -343,8 +344,8 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun connect(call: PluginCall) {
         val device = getOrCreateDevice(call) ?: return
-        val connectionTimeout = call.getFloat("timeout", CONNECTION_TIMEOUT)!!.toLong()
-        device.connect(connectionTimeout) { response ->
+        val timeout = call.getFloat("timeout", CONNECTION_TIMEOUT)!!.toLong()
+        device.connect(timeout) { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -389,7 +390,8 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun disconnect(call: PluginCall) {
         val device = getOrCreateDevice(call) ?: return
-        device.disconnect { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.disconnect(timeout) { response ->
             run {
                 if (response.success) {
                     deviceMap.remove(device.getId())
@@ -471,7 +473,8 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun readRssi(call: PluginCall) {
         val device = getDevice(call) ?: return
-        device.readRssi { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.readRssi(timeout) { response ->
             run {
                 if (response.success) {
                     val ret = JSObject()
@@ -488,7 +491,8 @@ class BluetoothLe : Plugin() {
     fun read(call: PluginCall) {
         val device = getDevice(call) ?: return
         val characteristic = getCharacteristic(call) ?: return
-        device.read(characteristic.first, characteristic.second) { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.read(characteristic.first, characteristic.second, timeout) { response ->
             run {
                 if (response.success) {
                     val ret = JSObject()
@@ -511,7 +515,14 @@ class BluetoothLe : Plugin() {
             return
         }
         val writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-        device.write(characteristic.first, characteristic.second, value, writeType) { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.write(
+            characteristic.first,
+            characteristic.second,
+            value,
+            writeType,
+            timeout
+        ) { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -532,7 +543,14 @@ class BluetoothLe : Plugin() {
             return
         }
         val writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-        device.write(characteristic.first, characteristic.second, value, writeType) { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.write(
+            characteristic.first,
+            characteristic.second,
+            value,
+            writeType,
+            timeout
+        ) { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -547,7 +565,13 @@ class BluetoothLe : Plugin() {
     fun readDescriptor(call: PluginCall) {
         val device = getDevice(call) ?: return
         val descriptor = getDescriptor(call) ?: return
-        device.readDescriptor(descriptor.first, descriptor.second, descriptor.third) { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.readDescriptor(
+            descriptor.first,
+            descriptor.second,
+            descriptor.third,
+            timeout
+        ) { response ->
             run {
                 if (response.success) {
                     val ret = JSObject()
@@ -569,11 +593,13 @@ class BluetoothLe : Plugin() {
             call.reject("Value required.")
             return
         }
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
         device.writeDescriptor(
             descriptor.first,
             descriptor.second,
             descriptor.third,
-            value
+            value,
+            timeout
         ) { response ->
             run {
                 if (response.success) {

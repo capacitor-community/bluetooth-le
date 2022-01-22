@@ -12,7 +12,9 @@ class Device: NSObject, CBPeripheralDelegate {
     private var characteristicsCount = 0
     private var characteristicsDiscovered = 0
 
-    init(_ peripheral: CBPeripheral) {
+    init(
+        _ peripheral: CBPeripheral
+    ) {
         super.init()
         self.peripheral = peripheral
         self.peripheral.delegate = self
@@ -34,13 +36,19 @@ class Device: NSObject, CBPeripheralDelegate {
         return self.peripheral
     }
 
-    func setOnConnected(_ connectionTimeout: Double, _ callback: @escaping Callback) {
+    func setOnConnected(
+        _ connectionTimeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "connect"
         self.callbackMap[key] = callback
         self.setTimeout(key, "Connection timeout", connectionTimeout)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverServices error: Error?
+    ) {
         print("didDiscoverServices")
         if error != nil {
             print("Error", error!.localizedDescription)
@@ -55,7 +63,11 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverCharacteristicsFor service: CBService,
+        error: Error?
+    ) {
         self.servicesDiscovered += 1
         print("didDiscoverCharacteristicsFor", self.servicesDiscovered, self.servicesCount)
         self.characteristicsCount += service.characteristics?.count ?? 0
@@ -68,7 +80,11 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverDescriptorsFor characteristic: CBCharacteristic,
+        error: Error?
+    ) {
         self.characteristicsDiscovered += 1
         if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
             self.resolve("connect", "Connection successful.")
@@ -79,15 +95,22 @@ class Device: NSObject, CBPeripheralDelegate {
         return self.peripheral.services ?? []
     }
 
-    func readRssi(_ callback: @escaping Callback) {
+    func readRssi(
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "readRssi"
         self.callbackMap[key] = callback
         print("Reading RSSI value")
         self.peripheral.readRSSI()
-        self.setTimeout(key, "Reading RSSI timeout.")
+        self.setTimeout(key, "Reading RSSI timeout.", timeout)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didReadRSSI RSSI: NSNumber,
+        error: Error?
+    ) {
         let key = "readRssi"
         if error != nil {
             self.reject(key, error!.localizedDescription)
@@ -96,7 +119,10 @@ class Device: NSObject, CBPeripheralDelegate {
         self.resolve(key, RSSI.stringValue)
     }
 
-    private func getCharacteristic(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID) -> CBCharacteristic? {
+    private func getCharacteristic(
+        _ serviceUUID: CBUUID,
+        _ characteristicUUID: CBUUID
+    ) -> CBCharacteristic? {
         for service in peripheral.services ?? [] {
             if service.uuid == serviceUUID {
                 for characteristic in service.characteristics ?? [] {
@@ -109,7 +135,11 @@ class Device: NSObject, CBPeripheralDelegate {
         return nil
     }
 
-    private func getDescriptor(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ descriptorUUID: CBUUID) -> CBDescriptor? {
+    private func getDescriptor(
+        _ serviceUUID: CBUUID,
+        _ characteristicUUID: CBUUID,
+        _ descriptorUUID: CBUUID
+    ) -> CBDescriptor? {
         guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
             return nil
         }
@@ -121,7 +151,12 @@ class Device: NSObject, CBPeripheralDelegate {
         return nil
     }
 
-    func read(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ callback: @escaping Callback) {
+    func read(
+        _ serviceUUID: CBUUID,
+        _ characteristicUUID: CBUUID,
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "read|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         self.callbackMap[key] = callback
         guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
@@ -130,10 +165,14 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         print("Reading value")
         self.peripheral.readValue(for: characteristic)
-        self.setTimeout(key, "Read timeout.")
+        self.setTimeout(key, "Read timeout.", timeout)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didUpdateValueFor characteristic: CBCharacteristic,
+        error: Error?
+    ) {
         let key = self.getKey("read", characteristic)
         let notifyKey = self.getKey("notification", characteristic)
         if error != nil {
@@ -155,7 +194,13 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    func readDescriptor(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ descriptorUUID: CBUUID, _ callback: @escaping Callback) {
+    func readDescriptor(
+        _ serviceUUID: CBUUID,
+        _ characteristicUUID: CBUUID,
+        _ descriptorUUID: CBUUID,
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "readDescriptor|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)|\(descriptorUUID.uuidString)"
         self.callbackMap[key] = callback
         guard let descriptor = self.getDescriptor(serviceUUID, characteristicUUID, descriptorUUID) else {
@@ -164,10 +209,14 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         print("Reading descriptor value")
         self.peripheral.readValue(for: descriptor)
-        self.setTimeout(key, "Read descriptor timeout.")
+        self.setTimeout(key, "Read descriptor timeout.", timeout)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didUpdateValueFor descriptor: CBDescriptor,
+        error: Error?
+    ) {
         let key = self.getKey("readDescriptor", descriptor)
         if error != nil {
             self.reject(key, error!.localizedDescription)
@@ -181,7 +230,14 @@ class Device: NSObject, CBPeripheralDelegate {
         self.resolve(key, valueString)
     }
 
-    func write(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ value: String, _ writeType: CBCharacteristicWriteType, _ callback: @escaping Callback) {
+    func write(
+        _ serviceUUID: CBUUID,
+        _ characteristicUUID: CBUUID,
+        _ value: String,
+        _ writeType: CBCharacteristicWriteType,
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "write|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         self.callbackMap[key] = callback
         guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
@@ -195,13 +251,17 @@ class Device: NSObject, CBPeripheralDelegate {
         let data: Data = stringToData(value)
         self.peripheral.writeValue(data, for: characteristic, type: writeType)
         if writeType == CBCharacteristicWriteType.withResponse {
-            self.setTimeout(key, "Write timeout.")
+            self.setTimeout(key, "Write timeout.", timeout)
         } else {
             self.resolve(key, "Successfully written value.")
         }
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didWriteValueFor characteristic: CBCharacteristic,
+        error: Error?
+    ) {
         let key = self.getKey("write", characteristic)
         if error != nil {
             self.reject(key, error!.localizedDescription)
@@ -210,7 +270,14 @@ class Device: NSObject, CBPeripheralDelegate {
         self.resolve(key, "Successfully written value.")
     }
 
-    func writeDescriptor(_ serviceUUID: CBUUID, _ characteristicUUID: CBUUID, _ descriptorUUID: CBUUID, _ value: String, _ callback: @escaping Callback) {
+    func writeDescriptor(
+        _ serviceUUID: CBUUID,
+        _ characteristicUUID: CBUUID,
+        _ descriptorUUID: CBUUID,
+        _ value: String,
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "writeDescriptor|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)|\(descriptorUUID.uuidString)"
         self.callbackMap[key] = callback
         guard let descriptor = self.getDescriptor(serviceUUID, characteristicUUID, descriptorUUID) else {
@@ -223,10 +290,14 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         let data: Data = stringToData(value)
         self.peripheral.writeValue(data, for: descriptor)
-        self.setTimeout(key, "Write descriptor timeout.")
+        self.setTimeout(key, "Write descriptor timeout.", timeout)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor descriptor: CBDescriptor, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didWriteValueFor descriptor: CBDescriptor,
+        error: Error?
+    ) {
         let key = self.getKey("writeDescriptor", descriptor)
         if error != nil {
             self.reject(key, error!.localizedDescription)
@@ -240,6 +311,7 @@ class Device: NSObject, CBPeripheralDelegate {
         _ characteristicUUID: CBUUID,
         _ enable: Bool,
         _ notifyCallback: Callback?,
+        _ timeout: Double,
         _ callback: @escaping Callback
     ) {
         let key = "setNotifications|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
@@ -254,10 +326,14 @@ class Device: NSObject, CBPeripheralDelegate {
         }
         print("Set notifications", enable)
         self.peripheral.setNotifyValue(enable, for: characteristic)
-        self.setTimeout(key, "Set notifications timeout.")
+        self.setTimeout(key, "Set notifications timeout.", timeout)
     }
 
-    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didUpdateNotificationStateFor characteristic: CBCharacteristic,
+        error: Error?
+    ) {
         let key = self.getKey("setNotifications", characteristic)
         if error != nil {
             self.reject(key, error!.localizedDescription)
@@ -266,7 +342,10 @@ class Device: NSObject, CBPeripheralDelegate {
         self.resolve(key, "Successfully set notifications.")
     }
 
-    private func getKey(_ prefix: String, _ characteristic: CBCharacteristic?) -> String {
+    private func getKey(
+        _ prefix: String,
+        _ characteristic: CBCharacteristic?
+    ) -> String {
         let serviceUUIDString: String
         let service: CBService? = characteristic?.service
         if service != nil {
@@ -283,13 +362,19 @@ class Device: NSObject, CBPeripheralDelegate {
         return "\(prefix)|\(serviceUUIDString)|\(characteristicUUIDString)"
     }
 
-    private func getKey(_ prefix: String, _ descriptor: CBDescriptor) -> String {
+    private func getKey(
+        _ prefix: String,
+        _ descriptor: CBDescriptor
+    ) -> String {
         let baseKey = self.getKey(prefix, descriptor.characteristic)
         let characteristicUUIDString = cbuuidToStringUppercase(descriptor.uuid)
         return "\(baseKey)|\(characteristicUUIDString)"
     }
 
-    private func resolve(_ key: String, _ value: String) {
+    private func resolve(
+        _ key: String,
+        _ value: String
+    ) {
         let callback = self.callbackMap[key]
         if callback != nil {
             print("Resolve", key, value)
@@ -302,7 +387,10 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    private func reject(_ key: String, _ value: String) {
+    private func reject(
+        _ key: String,
+        _ value: String
+    ) {
         let callback = self.callbackMap[key]
         if callback != nil {
             print("Reject", key, value)
@@ -315,7 +403,11 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
-    private func setTimeout(_ key: String, _ message: String, _ timeout: Double = defaultTimeout) {
+    private func setTimeout(
+        _ key: String,
+        _ message: String,
+        _ timeout: Double
+    ) {
         let workItem = DispatchWorkItem {
             self.reject(key, message)
         }

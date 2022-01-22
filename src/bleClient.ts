@@ -6,12 +6,12 @@ import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
   BleDevice,
   BleService,
-  ConnectOptions,
   Data,
   ReadResult,
   RequestBleDeviceOptions,
   ScanResult,
   ScanResultInternal,
+  TimeoutOptions,
 } from './definitions';
 import { BluetoothLe } from './plugin';
 import { getQueue } from './queue';
@@ -131,9 +131,9 @@ export interface BleClientInterface {
    * Connect to a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
-   * @param options Options for connect method
+   * @param options Options for plugin call
    */
-  connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: ConnectOptions): Promise<void>;
+  connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: TimeoutOptions): Promise<void>;
 
   /**
    * Create a bond with a peripheral BLE device.
@@ -173,8 +173,9 @@ export interface BleClientInterface {
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
+   * @param options Options for plugin call
    */
-  read(deviceId: string, service: string, characteristic: string): Promise<DataView>;
+  read(deviceId: string, service: string, characteristic: string, options?: TimeoutOptions): Promise<DataView>;
 
   /**
    * Write a value to a characteristic. For an example, see [usage](#usage).
@@ -182,8 +183,15 @@ export interface BleClientInterface {
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   * @param options Options for plugin call
    */
-  write(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void>;
+  write(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+    options?: TimeoutOptions
+  ): Promise<void>;
 
   /**
    * Write a value to a characteristic without waiting for a response.
@@ -191,8 +199,15 @@ export interface BleClientInterface {
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   * @param options Options for plugin call
    */
-  writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void>;
+  writeWithoutResponse(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+    options?: TimeoutOptions
+  ): Promise<void>;
 
   /**
    * Read the value of a descriptor.
@@ -200,8 +215,15 @@ export interface BleClientInterface {
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param descriptor UUID of the descriptor (see [UUID format](#uuid-format))
+   * @param options Options for plugin call
    */
-  readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string): Promise<DataView>;
+  readDescriptor(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    descriptor: string,
+    options?: TimeoutOptions
+  ): Promise<DataView>;
 
   /**
    * Write a value to a descriptor.
@@ -210,13 +232,15 @@ export interface BleClientInterface {
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param descriptor UUID of the descriptor (see [UUID format](#uuid-format))
    * @param value The value to write as a DataView. To create a DataView from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0])
+   * @param options Options for plugin call
    */
   writeDescriptor(
     deviceId: string,
     service: string,
     characteristic: string,
     descriptor: string,
-    value: DataView
+    value: DataView,
+    options?: TimeoutOptions
   ): Promise<void>;
 
   /**
@@ -394,7 +418,7 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: ConnectOptions): Promise<void> {
+  async connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: TimeoutOptions): Promise<void> {
     await this.queue(async () => {
       if (onDisconnect) {
         const key = `disconnected|${deviceId}`;
@@ -444,7 +468,7 @@ class BleClientClass implements BleClientInterface {
     return value;
   }
 
-  async read(deviceId: string, service: string, characteristic: string): Promise<DataView> {
+  async read(deviceId: string, service: string, characteristic: string, options?: TimeoutOptions): Promise<DataView> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
     const value = await this.queue(async () => {
@@ -452,13 +476,20 @@ class BleClientClass implements BleClientInterface {
         deviceId,
         service,
         characteristic,
+        ...options,
       });
       return this.convertValue(result.value);
     });
     return value;
   }
 
-  async write(deviceId: string, service: string, characteristic: string, value: DataView): Promise<void> {
+  async write(
+    deviceId: string,
+    service: string,
+    characteristic: string,
+    value: DataView,
+    options?: TimeoutOptions
+  ): Promise<void> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
     return this.queue(async () => {
@@ -475,6 +506,7 @@ class BleClientClass implements BleClientInterface {
         service,
         characteristic,
         value: writeValue,
+        ...options,
       });
     });
   }
@@ -483,7 +515,8 @@ class BleClientClass implements BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    value: DataView
+    value: DataView,
+    options?: TimeoutOptions
   ): Promise<void> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
@@ -501,6 +534,7 @@ class BleClientClass implements BleClientInterface {
         service,
         characteristic,
         value: writeValue,
+        ...options,
       });
     });
   }
@@ -509,7 +543,8 @@ class BleClientClass implements BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    descriptor: string
+    descriptor: string,
+    options?: TimeoutOptions
   ): Promise<DataView> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
@@ -520,6 +555,7 @@ class BleClientClass implements BleClientInterface {
         service,
         characteristic,
         descriptor,
+        ...options,
       });
       return this.convertValue(result.value);
     });
@@ -531,7 +567,8 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
     descriptor: string,
-    value: DataView
+    value: DataView,
+    options?: TimeoutOptions
   ): Promise<void> {
     service = validateUUID(service);
     characteristic = validateUUID(characteristic);
@@ -551,6 +588,7 @@ class BleClientClass implements BleClientInterface {
         characteristic,
         descriptor,
         value: writeValue,
+        ...options,
       });
     });
   }

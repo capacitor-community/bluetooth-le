@@ -1,8 +1,6 @@
 import Foundation
 import CoreBluetooth
 
-let defaultTimeout: Double = 5
-
 class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias Callback = (_ success: Bool, _ message: String) -> Void
     typealias StateReceiver = (_ enabled: Bool) -> Void
@@ -107,7 +105,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + scanDuration!, execute: self.stopScanWorkItem!)
             }
-            self.centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey: allowDuplicates])
+            self.centralManager.scanForPeripherals(
+                withServices: serviceUUIDs,
+                options: [CBCentralManagerScanOptionAllowDuplicatesKey: allowDuplicates]
+            )
 
             if shouldShowDeviceList == false {
                 self.resolve("startScanning", "Scan started.")
@@ -133,7 +134,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     }
 
     // didDiscover
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+    func centralManager(
+        _ central: CBCentralManager,
+        didDiscover peripheral: CBPeripheral,
+        advertisementData: [String: Any],
+        rssi RSSI: NSNumber
+    ) {
 
         guard peripheral.state != CBPeripheralState.connected else {
             print("found connected device", peripheral.name ?? "Unknown")
@@ -178,7 +184,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
     }
 
-    func getDevices(_ deviceUUIDs: [UUID]) -> [Device] {
+    func getDevices(
+        _ deviceUUIDs: [UUID]
+    ) -> [Device] {
         let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: deviceUUIDs)
         let devices = peripherals.map({peripheral in
             return Device(peripheral)
@@ -186,7 +194,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         return devices
     }
 
-    func getConnectedDevices(_ serviceUUIDs: [CBUUID]) -> [Device] {
+    func getConnectedDevices(
+        _ serviceUUIDs: [CBUUID]
+    ) -> [Device] {
         let peripherals = self.centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
         let devices = peripherals.map({peripheral in
             return Device(peripheral)
@@ -194,7 +204,11 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         return devices
     }
 
-    func connect(_ device: Device, _ connectionTimeout: Double, _ callback: @escaping Callback) {
+    func connect(
+        _ device: Device,
+        _ connectionTimeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "connect|\(device.getId())"
         self.callbackMap[key] = callback
         print("Connecting to peripheral", device.getPeripheral())
@@ -203,7 +217,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     }
 
     // didConnect
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+    func centralManager(
+        _ central: CBCentralManager,
+        didConnect peripheral: CBPeripheral
+    ) {
         print("Connected to device", peripheral)
         let key = "connect|\(peripheral.identifier.uuidString)"
         peripheral.discoverServices(nil)
@@ -212,7 +229,11 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     }
 
     // didFailToConnect
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+    func centralManager(
+        _ central: CBCentralManager,
+        didFailToConnect peripheral: CBPeripheral,
+        error: Error?
+    ) {
         let key = "connect|\(peripheral.identifier.uuidString)"
         if error != nil {
             self.reject(key, error!.localizedDescription)
@@ -221,12 +242,19 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.reject(key, "Failed to connect.")
     }
 
-    func setOnDisconnected(_ device: Device, _ callback: @escaping Callback) {
+    func setOnDisconnected(
+        _ device: Device,
+        _ callback: @escaping Callback
+    ) {
         let key = "onDisconnected|\(device.getId())"
         self.callbackMap[key] = callback
     }
 
-    func disconnect(_ device: Device, _ callback: @escaping Callback) {
+    func disconnect(
+        _ device: Device,
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
         let key = "disconnect|\(device.getId())"
         self.callbackMap[key] = callback
         if device.isConnected() == false {
@@ -235,11 +263,15 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
         print("Disconnecting from peripheral", device.getPeripheral())
         self.centralManager.cancelPeripheralConnection(device.getPeripheral())
-        self.setTimeout(key, "Disconnection timeout.")
+        self.setTimeout(key, "Disconnection timeout.", timeout)
     }
 
     // didDisconnectPeripheral
-    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+    func centralManager(
+        _ central: CBCentralManager,
+        didDisconnectPeripheral peripheral: CBPeripheral,
+        error: Error?
+    ) {
         let key = "disconnect|\(peripheral.identifier.uuidString)"
         let keyOnDisconnected = "onDisconnected|\(peripheral.identifier.uuidString)"
         self.resolve(keyOnDisconnected, "Disconnected.")
@@ -293,7 +325,11 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
     }
 
-    private func setTimeout(_ key: String, _ message: String, _ timeout: Double = defaultTimeout) {
+    private func setTimeout(
+        _ key: String,
+        _ message: String,
+        _ timeout: Double
+    ) {
         let workItem = DispatchWorkItem {
             self.reject(key, message)
         }
@@ -301,7 +337,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: workItem)
     }
 
-    private func setConnectionTimeout(_ key: String, _ message: String, _ device: Device, _ connectionTimeout: Double) {
+    private func setConnectionTimeout(
+        _ key: String,
+        _ message: String,
+        _ device: Device,
+        _ connectionTimeout: Double
+    ) {
         let workItem = DispatchWorkItem {
             // do not call onDisconnnected, which is triggered by cancelPeripheralConnection
             let key = "onDisconnected|\(device.getId())"

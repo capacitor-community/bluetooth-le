@@ -29,7 +29,6 @@ class Device(
         private const val STATE_CONNECTING = 1
         private const val STATE_CONNECTED = 2
         private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
-        private const val DEFAULT_TIMEOUT: Long = 5000
         private const val REQUEST_MTU = 512
     }
 
@@ -189,7 +188,10 @@ class Device(
      * - discover services
      * - request MTU
      */
-    fun connect(timeout: Long, callback: (CallbackResponse) -> Unit) {
+    fun connect(
+        timeout: Long,
+        callback: (CallbackResponse) -> Unit
+    ) {
         val key = "connect"
         callbackMap[key] = callback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -282,7 +284,10 @@ class Device(
         return device.bondState == BluetoothDevice.BOND_BONDED
     }
 
-    fun disconnect(callback: (CallbackResponse) -> Unit) {
+    fun disconnect(
+        timeout: Long,
+        callback: (CallbackResponse) -> Unit
+    ) {
         val key = "disconnect"
         callbackMap[key] = callback
         if (bluetoothGatt == null) {
@@ -290,14 +295,17 @@ class Device(
             return
         }
         bluetoothGatt?.disconnect()
-        setTimeout(key, "Disconnection timeout.")
+        setTimeout(key, "Disconnection timeout.", timeout)
     }
 
     fun getServices(): MutableList<BluetoothGattService> {
         return bluetoothGatt?.services ?: mutableListOf<BluetoothGattService>()
     }
 
-    fun readRssi(callback: (CallbackResponse) -> Unit) {
+    fun readRssi(
+        timeout: Long,
+        callback: (CallbackResponse) -> Unit
+    ) {
         val key = "readRssi"
         callbackMap[key] = callback
         val result = bluetoothGatt?.readRemoteRssi()
@@ -305,10 +313,15 @@ class Device(
             reject(key, "Reading RSSI failed.")
             return
         }
-        setTimeout(key, "Reading RSSI timeout.")
+        setTimeout(key, "Reading RSSI timeout.", timeout)
     }
 
-    fun read(serviceUUID: UUID, characteristicUUID: UUID, callback: (CallbackResponse) -> Unit) {
+    fun read(
+        serviceUUID: UUID,
+        characteristicUUID: UUID,
+        timeout: Long,
+        callback: (CallbackResponse) -> Unit
+    ) {
         val key = "read|$serviceUUID|$characteristicUUID"
         callbackMap[key] = callback
         val service = bluetoothGatt?.getService(serviceUUID)
@@ -322,7 +335,7 @@ class Device(
             reject(key, "Reading characteristic failed.")
             return
         }
-        setTimeout(key, "Read timeout.")
+        setTimeout(key, "Read timeout.", timeout)
     }
 
     fun write(
@@ -330,6 +343,7 @@ class Device(
         characteristicUUID: UUID,
         value: String,
         writeType: Int,
+        timeout: Long,
         callback: (CallbackResponse) -> Unit
     ) {
         val key = "write|$serviceUUID|$characteristicUUID"
@@ -352,7 +366,7 @@ class Device(
             reject(key, "Writing characteristic failed.")
             return
         }
-        setTimeout(key, "Write timeout.")
+        setTimeout(key, "Write timeout.", timeout)
     }
 
     fun setNotifications(
@@ -409,6 +423,7 @@ class Device(
         serviceUUID: UUID,
         characteristicUUID: UUID,
         descriptorUUID: UUID,
+        timeout: Long,
         callback: (CallbackResponse) -> Unit
     ) {
         val key = "readDescriptor|$serviceUUID|$characteristicUUID|$descriptorUUID"
@@ -429,7 +444,7 @@ class Device(
             reject(key, "Reading descriptor failed.")
             return
         }
-        setTimeout(key, "Read descriptor timeout.")
+        setTimeout(key, "Read descriptor timeout.", timeout)
     }
 
     fun writeDescriptor(
@@ -437,6 +452,7 @@ class Device(
         characteristicUUID: UUID,
         descriptorUUID: UUID,
         value: String,
+        timeout: Long,
         callback: (CallbackResponse) -> Unit
     ) {
         val key = "writeDescriptor|$serviceUUID|$characteristicUUID|$descriptorUUID"
@@ -463,7 +479,7 @@ class Device(
             reject(key, "Writing characteristic failed.")
             return
         }
-        setTimeout(key, "Write timeout.")
+        setTimeout(key, "Write timeout.", timeout)
     }
 
     private fun resolve(key: String, value: String) {
@@ -490,7 +506,11 @@ class Device(
         }
     }
 
-    private fun setTimeout(key: String, message: String, timeout: Long = DEFAULT_TIMEOUT) {
+    private fun setTimeout(
+        key: String,
+        message: String,
+        timeout: Long
+    ) {
         val handler = Handler(Looper.getMainLooper())
         timeoutMap[key] = handler
         handler.postDelayed({

@@ -40,6 +40,8 @@ jest.mock('./plugin', () => {
     writeWithoutResponse: jest.fn(),
     startNotifications: jest.fn(),
     stopNotifications: jest.fn(),
+    readDescriptor: jest.fn(),
+    writeDescriptor: jest.fn(),
   };
   return {
     __esModule: true,
@@ -51,6 +53,7 @@ describe('BleClient', () => {
   let mockDevice: BleDevice;
   const service = '00001234-0000-1000-8000-00805f9b34fb';
   const characteristic = '00001235-0000-1000-8000-00805f9b34fb';
+  const descriptor = '00001236-0000-1000-8000-00805f9b34fb';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -169,6 +172,11 @@ describe('BleClient', () => {
     expect(BluetoothLe.connect).toHaveBeenCalledTimes(1);
   });
 
+  it('should run connect with timeout', async () => {
+    await BleClient.connect(mockDevice.deviceId, () => undefined, { timeout: 20000 });
+    expect(BluetoothLe.connect).toHaveBeenCalledWith({ deviceId: mockDevice.deviceId, timeout: 20000 });
+  });
+
   it('should run createBond', async () => {
     await BleClient.createBond(mockDevice.deviceId);
     expect(BluetoothLe.createBond).toHaveBeenCalledWith({ deviceId: mockDevice.deviceId });
@@ -187,10 +195,21 @@ describe('BleClient', () => {
   });
 
   it('should run read', async () => {
-    (BluetoothLe.read as jest.Mock).mockReturnValue({ value: '00 05 c8' });
+    (BluetoothLe.read as jest.Mock).mockReturnValue({ value: '00 05 c8 ' });
     const result = await BleClient.read(mockDevice.deviceId, service, characteristic);
     expect(result).toEqual(hexStringToDataView('00 05 c8'));
     expect(BluetoothLe.read).toHaveBeenCalledWith({ deviceId: mockDevice.deviceId, service, characteristic });
+  });
+
+  it('should run read with timeout', async () => {
+    (BluetoothLe.read as jest.Mock).mockReturnValue({ value: '00 05 c8 ' });
+    await BleClient.read(mockDevice.deviceId, service, characteristic, { timeout: 6000 });
+    expect(BluetoothLe.read).toHaveBeenCalledWith({
+      deviceId: mockDevice.deviceId,
+      service,
+      characteristic,
+      timeout: 6000,
+    });
   });
 
   it('should run write data view on web', async () => {
@@ -218,6 +237,18 @@ describe('BleClient', () => {
     });
   });
 
+  it('should run write with timeout', async () => {
+    (Capacitor.getPlatform as jest.Mock).mockReturnValue('android');
+    await BleClient.write(mockDevice.deviceId, service, characteristic, numbersToDataView([0, 1]), { timeout: 6000 });
+    expect(BluetoothLe.write).toHaveBeenCalledWith({
+      deviceId: mockDevice.deviceId,
+      service,
+      characteristic,
+      value: '00 01',
+      timeout: 6000,
+    });
+  });
+
   it('should run writeWithoutResponse', async () => {
     (Capacitor.getPlatform as jest.Mock).mockReturnValue('web');
     await BleClient.writeWithoutResponse(mockDevice.deviceId, service, characteristic, numbersToDataView([0, 1]));
@@ -226,6 +257,20 @@ describe('BleClient', () => {
       service,
       characteristic,
       value: numbersToDataView([0, 1]),
+    });
+  });
+
+  it('should run writeWithoutResponse with timeout', async () => {
+    (Capacitor.getPlatform as jest.Mock).mockReturnValue('android');
+    await BleClient.writeWithoutResponse(mockDevice.deviceId, service, characteristic, numbersToDataView([0, 1]), {
+      timeout: 6000,
+    });
+    expect(BluetoothLe.writeWithoutResponse).toHaveBeenCalledWith({
+      deviceId: mockDevice.deviceId,
+      service,
+      characteristic,
+      value: '00 01',
+      timeout: 6000,
     });
   });
 
@@ -265,5 +310,42 @@ describe('BleClient', () => {
     });
     expect(mockPluginListenerHandle.remove).toHaveBeenCalledTimes(1);
     expect((BleClient as unknown as BleClientWithPrivate).eventListeners.get(key)).toBeUndefined();
+  });
+
+  it('should run readDescriptor with timeout', async () => {
+    (BluetoothLe.readDescriptor as jest.Mock).mockReturnValue({ value: '00 05 c8 ' });
+    const result = await BleClient.readDescriptor(mockDevice.deviceId, service, characteristic, descriptor, {
+      timeout: 6000,
+    });
+    expect(BluetoothLe.readDescriptor).toHaveBeenCalledWith({
+      deviceId: mockDevice.deviceId,
+      service,
+      characteristic,
+      descriptor,
+      timeout: 6000,
+    });
+    expect(result).toEqual(hexStringToDataView('00 05 c8'));
+  });
+
+  it('should run writeDescriptor with timeout', async () => {
+    (Capacitor.getPlatform as jest.Mock).mockReturnValue('android');
+    await BleClient.writeDescriptor(
+      mockDevice.deviceId,
+      service,
+      characteristic,
+      descriptor,
+      numbersToDataView([0, 1]),
+      {
+        timeout: 6000,
+      }
+    );
+    expect(BluetoothLe.writeDescriptor).toHaveBeenCalledWith({
+      deviceId: mockDevice.deviceId,
+      service,
+      characteristic,
+      descriptor,
+      value: '00 01',
+      timeout: 6000,
+    });
   });
 });

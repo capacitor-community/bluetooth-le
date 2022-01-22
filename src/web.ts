@@ -1,8 +1,12 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { BleCharacteristic, BleCharacteristicProperties, BleDescriptor, BleService, ConnectOptions } from '.';
 import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
 import type {
+  BleCharacteristic,
+  BleCharacteristicProperties,
+  BleDescriptor,
+  BleService,
+  TimeoutOptions,
   BleDevice,
   BleServices,
   BluetoothLePlugin,
@@ -158,7 +162,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return { devices: bleDevices };
   }
 
-  async connect(options: DeviceIdOptions & ConnectOptions): Promise<void> {
+  async connect(options: DeviceIdOptions & TimeoutOptions): Promise<void> {
     const device = this.getDeviceFromMap(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnected);
     device.addEventListener('gattserverdisconnected', this.onDisconnected);

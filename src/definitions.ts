@@ -74,9 +74,10 @@ export interface BleDevice {
 export interface DeviceIdOptions {
   deviceId: string;
 }
-export interface ConnectOptions {
+export interface TimeoutOptions {
   /**
-   * Timeout in milliseconds for connect call.
+   * Timeout in milliseconds for plugin call.
+   * Default is 10000 for `connect` and 5000 for other plugin methods.
    */
   timeout?: number;
 }
@@ -249,17 +250,17 @@ export interface BluetoothLePlugin {
   addListener(eventName: 'onEnabledChanged', listenerFunc: (result: BooleanResult) => void): PluginListenerHandle;
   addListener(eventName: string, listenerFunc: (event: ReadResult) => void): PluginListenerHandle;
   addListener(eventName: 'onScanResult', listenerFunc: (result: ScanResultInternal) => void): PluginListenerHandle;
-  connect(options: DeviceIdOptions & ConnectOptions): Promise<void>;
+  connect(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   createBond(options: DeviceIdOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;
   getServices(options: DeviceIdOptions): Promise<BleServices>;
   readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
-  read(options: ReadOptions): Promise<ReadResult>;
-  write(options: WriteOptions): Promise<void>;
-  writeWithoutResponse(options: WriteOptions): Promise<void>;
-  readDescriptor(options: ReadDescriptorOptions): Promise<ReadResult>;
-  writeDescriptor(options: WriteDescriptorOptions): Promise<void>;
+  read(options: ReadOptions & TimeoutOptions): Promise<ReadResult>;
+  write(options: WriteOptions & TimeoutOptions): Promise<void>;
+  writeWithoutResponse(options: WriteOptions & TimeoutOptions): Promise<void>;
+  readDescriptor(options: ReadDescriptorOptions & TimeoutOptions): Promise<ReadResult>;
+  writeDescriptor(options: WriteDescriptorOptions & TimeoutOptions): Promise<void>;
   startNotifications(options: ReadOptions): Promise<void>;
   stopNotifications(options: ReadOptions): Promise<void>;
 }
