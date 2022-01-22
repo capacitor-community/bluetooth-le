@@ -220,7 +220,10 @@ export interface BleClientInterface {
   ): Promise<void>;
 
   /**
-   * Start listening to changes of the value of a characteristic. For an example, see [usage](#usage).
+   * Start listening to changes of the value of a characteristic.
+   * Note that you should only start the notifications once in your app and share the data and
+   * not call `startNotifications` in every component that needs the data.
+   * For an example, see [usage](#usage).
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
