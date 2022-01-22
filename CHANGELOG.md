@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.6.1...v1.7.0) (2022-01-22)
+
+
+### Features
+
+* make timeouts configurable ([#279](https://github.com/capacitor-community/bluetooth-le/issues/279)) ([a095fb3](https://github.com/capacitor-community/bluetooth-le/commit/a095fb3d3df5b04d79e3fd53e918d9f76f30396b))
+
+
+### Bug Fixes
+
+* inline source code in esm map files of plugin ([8ffb1ff](https://github.com/capacitor-community/bluetooth-le/commit/8ffb1ffeefabae3606a624435a870158570f6a43))
+
 ### [1.6.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.6.0...v1.6.1) (2022-01-02)
 
 
