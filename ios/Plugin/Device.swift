@@ -367,8 +367,8 @@ class Device: NSObject, CBPeripheralDelegate {
         _ descriptor: CBDescriptor
     ) -> String {
         let baseKey = self.getKey(prefix, descriptor.characteristic)
-        let characteristicUUIDString = cbuuidToStringUppercase(descriptor.uuid)
-        return "\(baseKey)|\(characteristicUUIDString)"
+        let descriptorUUIDString = cbuuidToStringUppercase(descriptor.uuid)
+        return "\(baseKey)|\(descriptorUUIDString)"
     }
 
     private func resolve(
