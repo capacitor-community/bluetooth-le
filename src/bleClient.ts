@@ -245,7 +245,7 @@ export interface BleClientInterface {
 
   /**
    * Start listening to changes of the value of a characteristic.
-   * Note that you should only start the notifications once in your app and share the data and
+   * Note that you should only start the notifications once per characteristic in your app and share the data and
    * not call `startNotifications` in every component that needs the data.
    * For an example, see [usage](#usage).
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
