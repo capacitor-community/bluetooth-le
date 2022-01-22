@@ -545,7 +545,7 @@ and [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getD
 ### connect(...)
 
 ```typescript
-connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined, options?: ConnectOptions | undefined) => Promise<void>
+connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
@@ -554,7 +554,7 @@ Connect to a peripheral BLE device. For an example, see [usage](#usage).
 | ------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **`deviceId`**     | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
 | **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code>              | Optional disconnect callback function that will be used when the device disconnects                            |
-| **`options`**      | <code><a href="#connectoptions">ConnectOptions</a></code> | Options for connect method                                                                                     |
+| **`options`**      | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                        |
 
 ---
 
@@ -640,16 +640,17 @@ Not available on web.
 ### read(...)
 
 ```typescript
-read(deviceId: string, service: string, characteristic: string) => Promise<DataView>
+read(deviceId: string, service: string, characteristic: string, options?: TimeoutOptions | undefined) => Promise<DataView>
 ```
 
 Read the value of a characteristic. For an example, see [usage](#usage).
 
-| Param                | Type                | Description                                                                                                    |
-| -------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
-| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                                                          |
-| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
+| Param                | Type                                                      | Description                                                                                                    |
+| -------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`service`**        | <code>string</code>                                       | UUID of the service (see [UUID format](#uuid-format))                                                          |
+| **`characteristic`** | <code>string</code>                                       | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                        |
 
 **Returns:** <code>Promise&lt;<a href="#dataview">DataView</a>&gt;</code>
 
@@ -658,51 +659,54 @@ Read the value of a characteristic. For an example, see [usage](#usage).
 ### write(...)
 
 ```typescript
-write(deviceId: string, service: string, characteristic: string, value: DataView) => Promise<void>
+write(deviceId: string, service: string, characteristic: string, value: DataView, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Write a value to a characteristic. For an example, see [usage](#usage).
 
-| Param                | Type                                          | Description                                                                                                                                                                                 |
-| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
-| **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
-| **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
-| **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+| Param                | Type                                                      | Description                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
+| **`service`**        | <code>string</code>                                       | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
+| **`characteristic`** | <code>string</code>                                       | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
+| **`value`**          | <code><a href="#dataview">DataView</a></code>             | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                                                                                                     |
 
 ---
 
 ### writeWithoutResponse(...)
 
 ```typescript
-writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView) => Promise<void>
+writeWithoutResponse(deviceId: string, service: string, characteristic: string, value: DataView, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Write a value to a characteristic without waiting for a response.
 
-| Param                | Type                                          | Description                                                                                                                                                                                 |
-| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
-| **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
-| **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
-| **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+| Param                | Type                                                      | Description                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
+| **`service`**        | <code>string</code>                                       | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
+| **`characteristic`** | <code>string</code>                                       | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
+| **`value`**          | <code><a href="#dataview">DataView</a></code>             | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                                                                                                     |
 
 ---
 
 ### readDescriptor(...)
 
 ```typescript
-readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string) => Promise<DataView>
+readDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string, options?: TimeoutOptions | undefined) => Promise<DataView>
 ```
 
 Read the value of a descriptor.
 
-| Param                | Type                | Description                                                                                                    |
-| -------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
-| **`service`**        | <code>string</code> | UUID of the service (see [UUID format](#uuid-format))                                                          |
-| **`characteristic`** | <code>string</code> | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
-| **`descriptor`**     | <code>string</code> | UUID of the descriptor (see [UUID format](#uuid-format))                                                       |
+| Param                | Type                                                      | Description                                                                                                    |
+| -------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`service`**        | <code>string</code>                                       | UUID of the service (see [UUID format](#uuid-format))                                                          |
+| **`characteristic`** | <code>string</code>                                       | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
+| **`descriptor`**     | <code>string</code>                                       | UUID of the descriptor (see [UUID format](#uuid-format))                                                       |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                        |
 
 **Returns:** <code>Promise&lt;<a href="#dataview">DataView</a>&gt;</code>
 
@@ -711,18 +715,19 @@ Read the value of a descriptor.
 ### writeDescriptor(...)
 
 ```typescript
-writeDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string, value: DataView) => Promise<void>
+writeDescriptor(deviceId: string, service: string, characteristic: string, descriptor: string, value: DataView, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Write a value to a descriptor.
 
-| Param                | Type                                          | Description                                                                                                                                                                                 |
-| -------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**       | <code>string</code>                           | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
-| **`service`**        | <code>string</code>                           | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
-| **`characteristic`** | <code>string</code>                           | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
-| **`descriptor`**     | <code>string</code>                           | UUID of the descriptor (see [UUID format](#uuid-format))                                                                                                                                    |
-| **`value`**          | <code><a href="#dataview">DataView</a></code> | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+| Param                | Type                                                      | Description                                                                                                                                                                                 |
+| -------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**       | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))                                                                              |
+| **`service`**        | <code>string</code>                                       | UUID of the service (see [UUID format](#uuid-format))                                                                                                                                       |
+| **`characteristic`** | <code>string</code>                                       | UUID of the characteristic (see [UUID format](#uuid-format))                                                                                                                                |
+| **`descriptor`**     | <code>string</code>                                       | UUID of the descriptor (see [UUID format](#uuid-format))                                                                                                                                    |
+| **`value`**          | <code><a href="#dataview">DataView</a></code>             | The value to write as a <a href="#dataview">DataView</a>. To create a <a href="#dataview">DataView</a> from an array of numbers, there is a helper function, e.g. numbersToDataView([1, 0]) |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                                                                                                     |
 
 ---
 
@@ -847,11 +852,11 @@ buffer as needed.
 | --------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **slice** | (begin: number, end?: number \| undefined) =&gt; <a href="#arraybuffer">ArrayBuffer</a> | Returns a section of an <a href="#arraybuffer">ArrayBuffer</a>. |
 
-#### ConnectOptions
+#### TimeoutOptions
 
-| Prop          | Type                | Description                               |
-| ------------- | ------------------- | ----------------------------------------- |
-| **`timeout`** | <code>number</code> | Timeout in milliseconds for connect call. |
+| Prop          | Type                | Description                                                                                                |
+| ------------- | ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **`timeout`** | <code>number</code> | Timeout in milliseconds for plugin call. Default is 10000 for `connect` and 5000 for other plugin methods. |
 
 #### BleService
 

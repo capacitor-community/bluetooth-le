@@ -2,7 +2,8 @@ import Foundation
 import Capacitor
 import CoreBluetooth
 
-let defaultConnectionTimeout: Double = 10
+let CONNECTION_TIMEOUT: Double = 10
+let DEFAULT_TIMEOUT: Double = 5
 
 // swiftlint:disable type_body_length
 @objc(BluetoothLe)
@@ -201,13 +202,8 @@ public class BluetoothLe: CAPPlugin {
     @objc func connect(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call, checkConnection: false) else { return }
-        var connectionTimeout = defaultConnectionTimeout
-        let timeout = call.getDouble("timeout")
-        if timeout != nil {
-            // convert from milliseconds to seconds
-            connectionTimeout = timeout! / 1000
-        }
-        device.setOnConnected(connectionTimeout, {(success, message) -> Void in
+        let timeout = self.getTimeout(call, defaultTimeout: CONNECTION_TIMEOUT)
+        device.setOnConnected(timeout, {(success, message) -> Void in
             if success {
                 // only resolve after service discovery
                 call.resolve()
@@ -219,7 +215,7 @@ public class BluetoothLe: CAPPlugin {
             let key = "disconnected|\(device.getId())"
             self.notifyListeners(key, data: nil)
         })
-        self.deviceManager?.connect(device, connectionTimeout, {(success, message) -> Void in
+        self.deviceManager?.connect(device, timeout, {(success, message) -> Void in
             if success {
                 print("Connected to peripheral. Waiting for service discovery.")
             } else {
@@ -240,7 +236,8 @@ public class BluetoothLe: CAPPlugin {
     @objc func disconnect(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call, checkConnection: false) else { return }
-        self.deviceManager?.disconnect(device, {(success, message) -> Void in
+        let timeout = self.getTimeout(call)
+        self.deviceManager?.disconnect(device, timeout, {(success, message) -> Void in
             if success {
                 call.resolve()
             } else {
@@ -295,7 +292,8 @@ public class BluetoothLe: CAPPlugin {
     @objc func readRssi(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
-        device.readRssi({(success, value) -> Void in
+        let timeout = self.getTimeout(call)
+        device.readRssi(timeout, {(success, value) -> Void in
             if success {
                 call.resolve([
                     "value": value
@@ -310,7 +308,8 @@ public class BluetoothLe: CAPPlugin {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
         guard let characteristic = self.getCharacteristic(call) else { return }
-        device.read(characteristic.0, characteristic.1, {(success, value) -> Void in
+        let timeout = self.getTimeout(call)
+        device.read(characteristic.0, characteristic.1, timeout, {(success, value) -> Void in
             if success {
                 call.resolve([
                     "value": value
@@ -330,13 +329,19 @@ public class BluetoothLe: CAPPlugin {
             return
         }
         let writeType = CBCharacteristicWriteType.withResponse
-        device.write(characteristic.0, characteristic.1, value, writeType, {(success, value) -> Void in
-            if success {
-                call.resolve()
-            } else {
-                call.reject(value)
-            }
-        })
+        let timeout = self.getTimeout(call)
+        device.write(
+            characteristic.0,
+            characteristic.1,
+            value,
+            writeType,
+            timeout, {(success, value) -> Void in
+                if success {
+                    call.resolve()
+                } else {
+                    call.reject(value)
+                }
+            })
     }
 
     @objc func writeWithoutResponse(_ call: CAPPluginCall) {
@@ -348,28 +353,39 @@ public class BluetoothLe: CAPPlugin {
             return
         }
         let writeType = CBCharacteristicWriteType.withoutResponse
-        device.write(characteristic.0, characteristic.1, value, writeType, {(success, value) -> Void in
-            if success {
-                call.resolve()
-            } else {
-                call.reject(value)
-            }
-        })
+        let timeout = self.getTimeout(call)
+        device.write(
+            characteristic.0,
+            characteristic.1,
+            value,
+            writeType,
+            timeout, {(success, value) -> Void in
+                if success {
+                    call.resolve()
+                } else {
+                    call.reject(value)
+                }
+            })
     }
 
     @objc func readDescriptor(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
         guard let descriptor = self.getDescriptor(call) else { return }
-        device.readDescriptor(descriptor.0, descriptor.1, descriptor.2, {(success, value) -> Void in
-            if success {
-                call.resolve([
-                    "value": value
-                ])
-            } else {
-                call.reject(value)
-            }
-        })
+        let timeout = self.getTimeout(call)
+        device.readDescriptor(
+            descriptor.0,
+            descriptor.1,
+            descriptor.2,
+            timeout, {(success, value) -> Void in
+                if success {
+                    call.resolve([
+                        "value": value
+                    ])
+                } else {
+                    call.reject(value)
+                }
+            })
     }
 
     @objc func writeDescriptor(_ call: CAPPluginCall) {
@@ -380,26 +396,34 @@ public class BluetoothLe: CAPPlugin {
             call.reject("value must be provided")
             return
         }
-        device.writeDescriptor(descriptor.0, descriptor.1, descriptor.2, value, {(success, value) -> Void in
-            if success {
-                call.resolve()
-            } else {
-                call.reject(value)
-            }
-        })
+        let timeout = self.getTimeout(call)
+        device.writeDescriptor(
+            descriptor.0,
+            descriptor.1,
+            descriptor.2,
+            value,
+            timeout, {(success, value) -> Void in
+                if success {
+                    call.resolve()
+                } else {
+                    call.reject(value)
+                }
+            })
     }
 
     @objc func startNotifications(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
         guard let characteristic = self.getCharacteristic(call) else { return }
+        let timeout = self.getTimeout(call)
         device.setNotifications(
             characteristic.0,
             characteristic.1,
             true, {(_, value) -> Void in
                 let key = "notification|\(device.getId())|\(characteristic.0.uuidString.lowercased())|\(characteristic.1.uuidString.lowercased())"
                 self.notifyListeners(key, data: ["value": value])
-            }, {(success, value) -> Void in
+            },
+            timeout, {(success, value) -> Void in
                 if success {
                     call.resolve()
                 } else {
@@ -412,11 +436,13 @@ public class BluetoothLe: CAPPlugin {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
         guard let characteristic = self.getCharacteristic(call) else { return }
+        let timeout = self.getTimeout(call)
         device.setNotifications(
             characteristic.0,
             characteristic.1,
             false,
-            nil, {(success, value) -> Void in
+            nil,
+            timeout, {(success, value) -> Void in
                 if success {
                     call.resolve()
                 } else {
@@ -467,6 +493,13 @@ public class BluetoothLe: CAPPlugin {
             }
         }
         return device
+    }
+
+    private func getTimeout(_ call: CAPPluginCall, defaultTimeout: Double = DEFAULT_TIMEOUT) -> Double {
+        guard let timeout = call.getDouble("timeout") else {
+            return defaultTimeout
+        }
+        return timeout / 1000
     }
 
     private func getCharacteristic(_ call: CAPPluginCall) -> (CBUUID, CBUUID)? {
