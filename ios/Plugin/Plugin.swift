@@ -1,3 +1,5 @@
+// swiftlint:disable identifier_name
+// swiftlint:disable type_body_length
 import Foundation
 import Capacitor
 import CoreBluetooth
@@ -5,7 +7,6 @@ import CoreBluetooth
 let CONNECTION_TIMEOUT: Double = 10
 let DEFAULT_TIMEOUT: Double = 5
 
-// swiftlint:disable type_body_length
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
