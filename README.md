@@ -36,6 +36,11 @@ This is a Capacitor plugin for Bluetooth Low Energy. It supports the web, Androi
 
 The goal is to support the same features on all platforms. Therefore the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) is taken as a guidline for what features to implement.
 
+This plugin only supports the central role of the Bluetooth Low Energy protocol. If you need the peripheral role, take a look a these plugins:
+
+- https://github.com/randdusing/cordova-plugin-bluetoothle
+- https://github.com/don/cordova-plugin-ble-peripheral
+
 For support of Web Bluetooth in various browsers, see [implementation status](https://github.com/WebBluetoothCG/web-bluetooth/blob/main/implementation-status.md).
 
 Below is an index of all the methods available.
