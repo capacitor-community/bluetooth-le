@@ -125,29 +125,27 @@ On Android, no further steps are required to use the plugin (if you are using Ca
 
 If your app targets Android 12 (API level 31) or higher and your app doesn't use Bluetooth scan results to derive physical location information, you can strongly assert that your app doesn't derive physical location. This allows the app to scan for Bluetooth devices without asking for location permissions. See the [Android documentation](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#declare-android12-or-higher).
 
-This requires `compileSdkVersion` and `targetSdkVersion` 31.
+The following steps are required to scan for Bluetooth devices without location permission on Android 12 devices:
 
-To strongly assert that your app doesn't derive physical location, update your app's manifest file.
+- In `android/variables.gradle`, increase `compileSdkVersion` and `targetSdkVersion` to 31 (this can have other consequences on your app, so make sure you know what you're doing).
+- Make sure you have JDK 11+ (it is recommended to use JDK that comes with Android Studio).
+- In `android/app/src/main/AndroidManifest.xml`, add `android:exported="true"` to your activity (setting [`android:exported`](https://developer.android.com/guide/topics/manifest/activity-element#exported) is required in apps targeting Android 12 and higher).
+- In `android/app/src/main/AndroidManifest.xml`, update the permissions:
+  ```diff
+      <!-- Permissions -->
+  +   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
+  +   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
+  +   <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+  +     android:usesPermissionFlags="neverForLocation"
+  +     tools:targetApi="s" />
+  ```
+- Set the `androidNeverForLocation` flag to `true` when initializing the `BleClient`.
+  ```ts
+  import { BleClient } from '@capacitor-community/bluetooth-le';
+  await BleClient.initialize({ androidNeverForLocation: true });
+  ```
 
-`./android/app/src/main/AndroidManifest.xml`:
-
-```diff
-    <!-- Permissions -->
-+   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
-+   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
-+   <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-+     android:usesPermissionFlags="neverForLocation"
-+     tools:targetApi="s" />
-```
-
-And set the `androidNeverForLocation` flag to `true` when initializing the `BleClient`.
-
-```ts
-import { BleClient } from '@capacitor-community/bluetooth-le';
-await BleClient.initialize({ androidNeverForLocation: true });
-```
-
-This way the app will not ask for location permissions.
+> [_Note_: If you include neverForLocation in your android:usesPermissionFlags, some BLE beacons are filtered from the scan results.](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#assert-never-for-location)
 
 ## Configuration
 
