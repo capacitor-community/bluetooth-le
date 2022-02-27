@@ -65,6 +65,11 @@ describe('BleClient', () => {
     expect(BluetoothLe.initialize).toHaveBeenCalledTimes(1);
   });
 
+  it('should run initialize with options', async () => {
+    await BleClient.initialize({ androidNeverForLocation: true });
+    expect(BluetoothLe.initialize).toHaveBeenCalledTimes(1);
+  });
+
   it('should run isEnabled', async () => {
     (BluetoothLe.isEnabled as jest.Mock).mockReturnValue({ value: true });
     const result = await BleClient.isEnabled();

@@ -1,11 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  package="com.capacitorjs.community.plugins.bluetoothle">
+  <!-- Bluetooth -->
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH"
+    android:maxSdkVersion="30" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH_ADMIN"
+    android:maxSdkVersion="30" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH_SCAN"
+    tools:targetApi="s" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH_CONNECT"
+    tools:targetApi="s" />
 
-  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.capacitorjs.community.plugins.bluetoothle">
-    <!-- Bluetooth -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
-  </manifest>
+  <uses-feature
+    android:name="android.hardware.bluetooth_le"
+    android:required="false" />
+</manifest>
   
