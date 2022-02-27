@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* **android:** add support for Android 12 permissions ([#274](https://github.com/capacitor-community/bluetooth-le/issues/274)) ([9d38682](https://github.com/capacitor-community/bluetooth-le/commit/9d386824dde957fc983beeedad6e033bde539c49))
+* **android:** add support for Android 12 permissions ([#274](https://github.com/capacitor-community/bluetooth-le/issues/274)) ([9d38682](https://github.com/capacitor-community/bluetooth-le/commit/9d386824dde957fc983beeedad6e033bde539c49))  (see [Readme](https://github.com/capacitor-community/bluetooth-le#optional-android-12-bluetooth-permissions))
 
 ## [1.7.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.6.1...v1.7.0) (2022-01-22)
 
