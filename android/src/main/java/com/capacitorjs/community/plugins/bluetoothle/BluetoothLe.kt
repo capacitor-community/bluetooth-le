@@ -353,7 +353,12 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun stopLEScan(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
-        deviceScanner?.stopScanning()
+        try {
+            deviceScanner?.stopScanning()
+        }
+        catch (e: IllegalStateException) {
+            Log.e(TAG, "Error in stopLEScan: ${e.localizedMessage}")
+        }
         call.resolve()
     }
 
