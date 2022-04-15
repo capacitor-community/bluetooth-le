@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.0...v1.8.1) (2022-04-15)
+
+
+### Bug Fixes
+
+* **android:** fix crash stopScanning with BLE adapter off [#317](https://github.com/capacitor-community/bluetooth-le/issues/317) ([#318](https://github.com/capacitor-community/bluetooth-le/issues/318)) ([07dbd45](https://github.com/capacitor-community/bluetooth-le/commit/07dbd4556d9e10bbb7375e7f7325fbb4a96edf34))
+
 ## [1.8.0](https://github.com/capacitor-community/bluetooth-le/compare/v1.7.0...v1.8.0) (2022-02-27)
 
 
