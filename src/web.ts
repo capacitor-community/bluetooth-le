@@ -101,8 +101,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     const filters = this.getFilters(options);
     await this.stopLEScan();
     this.discoveredDevices = new Map<string, boolean>();
-    navigator.bluetooth.removeEventListener('advertisementreceived', this.onAdvertisementReceived as EventListener);
-    navigator.bluetooth.addEventListener('advertisementreceived', this.onAdvertisementReceived);
+    navigator.bluetooth.removeEventListener(
+      'advertisementreceived',
+      this.onAdvertisementReceivedCallback as EventListener
+    );
+    navigator.bluetooth.addEventListener('advertisementreceived', this.onAdvertisementReceivedCallback);
     this.scan = await navigator.bluetooth.requestLEScan({
       filters: filters.length ? filters : undefined,
       acceptAllAdvertisements: filters.length === 0,
@@ -110,14 +113,15 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     });
   }
 
+  private onAdvertisementReceivedCallback = this.onAdvertisementReceived.bind(this);
+
   private onAdvertisementReceived(event: BluetoothAdvertisingEvent): void {
-    // do not use `this` in event listener
     const deviceId = event.device.id;
-    BluetoothLe.deviceMap.set(deviceId, event.device);
-    const isNew = !BluetoothLe.discoveredDevices.has(deviceId);
-    if (isNew || BluetoothLe.requestBleDeviceOptions?.allowDuplicates) {
-      BluetoothLe.discoveredDevices.set(deviceId, true);
-      const device = BluetoothLe.getBleDevice(event.device);
+    this.deviceMap.set(deviceId, event.device);
+    const isNew = !this.discoveredDevices.has(deviceId);
+    if (isNew || this.requestBleDeviceOptions?.allowDuplicates) {
+      this.discoveredDevices.set(deviceId, true);
+      const device = this.getBleDevice(event.device);
       const result: ScanResultInternal = {
         device,
         localName: device.name,
@@ -127,7 +131,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
         serviceData: mapToObject(event.serviceData),
         uuids: event.uuids?.map(webUUIDToString),
       };
-      BluetoothLe.notifyListeners('onScanResult', result);
+      this.notifyListeners('onScanResult', result);
     }
   }
 
@@ -164,8 +168,8 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 
   async connect(options: DeviceIdOptions & TimeoutOptions): Promise<void> {
     const device = this.getDeviceFromMap(options.deviceId);
-    device.removeEventListener('gattserverdisconnected', this.onDisconnected);
-    device.addEventListener('gattserverdisconnected', this.onDisconnected);
+    device.removeEventListener('gattserverdisconnected', this.onDisconnectedCallback);
+    device.addEventListener('gattserverdisconnected', this.onDisconnectedCallback);
     const timeoutError = Symbol();
     if (device.gatt === undefined) {
       throw new Error('No gatt server available.');
@@ -185,11 +189,12 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     }
   }
 
+  private onDisconnectedCallback = this.onDisconnected.bind(this);
+
   private onDisconnected(event: Event): void {
-    // do not use `this` in event listener
     const deviceId = (event.target as BluetoothDevice).id;
     const key = `disconnected|${deviceId}`;
-    BluetoothLe.notifyListeners(key, null);
+    this.notifyListeners(key, null);
   }
 
   async createBond(_options: DeviceIdOptions): Promise<void> {
@@ -312,16 +317,17 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 
   async startNotifications(options: ReadOptions): Promise<void> {
     const characteristic = await this.getCharacteristic(options);
-    characteristic?.removeEventListener('characteristicvaluechanged', this.onCharacteristicValueChanged);
-    characteristic?.addEventListener('characteristicvaluechanged', this.onCharacteristicValueChanged);
+    characteristic?.removeEventListener('characteristicvaluechanged', this.onCharacteristicValueChangedCallback);
+    characteristic?.addEventListener('characteristicvaluechanged', this.onCharacteristicValueChangedCallback);
     await characteristic?.startNotifications();
   }
 
+  private onCharacteristicValueChangedCallback = this.onCharacteristicValueChanged.bind(this);
+
   private onCharacteristicValueChanged(event: Event): void {
-    // do not use `this` in event listener
     const characteristic = event.target as BluetoothRemoteGATTCharacteristic;
     const key = `notification|${characteristic.service?.device.id}|${characteristic.service?.uuid}|${characteristic.uuid}`;
-    BluetoothLe.notifyListeners(key, {
+    this.notifyListeners(key, {
       value: characteristic.value,
     });
   }
@@ -367,5 +373,3 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return bleDevice;
   }
 }
-
-export const BluetoothLe = new BluetoothLeWeb();

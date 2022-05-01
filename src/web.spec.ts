@@ -4,25 +4,35 @@
 
 import { numberToUUID } from './conversion';
 import type { BluetoothLePlugin } from './definitions';
-import { BluetoothLe } from './web';
+import { BluetoothLeWeb } from './web';
 
 interface BluetoothLeWithPrivate extends BluetoothLePlugin {
   deviceMap: Map<string, BluetoothDevice>;
   discoveredDevices: Map<string, boolean>;
   scan: BluetoothLEScan | null;
-  onAdvertisementReceived: (event: BluetoothAdvertisingEvent) => void;
-  onDisconnected: (event: Event) => void;
+  onAdvertisementReceivedCallback: (event: BluetoothAdvertisingEvent) => void;
+  onDisconnectedCallback: (event: Event) => void;
 }
 
 describe('BluetoothLe web', () => {
+  const events: Record<string, (payload: any) => void> = {
+    advertisementreceived: () => undefined,
+  };
+
   const mockBluetooth = {
     getAvailability: jest.fn(),
     requestDevice: jest.fn(),
     getDevices: jest.fn(),
     requestLEScan: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
+    addEventListener: jest.fn((event, callback) => {
+      events[event] = callback;
+    }),
+    removeEventListener: jest.fn((event) => {
+      delete events[event];
+    }),
   };
+
+  let BluetoothLe: BluetoothLeWeb;
 
   Object.defineProperty(window, 'navigator', {
     value: { bluetooth: mockBluetooth },
@@ -30,6 +40,7 @@ describe('BluetoothLe web', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    BluetoothLe = new BluetoothLeWeb();
   });
 
   it('should initialize', async () => {
@@ -87,13 +98,45 @@ describe('BluetoothLe web', () => {
     await BluetoothLe.requestLEScan();
     expect(mockBluetooth.removeEventListener).toHaveBeenCalledWith(
       'advertisementreceived',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceived
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceivedCallback
     );
     expect(mockBluetooth.addEventListener).toHaveBeenCalledWith(
       'advertisementreceived',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceived
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceivedCallback
     );
     expect(mockBluetooth.requestLEScan).toHaveBeenCalledWith({ filters: undefined, acceptAllAdvertisements: true });
+  });
+
+  it('should notify listeners on advertisementreceived', async () => {
+    const listener = jest.fn();
+    await BluetoothLe.addListener('onScanResult', listener);
+    await BluetoothLe.requestLEScan();
+    expect(mockBluetooth.addEventListener).toBeCalledTimes(1);
+
+    const advertisement = {
+      device: {
+        id: '1',
+        name: 'test device 1',
+      },
+    };
+    events['advertisementreceived'](advertisement);
+    expect((BluetoothLe as unknown as BluetoothLeWithPrivate).discoveredDevices.size).toBe(1);
+    expect((BluetoothLe as unknown as BluetoothLeWithPrivate).discoveredDevices.has('1')).toBe(true);
+    expect(listener).toBeCalledTimes(1);
+
+    // notify again on new device
+    const advertisement2 = {
+      device: {
+        id: '2',
+        name: 'test device 2',
+      },
+    };
+    events['advertisementreceived'](advertisement2);
+    expect(listener).toBeCalledTimes(2);
+
+    // do not notify again on same device
+    events['advertisementreceived'](advertisement2);
+    expect(listener).toBeCalledTimes(2);
   });
 
   it('should run requestLEScan with filters', async () => {
@@ -132,11 +175,11 @@ describe('BluetoothLe web', () => {
     await BluetoothLe.connect({ deviceId: mockDevice.id! });
     expect(mockDevice.removeEventListener).toHaveBeenCalledWith(
       'gattserverdisconnected',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnected
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnectedCallback
     );
     expect(mockDevice.addEventListener).toHaveBeenCalledWith(
       'gattserverdisconnected',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnected
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnectedCallback
     );
     expect(mockDevice.gatt!.connect).toHaveBeenCalledTimes(1);
   });
