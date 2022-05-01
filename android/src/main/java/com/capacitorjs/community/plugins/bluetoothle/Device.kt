@@ -528,6 +528,7 @@ class Device(
         timeoutMap[key] = handler
         handler.postDelayed({
             gatt?.disconnect()
+            gatt?.close()
             reject(key, message)
         }, timeout)
     }
