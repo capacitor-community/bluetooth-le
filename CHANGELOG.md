@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.2](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.1...v1.8.2) (2022-05-01)
+
+
+### Bug Fixes
+
+* **android:** close bluetooth gatt in case of connection timeout ([961d8a2](https://github.com/capacitor-community/bluetooth-le/commit/961d8a28b5d59a19706b74b5117c8b107107759a))
+
 ### [1.8.1](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.0...v1.8.1) (2022-04-15)
 
 
