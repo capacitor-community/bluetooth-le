@@ -53,6 +53,11 @@ export interface RequestBleDeviceOptions {
  */
 export enum ScanMode {
   /**
+   * A special Bluetooth LE scan mode. Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves.
+   * https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_OPPORTUNISTIC
+   */
+  SCAN_MODE_OPPORTUNISTIC = -1,
+  /**
    * Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground.
    * https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER
    */

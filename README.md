@@ -2,7 +2,7 @@
 <h3 align="center">Bluetooth Low Energy</h3>
 <p align="center"><strong><code>@capacitor-community/bluetooth-le</code></strong></p>
 <p align="center">
-  Capacitor plugin for Bluetooth Low Energy 
+  Capacitor plugin for Bluetooth Low Energy
 </p>
 
 <p align="center">
@@ -943,6 +943,7 @@ buffer as needed.
 
 | Members                     | Value          | Description                                                                                                                                                                                                                                                               |
 | --------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`SCAN_MODE_OPPORTUNISTIC`**   | <code>-1</code> | A special Bluetooth LE scan mode. Applications using this scan mode will passively listen for other scan results without starting BLE scans themselves. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_OPPORTUNISTIC                                                        |
 | **`SCAN_MODE_LOW_POWER`**   | <code>0</code> | Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER                                                        |
 | **`SCAN_MODE_BALANCED`**    | <code>1</code> | Perform Bluetooth LE scan in balanced power mode. (default) Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_BALANCED |
 | **`SCAN_MODE_LOW_LATENCY`** | <code>2</code> | Scan using highest duty cycle. It's recommended to only use this mode when the application is running in the foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY                                                  |
