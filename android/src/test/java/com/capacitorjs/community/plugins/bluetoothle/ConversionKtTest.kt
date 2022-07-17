@@ -12,6 +12,12 @@ class ConversionKtTest : TestCase() {
         assertEquals("A1 2E 38 D4 89 C3 ", output)
     }
 
+    fun testEmptyBytesToString() {
+        val input = ByteArray(0)
+        val output = bytesToString(input)
+        assertEquals(output, "")
+    }
+
     fun testStringToBytes() {
         val input = "A1 2E 38 D4 89 C3"
         val output = stringToBytes(input)
@@ -24,10 +30,7 @@ class ConversionKtTest : TestCase() {
     fun testEmptyStringToBytes() {
         val input = ""
         val output = stringToBytes(input)
-        val expected = byteArrayOfInts(0x00)
-        expected.forEachIndexed { index, byte ->
-            assertEquals(byte, output[index])
-        }
+        assertEquals(output.size, 0)
     }
 
     fun testHexToByte() {
