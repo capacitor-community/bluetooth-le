@@ -23,10 +23,7 @@ class ConversionTests: XCTestCase {
     func testEmptyStringToData() throws {
         let input = ""
         let output = stringToData(input)
-        let expected = Data([0x00])
-        for (index, byte) in output.enumerated() {
-            XCTAssertEqual(byte, expected[index])
-        }
+        XCTAssertEqual(output, Data([]))
     }
 
     func testCbuuidToString() throws {

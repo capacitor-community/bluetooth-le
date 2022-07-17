@@ -102,7 +102,7 @@ class Device(
             val key = "read|${characteristic.service.uuid}|${characteristic.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 val data = characteristic.value
-                if (data != null && data.isNotEmpty()) {
+                if (data != null) {
                     val value = bytesToString(data)
                     resolve(key, value)
                 } else {
@@ -135,7 +135,7 @@ class Device(
             super.onCharacteristicChanged(gatt, characteristic)
             val notifyKey = "notification|${characteristic.service.uuid}|${characteristic.uuid}"
             val data = characteristic.value
-            if (data != null && data.isNotEmpty()) {
+            if (data != null) {
                 val value = bytesToString(data)
                 callbackMap[notifyKey]?.invoke(CallbackResponse(true, value))
             }
@@ -151,7 +151,7 @@ class Device(
                 "readDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 val data = descriptor.value
-                if (data != null && data.isNotEmpty()) {
+                if (data != null) {
                     val value = bytesToString(data)
                     resolve(key, value)
                 } else {
@@ -354,10 +354,6 @@ class Device(
             reject(key, "Characteristic not found.")
             return
         }
-        if (value == "") {
-            reject(key, "Invalid data.")
-            return
-        }
         val bytes = stringToBytes(value)
         characteristic.value = bytes
         characteristic.writeType = writeType
@@ -466,10 +462,6 @@ class Device(
         val descriptor = characteristic?.getDescriptor(descriptorUUID)
         if (descriptor == null) {
             reject(key, "Descriptor not found.")
-            return
-        }
-        if (value == "") {
-            reject(key, "Invalid data.")
             return
         }
         val bytes = stringToBytes(value)
