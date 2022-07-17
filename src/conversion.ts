@@ -39,6 +39,7 @@ export function hexStringToDataView(value: string): DataView {
   const numbers: number[] = value
     .trim()
     .split(' ')
+    .filter((e) => e !== '')
     .map((s) => parseInt(s, 16));
   return numbersToDataView(numbers);
 }
