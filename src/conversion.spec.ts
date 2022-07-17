@@ -20,6 +20,13 @@ describe('numbersToDataView', () => {
     expect(result.getUint8(1)).toEqual(5);
     expect(result.getUint8(2)).toEqual(200);
   });
+
+  it('should convert an empty array to a DataView', () => {
+    const value: number[] = [];
+    const result = numbersToDataView(value);
+    expect(result.byteLength).toEqual(0);
+    expect(result.byteOffset).toEqual(0);
+  });
 });
 
 describe('dataViewToNumbers', () => {
@@ -28,6 +35,12 @@ describe('dataViewToNumbers', () => {
     const value = new DataView(Uint8Array.from(array).buffer);
     const result = dataViewToNumbers(value);
     expect(result).toEqual(array);
+  });
+
+  it('should convert an empty DataView to an array of numbers', () => {
+    const value = new DataView(new ArrayBuffer(0));
+    const result = dataViewToNumbers(value);
+    expect(result).toEqual([]);
   });
 });
 
@@ -38,6 +51,13 @@ describe('textToDataView', () => {
     expect(result.byteOffset).toEqual(0);
     expect(dataViewToHexString(result)).toEqual('48 65 6c 6c 6f 20 77 6f 72 6c 64');
   });
+
+  it('should convert an empty text to a DataView', () => {
+    const result = textToDataView('');
+    expect(result.byteLength).toEqual(0);
+    expect(result.byteOffset).toEqual(0);
+    expect(dataViewToHexString(result)).toEqual('');
+  });
 });
 
 describe('dataViewToText', () => {
@@ -45,6 +65,11 @@ describe('dataViewToText', () => {
     const value = hexStringToDataView('48 65 6c 6c 6f 20 77 6f 72 6c 64');
     const result = dataViewToText(value);
     expect(result).toEqual('Hello world');
+  });
+
+  it('should convert an empty DataView to text', () => {
+    const result = dataViewToText(new DataView(new ArrayBuffer(0)));
+    expect(result).toEqual('');
   });
 });
 
@@ -81,6 +106,13 @@ describe('hexStringToDataView', () => {
     expect(result.getUint8(1)).toEqual(5);
     expect(result.getUint8(2)).toEqual(200);
   });
+
+  it('should convert an empty hex string to a DataView', () => {
+    const value = '';
+    const result = hexStringToDataView(value);
+    expect(result.byteLength).toEqual(0);
+    expect(result.byteOffset).toEqual(0);
+  });
 });
 
 describe('dataViewToHexString', () => {
@@ -88,6 +120,12 @@ describe('dataViewToHexString', () => {
     const value = new DataView(Uint8Array.from([0, 5, 200]).buffer);
     const result = dataViewToHexString(value);
     expect(result).toEqual('00 05 c8');
+  });
+
+  it('should convert an empty DataView to a hex string', () => {
+    const value = new DataView(new ArrayBuffer(0));
+    const result = dataViewToHexString(value);
+    expect(result).toEqual('');
   });
 });
 
