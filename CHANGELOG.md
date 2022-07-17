@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.3](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.2...v1.8.3) (2022-07-17)
+
+
+### Bug Fixes
+
+* allow reading and writing empty values ([749bb46](https://github.com/capacitor-community/bluetooth-le/commit/749bb467561455ff38c09cc3915163335498f55c))
+* fix conversion of empty hex string ([28f4f69](https://github.com/capacitor-community/bluetooth-le/commit/28f4f69c602f08ff216772170b42af3d0a04aa9f))
+
 ### [1.8.2](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.1...v1.8.2) (2022-05-01)
 
 
