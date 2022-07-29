@@ -128,9 +128,9 @@ If your app targets Android 12 (API level 31) or higher and your app doesn't use
 
 The following steps are required to scan for Bluetooth devices without location permission on Android 12 devices:
 
-- In `android/variables.gradle`, increase `compileSdkVersion` and `targetSdkVersion` to 31 (this can have other consequences on your app, so make sure you know what you're doing).
+- In `android/variables.gradle`, make sure `compileSdkVersion` and `targetSdkVersion` are at least 31 (changing those values can have other consequences on your app, so make sure you know what you're doing).
 - Make sure you have JDK 11+ (it is recommended to use JDK that comes with Android Studio).
-- In `android/app/src/main/AndroidManifest.xml`, add `android:exported="true"` to your activity (setting [`android:exported`](https://developer.android.com/guide/topics/manifest/activity-element#exported) is required in apps targeting Android 12 and higher).
+- In `android/app/src/main/AndroidManifest.xml`, add `android:exported="true"` to your activity if not already added (setting [`android:exported`](https://developer.android.com/guide/topics/manifest/activity-element#exported) is required in apps targeting Android 12 and higher).
 - In `android/app/src/main/AndroidManifest.xml`, update the permissions:
   ```diff
       <!-- Permissions -->
