@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0-0](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.3...v2.0.0-0) (2022-07-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* update plugin to Capacitor 4
+
+### Features
+
+* update plugin to Capacitor 4 ([88f038a](https://github.com/capacitor-community/bluetooth-le/commit/88f038aeed526c860cfb40e9a4cb9562c25d931b))
+
 ### [1.8.3](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.2...v1.8.3) (2022-07-17)
 
 
