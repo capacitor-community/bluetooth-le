@@ -62,7 +62,6 @@ describe('BluetoothLe web', () => {
     expect(result).toStrictEqual({
       deviceId: '123',
       name: 'test device',
-      uuids: undefined,
     });
     expect((BluetoothLe as unknown as BluetoothLeWithPrivate).deviceMap.get('123')).toBe(mockDevice);
   });
@@ -90,7 +89,6 @@ describe('BluetoothLe web', () => {
     expect(result).toStrictEqual({
       deviceId: '123',
       name: 'test device',
-      uuids: undefined,
     });
   });
 

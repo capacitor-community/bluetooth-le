@@ -368,7 +368,6 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       deviceId: device.id,
       // use undefined instead of null if name is not available
       name: device.name ?? undefined,
-      uuids: device.uuids,
     };
     return bleDevice;
   }
