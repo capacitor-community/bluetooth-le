@@ -153,14 +153,22 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun enable(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
-        bluetoothAdapter?.enable()
+        val result = bluetoothAdapter?.enable()
+        if (result != true) {
+            call.reject("Enable failed.")
+            return
+        }
         call.resolve()
     }
 
     @PluginMethod
     fun disable(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
-        bluetoothAdapter?.disable()
+        val result = bluetoothAdapter?.disable()
+        if (result != true) {
+            call.reject("Disable failed.")
+            return
+        }
         call.resolve()
     }
 
