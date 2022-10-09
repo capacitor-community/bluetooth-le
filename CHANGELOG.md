@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/capacitor-community/bluetooth-le/compare/v2.0.0...v2.0.1) (2022-10-09)
+
+
+### Bug Fixes
+
+* **android:** handle immediate enable/disable problems ([a48082d](https://github.com/capacitor-community/bluetooth-le/commit/a48082dd8905f9276bd6ad45e9eefbab03c8da70))
+
 ## [2.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v2.0.0-0...v2.0.0) (2022-08-07)
 
 ## [2.0.0-0](https://github.com/capacitor-community/bluetooth-le/compare/v1.8.3...v2.0.0-0) (2022-07-29)
