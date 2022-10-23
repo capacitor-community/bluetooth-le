@@ -77,7 +77,7 @@ class BluetoothLe : Plugin() {
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
     private var displayStrings: DisplayStrings? = null
-    private var aliases: Array<String> = arrayOf<String>()
+    private var aliases: Array<String> = arrayOf()
 
     override fun load() {
         displayStrings = getDisplayStrings()
@@ -89,19 +89,19 @@ class BluetoothLe : Plugin() {
         if (Build.VERSION.SDK_INT >= 31) {
             val neverForLocation = call.getBoolean("androidNeverForLocation", false) as Boolean
             aliases = if (neverForLocation) {
-                arrayOf<String>(
+                arrayOf(
                     "BLUETOOTH_SCAN",
                     "BLUETOOTH_CONNECT",
                 )
             } else {
-                arrayOf<String>(
+                arrayOf(
                     "BLUETOOTH_SCAN",
                     "BLUETOOTH_CONNECT",
                     "ACCESS_FINE_LOCATION",
                 )
             }
         } else {
-            aliases = arrayOf<String>(
+            aliases = arrayOf(
                 "ACCESS_COARSE_LOCATION",
                 "ACCESS_FINE_LOCATION",
                 "BLUETOOTH",
@@ -247,7 +247,7 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun openAppSettings(call: PluginCall) {
         val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-        intent.data = Uri.parse("package:" + getActivity().getPackageName())
+        intent.data = Uri.parse("package:" + activity.packageName)
         activity.startActivity(intent)
         call.resolve()
     }
@@ -709,16 +709,16 @@ class BluetoothLe : Plugin() {
             characteristic.first,
             characteristic.second,
             false,
-            null,
-            { response ->
-                run {
-                    if (response.success) {
-                        call.resolve()
-                    } else {
-                        call.reject(response.value)
-                    }
+            null
+        ) { response ->
+            run {
+                if (response.success) {
+                    call.resolve()
+                } else {
+                    call.reject(response.value)
                 }
-            })
+            }
+        }
     }
 
     private fun assertBluetoothAdapter(call: PluginCall): Boolean? {
@@ -867,19 +867,19 @@ class BluetoothLe : Plugin() {
         if (device != null) {
             return device
         }
-        try {
+        return try {
             val newDevice = Device(
                 activity.applicationContext,
                 bluetoothAdapter!!,
                 deviceId
-            ) { ->
+            ) {
                 onDisconnect(deviceId)
             }
             deviceMap[deviceId] = newDevice
-            return newDevice
+            newDevice
         } catch (e: IllegalArgumentException) {
             call.reject("Invalid deviceId")
-            return null
+            null
         }
     }
 

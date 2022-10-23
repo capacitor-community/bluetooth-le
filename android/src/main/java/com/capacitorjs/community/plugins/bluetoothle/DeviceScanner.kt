@@ -29,7 +29,7 @@ class DisplayStrings(
 
 class DeviceScanner(
     private val context: Context,
-    private val bluetoothAdapter: BluetoothAdapter,
+    bluetoothAdapter: BluetoothAdapter,
     private val scanDuration: Long?,
     private val displayStrings: DisplayStrings,
     private val showDialog: Boolean,
