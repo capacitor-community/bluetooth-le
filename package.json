@@ -96,7 +96,7 @@
     "url": "https://github.com/capacitor-community/bluetooth-le/issues"
   },
   "volta": {
-    "node": "16.13.1",
-    "npm": "8.3.0"
+    "node": "16.18.0",
+    "npm": "8.19.2"
   }
 }
