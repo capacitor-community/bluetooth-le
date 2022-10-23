@@ -19,7 +19,7 @@ class CallbackResponse(
 
 class Device(
     private val context: Context,
-    private val bluetoothAdapter: BluetoothAdapter,
+    bluetoothAdapter: BluetoothAdapter,
     private val address: String,
     private val onDisconnect: () -> Unit
 ) {
@@ -299,7 +299,7 @@ class Device(
     }
 
     fun getServices(): MutableList<BluetoothGattService> {
-        return bluetoothGatt?.services ?: mutableListOf<BluetoothGattService>()
+        return bluetoothGatt?.services ?: mutableListOf()
     }
 
     fun readRssi(
@@ -430,7 +430,7 @@ class Device(
             reject(key, "Characteristic not found.")
             return
         }
-        val descriptor = characteristic?.getDescriptor(descriptorUUID)
+        val descriptor = characteristic.getDescriptor(descriptorUUID)
         if (descriptor == null) {
             reject(key, "Descriptor not found.")
             return
@@ -459,7 +459,7 @@ class Device(
             reject(key, "Characteristic not found.")
             return
         }
-        val descriptor = characteristic?.getDescriptor(descriptorUUID)
+        val descriptor = characteristic.getDescriptor(descriptorUUID)
         if (descriptor == null) {
             reject(key, "Descriptor not found.")
             return
