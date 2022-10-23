@@ -16,7 +16,6 @@ import android.os.Build
 import android.os.ParcelUuid
 import android.provider.Settings.*
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.*
 import com.getcapacitor.annotation.CapacitorPlugin
@@ -84,7 +83,7 @@ class BluetoothLe : Plugin() {
         displayStrings = getDisplayStrings()
     }
 
-    @PluginMethod()
+    @PluginMethod
     fun initialize(call: PluginCall) {
         // Build.VERSION_CODES.S = 31
         if (Build.VERSION.SDK_INT >= 31) {
@@ -109,17 +108,17 @@ class BluetoothLe : Plugin() {
                 "BLUETOOTH_ADMIN",
             )
         }
-        requestPermissionForAliases(aliases, call, "checkPermission");
+        requestPermissionForAliases(aliases, call, "checkPermission")
     }
 
-    @PermissionCallback()
+    @PermissionCallback
     private fun checkPermission(call: PluginCall) {
         val granted: List<Boolean> = aliases.map { alias ->
             getPermissionState(alias) == PermissionState.GRANTED
         }
         // all have to be true
         if (granted.all { it }) {
-            runInitialization(call);
+            runInitialization(call)
         } else {
             call.reject("Permission denied.")
         }
@@ -234,22 +233,22 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun openLocationSettings(call: PluginCall) {
         val intent = Intent(ACTION_LOCATION_SOURCE_SETTINGS)
-        activity.startActivity(intent);
+        activity.startActivity(intent)
         call.resolve()
     }
 
     @PluginMethod
     fun openBluetoothSettings(call: PluginCall) {
         val intent = Intent(ACTION_BLUETOOTH_SETTINGS)
-        activity.startActivity(intent);
+        activity.startActivity(intent)
         call.resolve()
     }
 
     @PluginMethod
     fun openAppSettings(call: PluginCall) {
         val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-        intent.data = Uri.parse("package:" + getActivity().getPackageName());
-        activity.startActivity(intent);
+        intent.data = Uri.parse("package:" + getActivity().getPackageName())
+        activity.startActivity(intent)
         call.resolve()
     }
 
@@ -373,7 +372,7 @@ class BluetoothLe : Plugin() {
     fun getDevices(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
         val deviceIds = call.getArray("deviceIds").toList<String>()
-        var bleDevices = JSArray()
+        val bleDevices = JSArray()
         deviceIds.forEach { deviceId ->
             val bleDevice = JSObject()
             bleDevice.put("deviceId", deviceId)
@@ -472,7 +471,7 @@ class BluetoothLe : Plugin() {
                 val bleCharacteristic = JSObject()
                 bleCharacteristic.put("uuid", characteristic.uuid)
                 bleCharacteristic.put("properties", getProperties(characteristic))
-                var bleDescriptors = JSArray()
+                val bleDescriptors = JSArray()
                 characteristic.descriptors.forEach { descriptor ->
                     val bleDescriptor = JSObject()
                     bleDescriptor.put("uuid", descriptor.uuid)
@@ -798,7 +797,7 @@ class BluetoothLe : Plugin() {
 
         scanResult.put("rssi", result.rssi)
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             scanResult.put("txPower", result.txPower)
         } else {
             scanResult.put("txPower", 127)

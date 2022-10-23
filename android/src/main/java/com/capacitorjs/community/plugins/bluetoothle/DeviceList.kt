@@ -11,9 +11,8 @@ class DeviceList {
         if (!devices.contains(device)) {
             devices.add(device)
             return true
-        } else {
-            return false
         }
+        return false
     }
 
     fun getDevice(index: Int): BluetoothDevice {
