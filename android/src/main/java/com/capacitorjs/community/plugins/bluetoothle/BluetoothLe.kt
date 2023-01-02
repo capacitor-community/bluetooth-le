@@ -15,7 +15,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.ParcelUuid
 import android.provider.Settings.*
-import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.*
 import com.getcapacitor.annotation.CapacitorPlugin
@@ -178,7 +177,11 @@ class BluetoothLe : Plugin() {
         try {
             createStateReceiver()
         } catch (e: Error) {
-            Log.e(TAG, "Error while registering enabled state receiver: ${e.localizedMessage}")
+            Logger.error(
+                TAG,
+                "Error while registering enabled state receiver: ${e.localizedMessage}",
+                e
+            )
             call.reject("startEnabledNotifications failed.")
             return
         }
@@ -201,7 +204,7 @@ class BluetoothLe : Plugin() {
                         try {
                             notifyListeners("onEnabledChanged", result)
                         } catch (e: ConcurrentModificationException) {
-                            Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+                            Logger.error(TAG, "Error in notifyListeners: ${e.localizedMessage}", e)
                         }
                     }
                 }
@@ -224,7 +227,7 @@ class BluetoothLe : Plugin() {
     fun isLocationEnabled(call: PluginCall) {
         val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val enabled = LocationManagerCompat.isLocationEnabled(lm)
-        Log.d(TAG, "location $enabled")
+        Logger.debug(TAG, "location $enabled")
         val result = JSObject()
         result.put("value", enabled)
         call.resolve(result)
@@ -350,7 +353,7 @@ class BluetoothLe : Plugin() {
                     try {
                         notifyListeners("onScanResult", scanResult)
                     } catch (e: ConcurrentModificationException) {
-                        Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+                        Logger.error(TAG, "Error in notifyListeners: ${e.localizedMessage}", e)
                     }
                 }
             }
@@ -363,7 +366,7 @@ class BluetoothLe : Plugin() {
         try {
             deviceScanner?.stopScanning()
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Error in stopLEScan: ${e.localizedMessage}")
+            Logger.error(TAG, "Error in stopLEScan: ${e.localizedMessage}", e)
         }
         call.resolve()
     }
@@ -417,7 +420,7 @@ class BluetoothLe : Plugin() {
         try {
             notifyListeners("disconnected|${deviceId}", null)
         } catch (e: ConcurrentModificationException) {
-            Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+            Logger.error(TAG, "Error in notifyListeners: ${e.localizedMessage}", e)
         }
     }
 
@@ -685,7 +688,7 @@ class BluetoothLe : Plugin() {
                     try {
                         notifyListeners(key, ret)
                     } catch (e: ConcurrentModificationException) {
-                        Log.e(TAG, "Error in notifyListeners: ${e.localizedMessage}")
+                        Logger.error(TAG, "Error in notifyListeners: ${e.localizedMessage}", e)
                     }
                 }
             },

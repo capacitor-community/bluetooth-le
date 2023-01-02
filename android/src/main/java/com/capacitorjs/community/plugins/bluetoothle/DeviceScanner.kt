@@ -10,8 +10,8 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.ArrayAdapter
+import com.getcapacitor.Logger
 
 
 class ScanResponse(
@@ -92,7 +92,7 @@ class DeviceScanner(
         deviceList.clear()
         if (!isScanning) {
             setTimeoutForStopScanning()
-            Log.d(TAG, "Start scanning.")
+            Logger.debug(TAG, "Start scanning.")
             isScanning = true
             bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
             if (showDialog) {
@@ -133,7 +133,7 @@ class DeviceScanner(
                 }
             }
         }
-        Log.d(TAG, "Stop scanning.")
+        Logger.debug(TAG, "Stop scanning.")
         isScanning = false
         bluetoothLeScanner?.stopScan(scanCallback)
     }
