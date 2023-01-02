@@ -69,6 +69,7 @@ Below is an index of all the methods available.
 - [`isBonded(...)`](#isbonded)
 - [`disconnect(...)`](#disconnect)
 - [`getServices(...)`](#getservices)
+- [`discoverServices(...)`](#discoverservices)
 - [`readRssi(...)`](#readrssi)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
@@ -336,6 +337,7 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`isBonded(...)`](#isbonded)                                   |   ✅    | ❌  | ❌  |
 | [`disconnect(...)`](#disconnect)                               |   ✅    | ✅  | ✅  |
 | [`getServices(...)`](#getservices)                             |   ✅    | ✅  | ✅  |
+| [`discoverServices(...)`](#discoverservices)                   |   ✅    | ✅  | ❌  |
 | [`readRssi(...)`](#readrssi)                                   |   ✅    | ✅  | ❌  |
 | [`read(...)`](#read)                                           |   ✅    | ✅  | ✅  |
 | [`write(...)`](#write)                                         |   ✅    | ✅  | ✅  |
@@ -551,9 +553,9 @@ Uses [retrievePeripherals](https://developer.apple.com/documentation/corebluetoo
 [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
 On Android, you can directly connect to the device with the deviceId.
 
-| Param           | Type                  | Description                                                             |
-| --------------- | --------------------- | ----------------------------------------------------------------------- |
-| **`deviceIds`** | <code>string[]</code> | List of device IDs, e.g. saved from a previous app run. No used on web. |
+| Param           | Type                  | Description                                                                 |
+| --------------- | --------------------- | --------------------------------------------------------------------------- |
+| **`deviceIds`** | <code>string[]</code> | List of device IDs, e.g. saved from a previous app run. No used on **web**. |
 
 **Returns:** <code>Promise&lt;BleDevice[]&gt;</code>
 
@@ -656,6 +658,23 @@ Get services, characteristics and descriptors of a device.
 
 ---
 
+### discoverServices(...)
+
+```typescript
+discoverServices(deviceId: string) => Promise<void>
+```
+
+Discover services, characteristics and descriptors of a device.
+You only need this method if your peripheral device changes its services and characteristics at runtime.
+If the discovery was successful, the remote services can be retrieved using the getServices function.
+Not available on **web**.
+
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+---
+
 ### readRssi(...)
 
 ```typescript
@@ -663,7 +682,7 @@ readRssi(deviceId: string) => Promise<number>
 ```
 
 Read the RSSI value of a connected device.
-Not available on web.
+Not available on **web**.
 
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |

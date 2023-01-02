@@ -115,7 +115,7 @@ export interface BleClientInterface {
    * Uses [retrievePeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1519127-retrieveperipherals) on iOS and
    * [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
    * On Android, you can directly connect to the device with the deviceId.
-   * @param deviceIds List of device IDs, e.g. saved from a previous app run. No used on web.
+   * @param deviceIds List of device IDs, e.g. saved from a previous app run. No used on **web**.
    */
   getDevices(deviceIds: string[]): Promise<BleDevice[]>;
 
@@ -163,8 +163,17 @@ export interface BleClientInterface {
   getServices(deviceId: string): Promise<BleService[]>;
 
   /**
+   * Discover services, characteristics and descriptors of a device.
+   * You only need this method if your peripheral device changes its services and characteristics at runtime.
+   * If the discovery was successful, the remote services can be retrieved using the getServices function.
+   * Not available on **web**.
+   * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   */
+  discoverServices(deviceId: string): Promise<void>;
+
+  /**
    * Read the RSSI value of a connected device.
-   * Not available on web.
+   * Not available on **web**.
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   readRssi(deviceId: string): Promise<number>;
@@ -459,6 +468,12 @@ class BleClientClass implements BleClientInterface {
       return result.services;
     });
     return services;
+  }
+
+  async discoverServices(deviceId: string): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.discoverServices({ deviceId });
+    });
   }
 
   async readRssi(deviceId: string): Promise<number> {

@@ -267,6 +267,7 @@ export interface BluetoothLePlugin {
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;
   getServices(options: DeviceIdOptions): Promise<BleServices>;
+  discoverServices(options: DeviceIdOptions): Promise<void>;
   readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
   read(options: ReadOptions & TimeoutOptions): Promise<ReadResult>;
   write(options: WriteOptions & TimeoutOptions): Promise<void>;

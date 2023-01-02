@@ -78,6 +78,7 @@ class Device: NSObject, CBPeripheralDelegate {
         // if the last service does not have characteristics, resolve the connect call now
         if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
             self.resolve("connect", "Connection successful.")
+            self.resolve("discoverServices", "Services discovered.")
         }
     }
 
@@ -89,13 +90,24 @@ class Device: NSObject, CBPeripheralDelegate {
         self.characteristicsDiscovered += 1
         if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
             self.resolve("connect", "Connection successful.")
+            self.resolve("discoverServices", "Services discovered.")
         }
     }
 
     func getServices() -> [CBService] {
         return self.peripheral.services ?? []
     }
-
+    
+    func discoverServices(
+        _ timeout: Double,
+        _ callback: @escaping Callback
+    ) {
+        let key = "discoverServices"
+        self.callbackMap[key] = callback
+        self.peripheral.discoverServices(nil)
+        self.setTimeout(key, "Service discovery timeout.", timeout)
+    }
+    
     func readRssi(
         _ timeout: Double,
         _ callback: @escaping Callback
@@ -389,8 +401,6 @@ class Device: NSObject, CBPeripheralDelegate {
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
-        } else {
-            log("Reject callback not registered for key: ", key)
         }
     }
 

@@ -531,6 +531,23 @@ class BluetoothLe : Plugin() {
     }
 
     @PluginMethod
+    fun discoverServices(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+        device.discoverServices(timeout) { response ->
+            run {
+                if (response.success) {
+                    call.resolve()
+                } else {
+                    call.reject(response.value)
+                }
+            }
+        }
+
+
+    }
+
+    @PluginMethod
     fun readRssi(call: PluginCall) {
         val device = getDevice(call) ?: return
         val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
