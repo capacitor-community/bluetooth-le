@@ -266,6 +266,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return characteristic?.getDescriptor(options?.descriptor);
   }
 
+  async discoverServices(_options: DeviceIdOptions): Promise<void> {
+    throw this.unavailable('discoverServices is not available on web.');
+  }
+
   async readRssi(_options: DeviceIdOptions): Promise<ReadRssiResult> {
     throw this.unavailable('readRssi is not available on web.');
   }

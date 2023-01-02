@@ -307,8 +307,6 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
-        } else {
-            log("Resolve callback not registered for key: ", key)
         }
     }
 
@@ -320,8 +318,6 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
-        } else {
-            log("Reject callback not registered for key: ", key)
         }
     }
 

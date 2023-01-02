@@ -66,9 +66,13 @@ class Device(
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                // Try requesting a larger MTU. Maximally supported MTU will be selected.
-                requestMtu(REQUEST_MTU)
+                resolve("discoverServices", "Services discovered.")
+                if (connectCallOngoing()) {
+                    // Try requesting a larger MTU. Maximally supported MTU will be selected.
+                    requestMtu(REQUEST_MTU)
+                }
             } else {
+                reject("discoverServices", "Service discovery failed.")
                 reject("connect", "Service discovery failed.")
             }
         }
@@ -214,6 +218,10 @@ class Device(
         setConnectionTimeout(key, "Connection timeout.", bluetoothGatt, timeout)
     }
 
+    private fun connectCallOngoing(): Boolean {
+        return callbackMap.containsKey("connect")
+    }
+
     fun isConnected(): Boolean {
         return connectionState == STATE_CONNECTED
     }
@@ -303,6 +311,36 @@ class Device(
 
     fun getServices(): MutableList<BluetoothGattService> {
         return bluetoothGatt?.services ?: mutableListOf()
+    }
+
+    fun discoverServices(
+        timeout: Long, callback: (CallbackResponse) -> Unit
+    ) {
+        val key = "discoverServices"
+        callbackMap[key] = callback
+        refreshDeviceCache()
+        val result = bluetoothGatt?.discoverServices()
+        if (result != true) {
+            reject(key, "Service discovery failed.")
+            return
+        }
+        setTimeout(key, "Service discovery timeout.", timeout)
+    }
+
+    private fun refreshDeviceCache(): Boolean {
+        var result = false
+
+        try {
+            if (bluetoothGatt != null) {
+                val refresh = bluetoothGatt!!.javaClass.getMethod("refresh")
+                result = (refresh.invoke(bluetoothGatt) as Boolean)
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Error while refreshing device cache: ${e.localizedMessage}", e)
+        }
+
+        Logger.debug(TAG, "Device cache refresh $result")
+        return result
     }
 
     fun readRssi(
@@ -484,8 +522,6 @@ class Device(
             callbackMap.remove(key)
             timeoutMap[key]?.removeCallbacksAndMessages(null)
             timeoutMap.remove(key)
-        } else {
-            Logger.warn(TAG, "Resolve callback not registered for key: $key")
         }
     }
 
@@ -496,8 +532,6 @@ class Device(
             callbackMap.remove(key)
             timeoutMap[key]?.removeCallbacksAndMessages(null)
             timeoutMap.remove(key)
-        } else {
-            Logger.warn(TAG, "Reject callback not registered for key: $key")
         }
     }
 

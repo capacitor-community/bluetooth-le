@@ -289,6 +289,19 @@ public class BluetoothLe: CAPPlugin {
             "indicateEncryptionRequired": characteristic.properties.contains(CBCharacteristicProperties.indicateEncryptionRequired)
         ]
     }
+    
+    @objc func discoverServices(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        let timeout = self.getTimeout(call)
+        device.discoverServices(timeout, {(success, value) -> Void in
+            if success {
+                call.resolve()
+            } else {
+                call.reject(value)
+            }
+        })
+    }
 
     @objc func readRssi(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
