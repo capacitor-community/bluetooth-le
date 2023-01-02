@@ -120,7 +120,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     }
 
     func stopScan() {
-        print("Stop scanning.")
+        log("Stop scanning.")
         self.centralManager.stopScan()
         self.stopScanWorkItem?.cancel()
         self.stopScanWorkItem = nil
@@ -142,7 +142,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     ) {
 
         guard peripheral.state != CBPeripheralState.connected else {
-            print("found connected device", peripheral.name ?? "Unknown")
+            log("found connected device", peripheral.name ?? "Unknown")
             // make sure we do not touch connected devices
             return
         }
@@ -154,13 +154,13 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
 
         let device = Device(peripheral)
-        print("New device found: ", device.getName() ?? "Unknown")
+        log("New device found: ", device.getName() ?? "Unknown")
         self.discoveredDevices[device.getId()] = device
 
         if shouldShowDeviceList {
             DispatchQueue.main.async { [weak self] in
                 self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) -> Void in
-                    print("Selected device")
+                    log("Selected device")
                     self?.stopScan()
                     self?.resolve("startScanning", device.getId())
                 }))
@@ -176,7 +176,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.alertController = UIAlertController(title: self?.displayStrings["scanning"], message: nil, preferredStyle: UIAlertController.Style.alert)
             self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"], style: UIAlertAction.Style.cancel, handler: { (_) -> Void in
-                print("Cancelled request device.")
+                log("Cancelled request device.")
                 self?.stopScan()
                 self?.reject("startScanning", "requestDevice cancelled.")
             }))
@@ -211,7 +211,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     ) {
         let key = "connect|\(device.getId())"
         self.callbackMap[key] = callback
-        print("Connecting to peripheral", device.getPeripheral())
+        log("Connecting to peripheral", device.getPeripheral())
         self.centralManager.connect(device.getPeripheral(), options: nil)
         self.setConnectionTimeout(key, "Connection timeout.", device, connectionTimeout)
     }
@@ -221,7 +221,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ central: CBCentralManager,
         didConnect peripheral: CBPeripheral
     ) {
-        print("Connected to device", peripheral)
+        log("Connected to device", peripheral)
         let key = "connect|\(peripheral.identifier.uuidString)"
         peripheral.discoverServices(nil)
         self.resolve(key, "Successfully connected.")
@@ -261,7 +261,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.resolve(key, "Disconnected.")
             return
         }
-        print("Disconnecting from peripheral", device.getPeripheral())
+        log("Disconnecting from peripheral", device.getPeripheral())
         self.centralManager.cancelPeripheralConnection(device.getPeripheral())
         self.setTimeout(key, "Disconnection timeout.", timeout)
     }
@@ -276,7 +276,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         let keyOnDisconnected = "onDisconnected|\(peripheral.identifier.uuidString)"
         self.resolve(keyOnDisconnected, "Disconnected.")
         if error != nil {
-            print(error!.localizedDescription)
+            log(error!.localizedDescription)
             self.reject(key, error!.localizedDescription)
             return
         }
@@ -302,26 +302,26 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private func resolve(_ key: String, _ value: String) {
         let callback = self.callbackMap[key]
         if callback != nil {
-            print("Resolve", key, value)
+            log("Resolve", key, value)
             callback!(true, value)
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
         } else {
-            print("Resolve callback not registered for key: ", key)
+            log("Resolve callback not registered for key: ", key)
         }
     }
 
     private func reject(_ key: String, _ value: String) {
         let callback = self.callbackMap[key]
         if callback != nil {
-            print("Reject", key, value)
+            log("Reject", key, value)
             callback!(false, value)
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
         } else {
-            print("Reject callback not registered for key: ", key)
+            log("Reject callback not registered for key: ", key)
         }
     }
 
