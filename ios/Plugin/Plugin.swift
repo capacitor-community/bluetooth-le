@@ -218,7 +218,7 @@ public class BluetoothLe: CAPPlugin {
         })
         self.deviceManager?.connect(device, timeout, {(success, message) -> Void in
             if success {
-                print("Connected to peripheral. Waiting for service discovery.")
+                log("Connected to peripheral. Waiting for service discovery.")
             } else {
                 call.reject(message)
             }

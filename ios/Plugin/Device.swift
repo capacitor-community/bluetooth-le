@@ -50,9 +50,9 @@ class Device: NSObject, CBPeripheralDelegate {
         _ peripheral: CBPeripheral,
         didDiscoverServices error: Error?
     ) {
-        print("didDiscoverServices")
+        log("didDiscoverServices")
         if error != nil {
-            print("Error", error!.localizedDescription)
+            log("Error", error!.localizedDescription)
             return
         }
         self.servicesCount = peripheral.services?.count ?? 0
@@ -70,7 +70,7 @@ class Device: NSObject, CBPeripheralDelegate {
         error: Error?
     ) {
         self.servicesDiscovered += 1
-        print("didDiscoverCharacteristicsFor", self.servicesDiscovered, self.servicesCount)
+        log("didDiscoverCharacteristicsFor", self.servicesDiscovered, self.servicesCount)
         self.characteristicsCount += service.characteristics?.count ?? 0
         for characteristic in service.characteristics ?? [] {
             peripheral.discoverDescriptors(for: characteristic)
@@ -102,7 +102,7 @@ class Device: NSObject, CBPeripheralDelegate {
     ) {
         let key = "readRssi"
         self.callbackMap[key] = callback
-        print("Reading RSSI value")
+        log("Reading RSSI value")
         self.peripheral.readRSSI()
         self.setTimeout(key, "Reading RSSI timeout.", timeout)
     }
@@ -164,7 +164,7 @@ class Device: NSObject, CBPeripheralDelegate {
             self.reject(key, "Characteristic not found.")
             return
         }
-        print("Reading value")
+        log("Reading value")
         self.peripheral.readValue(for: characteristic)
         self.setTimeout(key, "Read timeout.", timeout)
     }
@@ -208,7 +208,7 @@ class Device: NSObject, CBPeripheralDelegate {
             self.reject(key, "Descriptor not found.")
             return
         }
-        print("Reading descriptor value")
+        log("Reading descriptor value")
         self.peripheral.readValue(for: descriptor)
         self.setTimeout(key, "Read descriptor timeout.", timeout)
     }
@@ -317,7 +317,7 @@ class Device: NSObject, CBPeripheralDelegate {
             self.reject(key, "Characteristic not found.")
             return
         }
-        print("Set notifications", enable)
+        log("Set notifications", enable)
         self.peripheral.setNotifyValue(enable, for: characteristic)
         self.setTimeout(key, "Set notifications timeout.", timeout)
     }
@@ -370,13 +370,11 @@ class Device: NSObject, CBPeripheralDelegate {
     ) {
         let callback = self.callbackMap[key]
         if callback != nil {
-            print("Resolve", key, value)
+            log("Resolve", key, value)
             callback!(true, value)
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
-        } else {
-            print("Resolve callback not registered for key: ", key)
         }
     }
 
@@ -386,13 +384,13 @@ class Device: NSObject, CBPeripheralDelegate {
     ) {
         let callback = self.callbackMap[key]
         if callback != nil {
-            print("Reject", key, value)
+            log("Reject", key, value)
             callback!(false, value)
             self.callbackMap[key] = nil
             self.timeoutMap[key]?.cancel()
             self.timeoutMap[key] = nil
         } else {
-            print("Reject callback not registered for key: ", key)
+            log("Reject callback not registered for key: ", key)
         }
     }
 
