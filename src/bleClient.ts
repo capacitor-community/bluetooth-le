@@ -381,6 +381,7 @@ class BleClientClass implements BleClientInterface {
   }
 
   async requestDevice(options?: RequestBleDeviceOptions): Promise<BleDevice> {
+    options = options ? this.validateRequestBleDeviceOptions(options) : undefined;
     const result = await this.queue(async () => {
       const device = await BluetoothLe.requestDevice(options);
       return device;
@@ -389,6 +390,7 @@ class BleClientClass implements BleClientInterface {
   }
 
   async requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) => void): Promise<void> {
+    options = this.validateRequestBleDeviceOptions(options);
     await this.queue(async () => {
       await this.scanListener?.remove();
       this.scanListener = await BluetoothLe.addListener('onScanResult', (resultInternal: ScanResultInternal) => {
@@ -645,6 +647,16 @@ class BleClientClass implements BleClientInterface {
         characteristic,
       });
     });
+  }
+
+  private validateRequestBleDeviceOptions(options: RequestBleDeviceOptions): RequestBleDeviceOptions {
+    if (options.services) {
+      options.services = options.services.map(validateUUID);
+    }
+    if (options.optionalServices) {
+      options.optionalServices = options.optionalServices.map(validateUUID);
+    }
+    return options;
   }
 
   private convertValue(value?: Data): DataView {

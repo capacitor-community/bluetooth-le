@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 
@@ -126,6 +127,17 @@ describe('BleClient', () => {
     const result = await BleClient.requestDevice();
     expect(BluetoothLe.requestDevice).toHaveBeenCalledTimes(1);
     expect(result).toBe(mockDevice);
+  });
+
+  it('should validate serviceUUIDs', async () => {
+    expect.assertions(1);
+    try {
+      // @ts-expect-error testing invalid input
+      await BleClient.requestDevice({ services: [0x180] });
+    } catch (e) {
+      // @ts-ignore
+      expect(e.message).toContain('Expected string');
+    }
   });
 
   it('should run requestLEScan', async () => {
