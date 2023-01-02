@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v2.0.1...v2.1.0) (2023-01-02)
+
+
+### Features
+
+* add discoverServices method ([0239f3d](https://github.com/capacitor-community/bluetooth-le/commit/0239f3d82eb4fa7a375c5f02042e6417bddbbc70))
+
+
+### Bug Fixes
+
+* refactor android logging ([321a823](https://github.com/capacitor-community/bluetooth-le/commit/321a823cc018fef4ead3845732e329d4b7202981))
+* refactor iOS logging ([e215836](https://github.com/capacitor-community/bluetooth-le/commit/e2158367960fd84ed142de60ea4ae04f32f06999))
+* validate service UUIDs in requestDevice and requestLEScan calls ([ad10fe8](https://github.com/capacitor-community/bluetooth-le/commit/ad10fe81507b32229440bc206c38f7b227cb6efb))
+
 ### [2.0.1](https://github.com/capacitor-community/bluetooth-le/compare/v2.0.0...v2.0.1) (2022-10-09)
 
 
