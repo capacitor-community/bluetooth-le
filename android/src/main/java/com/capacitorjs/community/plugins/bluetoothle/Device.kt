@@ -8,7 +8,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import com.getcapacitor.Logger
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -48,7 +48,7 @@ class Device(
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connectionState = STATE_CONNECTED
                 // service discovery is required to use services
-                Log.d(TAG, "Connected to GATT server. Starting service discovery.")
+                Logger.debug(TAG, "Connected to GATT server. Starting service discovery.")
                 val result = bluetoothGatt?.discoverServices()
                 if (result != true) {
                     reject("connect", "Starting service discovery failed.")
@@ -58,7 +58,7 @@ class Device(
                 onDisconnect()
                 bluetoothGatt?.close()
                 bluetoothGatt = null
-                Log.d(TAG, "Disconnected from GATT server.")
+                Logger.debug(TAG, "Disconnected from GATT server.")
                 resolve("disconnect", "Disconnected.")
             }
         }
@@ -76,9 +76,9 @@ class Device(
         override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "MTU changed: $mtu")
+                Logger.debug(TAG, "MTU changed: $mtu")
             } else {
-                Log.d(TAG, "MTU change failed: $mtu")
+                Logger.debug(TAG, "MTU change failed: $mtu")
             }
             resolve("connect", "Connected.")
         }
@@ -219,7 +219,7 @@ class Device(
     }
 
     private fun requestMtu(mtu: Int) {
-        Log.d(TAG, "requestMtu $mtu")
+        Logger.debug(TAG, "requestMtu $mtu")
         val result = bluetoothGatt?.requestMtu(mtu)
         if (result != true) {
             reject("connect", "Starting requestMtu failed.")
@@ -232,7 +232,7 @@ class Device(
         try {
             createBondStateReceiver()
         } catch (e: Error) {
-            Log.e(TAG, "Error while registering bondStateReceiver: ${e.localizedMessage}")
+            Logger.error(TAG, "Error while registering bondStateReceiver: ${e.localizedMessage}", e)
             reject(key, "Creating bond failed.")
             return
         }
@@ -263,7 +263,10 @@ class Device(
                             val bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
                             val previousBondState =
                                 intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
-                            Log.d(TAG, "Bond state transition $previousBondState -> $bondState")
+                            Logger.debug(
+                                TAG,
+                                "Bond state transition $previousBondState -> $bondState"
+                            )
                             if (bondState == BluetoothDevice.BOND_BONDED) {
                                 resolve(key, "Creating bond succeeded.")
                             } else if (previousBondState == BluetoothDevice.BOND_BONDING && bondState == BluetoothDevice.BOND_NONE) {
@@ -476,25 +479,25 @@ class Device(
 
     private fun resolve(key: String, value: String) {
         if (callbackMap.containsKey(key)) {
-            Log.d(TAG, "resolve: $key $value")
+            Logger.debug(TAG, "resolve: $key $value")
             callbackMap[key]?.invoke(CallbackResponse(true, value))
             callbackMap.remove(key)
             timeoutMap[key]?.removeCallbacksAndMessages(null)
             timeoutMap.remove(key)
         } else {
-            Log.w(TAG, "Resolve callback not registered for key: $key")
+            Logger.warn(TAG, "Resolve callback not registered for key: $key")
         }
     }
 
     private fun reject(key: String, value: String) {
         if (callbackMap.containsKey(key)) {
-            Log.d(TAG, "reject: $key $value")
+            Logger.debug(TAG, "reject: $key $value")
             callbackMap[key]?.invoke(CallbackResponse(false, value))
             callbackMap.remove(key)
             timeoutMap[key]?.removeCallbacksAndMessages(null)
             timeoutMap.remove(key)
         } else {
-            Log.w(TAG, "Reject callback not registered for key: $key")
+            Logger.warn(TAG, "Reject callback not registered for key: $key")
         }
     }
 
