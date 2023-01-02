@@ -101,9 +101,7 @@ class DeviceScanner(
             } else {
                 savedCallback?.invoke(
                     ScanResponse(
-                        true,
-                        "Started scanning.",
-                        null
+                        true, "Started scanning.", null
                     )
                 )
                 savedCallback = null
@@ -112,9 +110,7 @@ class DeviceScanner(
             stopScanning()
             savedCallback?.invoke(
                 ScanResponse(
-                    false,
-                    "Already scanning. Stopping now.",
-                    null
+                    false, "Already scanning. Stopping now.", null
                 )
             )
             savedCallback = null
@@ -144,9 +140,7 @@ class DeviceScanner(
             builder.setTitle(displayStrings.scanning)
             builder.setCancelable(true)
             adapter = ArrayAdapter(
-                context,
-                android.R.layout.simple_selectable_list_item,
-                deviceStrings
+                context, android.R.layout.simple_selectable_list_item, deviceStrings
             )
             builder.setAdapter(adapter) { dialog, index ->
                 stopScanning()
@@ -160,9 +154,7 @@ class DeviceScanner(
                 dialog.cancel()
                 savedCallback?.invoke(
                     ScanResponse(
-                        false,
-                        "requestDevice cancelled.",
-                        null
+                        false, "requestDevice cancelled.", null
                     )
                 )
                 savedCallback = null
@@ -172,9 +164,7 @@ class DeviceScanner(
                 dialog.cancel()
                 savedCallback?.invoke(
                     ScanResponse(
-                        false,
-                        "requestDevice cancelled.",
-                        null
+                        false, "requestDevice cancelled.", null
                     )
                 )
                 savedCallback = null
@@ -190,8 +180,7 @@ class DeviceScanner(
             stopScanHandler?.postDelayed(
                 {
                     stopScanning()
-                },
-                scanDuration
+                }, scanDuration
             )
         }
     }

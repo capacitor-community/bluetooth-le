@@ -41,9 +41,7 @@ class Device(
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
-            gatt: BluetoothGatt,
-            status: Int,
-            newState: Int
+            gatt: BluetoothGatt, status: Int, newState: Int
         ) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connectionState = STATE_CONNECTED
@@ -98,9 +96,7 @@ class Device(
         }
 
         override fun onCharacteristicRead(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic,
-            status: Int
+            gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
         ) {
             super.onCharacteristicRead(gatt, characteristic, status)
             val key = "read|${characteristic.service.uuid}|${characteristic.uuid}"
@@ -118,9 +114,7 @@ class Device(
         }
 
         override fun onCharacteristicWrite(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic,
-            status: Int
+            gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int
         ) {
             super.onCharacteristicWrite(gatt, characteristic, status)
             val key = "write|${characteristic.service.uuid}|${characteristic.uuid}"
@@ -133,8 +127,7 @@ class Device(
         }
 
         override fun onCharacteristicChanged(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic
+            gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic
         ) {
             super.onCharacteristicChanged(gatt, characteristic)
             val notifyKey = "notification|${characteristic.service.uuid}|${characteristic.uuid}"
@@ -146,9 +139,7 @@ class Device(
         }
 
         override fun onDescriptorRead(
-            gatt: BluetoothGatt,
-            descriptor: BluetoothGattDescriptor,
-            status: Int
+            gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int
         ) {
             super.onDescriptorRead(gatt, descriptor, status)
             val key =
@@ -167,9 +158,7 @@ class Device(
         }
 
         override fun onDescriptorWrite(
-            gatt: BluetoothGatt,
-            descriptor: BluetoothGattDescriptor,
-            status: Int
+            gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int
         ) {
             super.onDescriptorWrite(gatt, descriptor, status)
             val key =
@@ -193,26 +182,18 @@ class Device(
      * - request MTU
      */
     fun connect(
-        timeout: Long,
-        callback: (CallbackResponse) -> Unit
+        timeout: Long, callback: (CallbackResponse) -> Unit
     ) {
         val key = "connect"
         callbackMap[key] = callback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothGatt =
-                device.connectGatt(
-                    context,
-                    false,
-                    gattCallback,
-                    BluetoothDevice.TRANSPORT_LE
-                )
+            bluetoothGatt = device.connectGatt(
+                context, false, gattCallback, BluetoothDevice.TRANSPORT_LE
+            )
         } else {
-            bluetoothGatt =
-                device.connectGatt(
-                    context,
-                    false,
-                    gattCallback
-                )
+            bluetoothGatt = device.connectGatt(
+                context, false, gattCallback
+            )
         }
         connectionState = STATE_CONNECTING
         setConnectionTimeout(key, "Connection timeout.", bluetoothGatt, timeout)
@@ -272,8 +253,7 @@ class Device(
                             val previousBondState =
                                 intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
                             Logger.debug(
-                                TAG,
-                                "Bond state transition $previousBondState -> $bondState"
+                                TAG, "Bond state transition $previousBondState -> $bondState"
                             )
                             if (bondState == BluetoothDevice.BOND_BONDED) {
                                 resolve(key, "Creating bond succeeded.")
@@ -296,8 +276,7 @@ class Device(
     }
 
     fun disconnect(
-        timeout: Long,
-        callback: (CallbackResponse) -> Unit
+        timeout: Long, callback: (CallbackResponse) -> Unit
     ) {
         val key = "disconnect"
         callbackMap[key] = callback
@@ -344,8 +323,7 @@ class Device(
     }
 
     fun readRssi(
-        timeout: Long,
-        callback: (CallbackResponse) -> Unit
+        timeout: Long, callback: (CallbackResponse) -> Unit
     ) {
         val key = "readRssi"
         callbackMap[key] = callback
@@ -536,9 +514,7 @@ class Device(
     }
 
     private fun setTimeout(
-        key: String,
-        message: String,
-        timeout: Long
+        key: String, message: String, timeout: Long
     ) {
         val handler = Handler(Looper.getMainLooper())
         timeoutMap[key] = handler
