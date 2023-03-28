@@ -23,6 +23,7 @@ import type {
   ScanResultInternal,
   WriteOptions,
   WriteDescriptorOptions,
+  GetMtuResult,
 } from './definitions';
 import { runWithTimeout } from './timeout';
 
@@ -268,6 +269,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 
   async discoverServices(_options: DeviceIdOptions): Promise<void> {
     throw this.unavailable('discoverServices is not available on web.');
+  }
+
+  async getMtu(_options: DeviceIdOptions): Promise<GetMtuResult> {
+    throw this.unavailable('getMtu is not available on web.');
   }
 
   async readRssi(_options: DeviceIdOptions): Promise<ReadRssiResult> {
