@@ -182,6 +182,10 @@ export interface GetDevicesResult {
   devices: BleDevice[];
 }
 
+export interface GetMtuResult {
+  value: number;
+}
+
 export interface ReadRssiResult {
   value: string;
 }
@@ -268,6 +272,7 @@ export interface BluetoothLePlugin {
   disconnect(options: DeviceIdOptions): Promise<void>;
   getServices(options: DeviceIdOptions): Promise<BleServices>;
   discoverServices(options: DeviceIdOptions): Promise<void>;
+  getMtu(options: DeviceIdOptions): Promise<GetMtuResult>;
   readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
   read(options: ReadOptions & TimeoutOptions): Promise<ReadResult>;
   write(options: WriteOptions & TimeoutOptions): Promise<void>;

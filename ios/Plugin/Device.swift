@@ -97,7 +97,7 @@ class Device: NSObject, CBPeripheralDelegate {
     func getServices() -> [CBService] {
         return self.peripheral.services ?? []
     }
-    
+
     func discoverServices(
         _ timeout: Double,
         _ callback: @escaping Callback
@@ -107,7 +107,12 @@ class Device: NSObject, CBPeripheralDelegate {
         self.peripheral.discoverServices(nil)
         self.setTimeout(key, "Service discovery timeout.", timeout)
     }
-    
+
+    func getMtu() -> Int {
+        // maximumWriteValueLength is 3 bytes less than ATT MTU because of
+        return self.peripheral.maximumWriteValueLength(for: .withoutResponse) + 3
+    }
+
     func readRssi(
         _ timeout: Double,
         _ callback: @escaping Callback

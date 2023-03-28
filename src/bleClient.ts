@@ -172,6 +172,13 @@ export interface BleClientInterface {
   discoverServices(deviceId: string): Promise<void>;
 
   /**
+   * Get the MTU of a connected device. Note that the maximum write value length is 3 bytes less than the MTU.
+   * Not available on **web**.
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   */
+  getMtu(deviceId: string): Promise<number>;
+
+  /**
    * Read the RSSI value of a connected device.
    * Not available on **web**.
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
@@ -476,6 +483,14 @@ class BleClientClass implements BleClientInterface {
     await this.queue(async () => {
       await BluetoothLe.discoverServices({ deviceId });
     });
+  }
+
+  async getMtu(deviceId: string): Promise<number> {
+    const value = await this.queue(async () => {
+      const result = await BluetoothLe.getMtu({ deviceId });
+      return result.value;
+    });
+    return value;
   }
 
   async readRssi(deviceId: string): Promise<number> {

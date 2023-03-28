@@ -38,6 +38,7 @@ class Device(
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
     private var timeoutMap = HashMap<String, Handler>()
     private var bondStateReceiver: BroadcastReceiver? = null
+    private var currentMtu = -1
 
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
@@ -78,6 +79,7 @@ class Device(
         override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                currentMtu = mtu
                 Logger.debug(TAG, "MTU changed: $mtu")
             } else {
                 Logger.debug(TAG, "MTU change failed: $mtu")
@@ -213,6 +215,10 @@ class Device(
         if (result != true) {
             reject("connect", "Starting requestMtu failed.")
         }
+    }
+
+    fun getMtu(): Int {
+        return currentMtu
     }
 
     fun createBond(callback: (CallbackResponse) -> Unit) {

@@ -289,7 +289,7 @@ public class BluetoothLe: CAPPlugin {
             "indicateEncryptionRequired": characteristic.properties.contains(CBCharacteristicProperties.indicateEncryptionRequired)
         ]
     }
-    
+
     @objc func discoverServices(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call) else { return }
@@ -301,6 +301,14 @@ public class BluetoothLe: CAPPlugin {
                 call.reject(value)
             }
         })
+    }
+
+    @objc func getMtu(_ call: CAPPluginCall) {
+        guard self.getDeviceManager(call) != nil else { return }
+        guard let device = self.getDevice(call) else { return }
+        call.resolve([
+            "value": device.getMtu()
+        ])
     }
 
     @objc func readRssi(_ call: CAPPluginCall) {

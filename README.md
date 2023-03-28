@@ -70,6 +70,7 @@ Below is an index of all the methods available.
 - [`disconnect(...)`](#disconnect)
 - [`getServices(...)`](#getservices)
 - [`discoverServices(...)`](#discoverservices)
+- [`getMtu(...)`](#getmtu)
 - [`readRssi(...)`](#readrssi)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
@@ -672,6 +673,23 @@ Not available on **web**.
 | Param          | Type                | Description                                                                                                    |
 | -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+---
+
+### getMtu(...)
+
+```typescript
+getMtu(deviceId: string) => Promise<number>
+```
+
+Get the MTU of a connected device. Note that the maximum write value length is 3 bytes less than the MTU.
+Not available on **web**.
+
+| Param          | Type                | Description                                                                                                    |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+
+**Returns:** <code>Promise&lt;number&gt;</code>
 
 ---
 

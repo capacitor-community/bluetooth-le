@@ -526,8 +526,15 @@ class BluetoothLe : Plugin() {
                 }
             }
         }
+    }
 
-
+    @PluginMethod
+    fun getMtu(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val mtu = device.getMtu()
+        val ret = JSObject()
+        ret.put("value", mtu)
+        call.resolve(ret)
     }
 
     @PluginMethod
