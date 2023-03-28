@@ -1,4 +1,4 @@
-export function validateUUID(uuid: any): string {
+export function parseUUID(uuid: any): string {
   if (typeof uuid !== 'string') {
     throw new Error(`Invalid UUID type ${typeof uuid}. Expected string.`);
   }

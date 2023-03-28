@@ -16,7 +16,7 @@ import type {
 } from './definitions';
 import { BluetoothLe } from './plugin';
 import { getQueue } from './queue';
-import { validateUUID } from './validators';
+import { parseUUID } from './validators';
 
 export interface BleClientInterface {
   /**
@@ -502,8 +502,8 @@ class BleClientClass implements BleClientInterface {
   }
 
   async read(deviceId: string, service: string, characteristic: string, options?: TimeoutOptions): Promise<DataView> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
     const value = await this.queue(async () => {
       const result = await BluetoothLe.read({
         deviceId,
@@ -523,8 +523,8 @@ class BleClientClass implements BleClientInterface {
     value: DataView,
     options?: TimeoutOptions
   ): Promise<void> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
     return this.queue(async () => {
       if (!value?.buffer) {
         throw new Error('Invalid data.');
@@ -551,8 +551,8 @@ class BleClientClass implements BleClientInterface {
     value: DataView,
     options?: TimeoutOptions
   ): Promise<void> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
     await this.queue(async () => {
       if (!value?.buffer) {
         throw new Error('Invalid data.');
@@ -579,9 +579,9 @@ class BleClientClass implements BleClientInterface {
     descriptor: string,
     options?: TimeoutOptions
   ): Promise<DataView> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
-    descriptor = validateUUID(descriptor);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
+    descriptor = parseUUID(descriptor);
     const value = await this.queue(async () => {
       const result = await BluetoothLe.readDescriptor({
         deviceId,
@@ -603,9 +603,9 @@ class BleClientClass implements BleClientInterface {
     value: DataView,
     options?: TimeoutOptions
   ): Promise<void> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
-    descriptor = validateUUID(descriptor);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
+    descriptor = parseUUID(descriptor);
     return this.queue(async () => {
       if (!value?.buffer) {
         throw new Error('Invalid data.');
@@ -632,8 +632,8 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     callback: (value: DataView) => void
   ): Promise<void> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
     await this.queue(async () => {
       const key = `notification|${deviceId}|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();
@@ -650,8 +650,8 @@ class BleClientClass implements BleClientInterface {
   }
 
   async stopNotifications(deviceId: string, service: string, characteristic: string): Promise<void> {
-    service = validateUUID(service);
-    characteristic = validateUUID(characteristic);
+    service = parseUUID(service);
+    characteristic = parseUUID(characteristic);
     await this.queue(async () => {
       const key = `notification|${deviceId}|${service}|${characteristic}`;
       await this.eventListeners.get(key)?.remove();
@@ -666,10 +666,10 @@ class BleClientClass implements BleClientInterface {
 
   private validateRequestBleDeviceOptions(options: RequestBleDeviceOptions): RequestBleDeviceOptions {
     if (options.services) {
-      options.services = options.services.map(validateUUID);
+      options.services = options.services.map(parseUUID);
     }
     if (options.optionalServices) {
-      options.optionalServices = options.optionalServices.map(validateUUID);
+      options.optionalServices = options.optionalServices.map(parseUUID);
     }
     return options;
   }
