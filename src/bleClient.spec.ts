@@ -32,6 +32,9 @@ jest.mock('./plugin', () => {
     requestDevice: jest.fn(),
     requestLEScan: jest.fn(),
     stopLEScan: jest.fn(),
+    getConnectedDevices: jest.fn(() => {
+      return Promise.resolve({ devices: [] });
+    }),
     connect: jest.fn(),
     createBond: jest.fn(),
     isBonded: jest.fn(),
@@ -138,6 +141,26 @@ describe('BleClient', () => {
       // @ts-ignore
       expect(e.message).toContain('Expected string');
     }
+  });
+
+  it('should validate services in getConnectedDevices', async () => {
+    expect.assertions(4);
+    try {
+      // @ts-expect-error testing invalid input
+      await BleClient.getConnectedDevices('');
+    } catch (e) {
+      // @ts-ignore
+      expect(e.message).toContain('services must be an array');
+    }
+    try {
+      await BleClient.getConnectedDevices(['']);
+    } catch (e) {
+      // @ts-ignore
+      expect(e.message).toContain('Invalid UUID format');
+    }
+    await BleClient.getConnectedDevices([service]);
+    expect(BluetoothLe.getConnectedDevices).toHaveBeenCalledTimes(1);
+    expect(BluetoothLe.getConnectedDevices).toHaveBeenCalledWith({ services: [service] });
   });
 
   it('should run requestLEScan', async () => {
