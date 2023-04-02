@@ -1,7 +1,6 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
 import android.bluetooth.BluetoothDevice
-import java.util.*
 
 class DeviceList {
     private val devices: ArrayList<BluetoothDevice> = ArrayList()
