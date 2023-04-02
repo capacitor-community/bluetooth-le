@@ -221,6 +221,10 @@ class Device(
         return currentMtu
     }
 
+    fun requestConnectionPriority(connectionPriority: Int): Boolean {
+        return bluetoothGatt?.requestConnectionPriority(connectionPriority) ?: false
+    }
+
     fun createBond(callback: (CallbackResponse) -> Unit) {
         val key = "createBond"
         callbackMap[key] = callback

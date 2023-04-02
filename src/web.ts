@@ -24,6 +24,7 @@ import type {
   WriteOptions,
   WriteDescriptorOptions,
   GetMtuResult,
+  RequestConnectionPriorityOptions,
 } from './definitions';
 import { runWithTimeout } from './timeout';
 
@@ -273,6 +274,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
 
   async getMtu(_options: DeviceIdOptions): Promise<GetMtuResult> {
     throw this.unavailable('getMtu is not available on web.');
+  }
+
+  async requestConnectionPriority(_options: RequestConnectionPriorityOptions): Promise<void> {
+    throw this.unavailable('requestConnectionPriority is not available on web.');
   }
 
   async readRssi(_options: DeviceIdOptions): Promise<ReadRssiResult> {

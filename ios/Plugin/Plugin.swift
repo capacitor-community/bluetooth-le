@@ -310,6 +310,10 @@ public class BluetoothLe: CAPPlugin {
             "value": device.getMtu()
         ])
     }
+    
+    @objc func requestConnectionPriority(_ call: CAPPluginCall) {
+        call.unavailable("requestConnectionPriority is not available on iOS.")
+    }
 
     @objc func readRssi(_ call: CAPPluginCall) {
         guard self.getDeviceManager(call) != nil else { return }
