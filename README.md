@@ -339,6 +339,7 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`disconnect(...)`](#disconnect)                               |   ✅    | ✅  | ✅  |
 | [`getServices(...)`](#getservices)                             |   ✅    | ✅  | ✅  |
 | [`discoverServices(...)`](#discoverservices)                   |   ✅    | ✅  | ❌  |
+| [`getMtu(...)`](#getmtu)                                       |   ✅    | ✅  | ❌  |
 | [`readRssi(...)`](#readrssi)                                   |   ✅    | ✅  | ❌  |
 | [`read(...)`](#read)                                           |   ✅    | ✅  | ✅  |
 | [`write(...)`](#write)                                         |   ✅    | ✅  | ✅  |
