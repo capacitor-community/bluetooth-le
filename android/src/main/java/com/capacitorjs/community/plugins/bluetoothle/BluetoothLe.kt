@@ -554,10 +554,7 @@ class BluetoothLe : Plugin() {
     fun requestConnectionPriority(call: PluginCall) {
         val device = getDevice(call) ?: return
         val connectionPriority = call.getInt("connectionPriority", -1) as Int
-        if (
-            connectionPriority < BluetoothGatt.CONNECTION_PRIORITY_BALANCED
-            || connectionPriority > BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER
-        ) {
+        if (connectionPriority < BluetoothGatt.CONNECTION_PRIORITY_BALANCED || connectionPriority > BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER) {
             call.reject("Invalid connectionPriority.")
             return
         }
@@ -569,7 +566,6 @@ class BluetoothLe : Plugin() {
             call.reject("requestConnectionPriority failed.")
         }
     }
-
 
     @PluginMethod
     fun readRssi(call: PluginCall) {

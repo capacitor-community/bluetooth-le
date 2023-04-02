@@ -10,7 +10,6 @@ import android.os.Handler
 import android.os.Looper
 import com.getcapacitor.Logger
 import java.util.*
-import kotlin.collections.HashMap
 
 class CallbackResponse(
     val success: Boolean,

@@ -109,7 +109,7 @@ class Device: NSObject, CBPeripheralDelegate {
     }
 
     func getMtu() -> Int {
-        // maximumWriteValueLength is 3 bytes less than ATT MTU because of
+        // maximumWriteValueLength is 3 bytes less than ATT MTU
         return self.peripheral.maximumWriteValueLength(for: .withoutResponse) + 3
     }
 
