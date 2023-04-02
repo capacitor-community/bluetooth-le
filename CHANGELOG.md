@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v2.1.0...v2.2.0) (2023-04-02)
+
+
+### Features
+
+* **android, ios:** add getMtu ([6740561](https://github.com/capacitor-community/bluetooth-le/commit/6740561868eb14ae0a32ad15fbd2dbab0465051e))
+* **android:** add requestConnectionPriority ([9e4a08e](https://github.com/capacitor-community/bluetooth-le/commit/9e4a08e80edc81c819c2b4c6b02a5594622aee80))
+
+
+### Bug Fixes
+
+* **android:** fix requestDevice and requestLEScan when BLE adaptor is off in some Android devices ([d1739f5](https://github.com/capacitor-community/bluetooth-le/commit/d1739f5b26f422530fbad71f575c6312783fa30e))
+* validate services argument in getConnectedDevices function ([98f663d](https://github.com/capacitor-community/bluetooth-le/commit/98f663d702d92ba7c3625d96acb5a38289a15fb3))
+
 ## [2.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v2.0.1...v2.1.0) (2023-01-02)
 
 
