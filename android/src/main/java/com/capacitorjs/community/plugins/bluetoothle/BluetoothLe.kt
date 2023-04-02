@@ -21,7 +21,6 @@ import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
 import com.getcapacitor.annotation.PermissionCallback
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @CapacitorPlugin(
@@ -550,6 +549,27 @@ class BluetoothLe : Plugin() {
         ret.put("value", mtu)
         call.resolve(ret)
     }
+
+    @PluginMethod
+    fun requestConnectionPriority(call: PluginCall) {
+        val device = getDevice(call) ?: return
+        val connectionPriority = call.getInt("connectionPriority", -1) as Int
+        if (
+            connectionPriority < BluetoothGatt.CONNECTION_PRIORITY_BALANCED
+            || connectionPriority > BluetoothGatt.CONNECTION_PRIORITY_LOW_POWER
+        ) {
+            call.reject("Invalid connectionPriority.")
+            return
+        }
+
+        val result = device.requestConnectionPriority(connectionPriority)
+        if (result) {
+            call.resolve()
+        } else {
+            call.reject("requestConnectionPriority failed.")
+        }
+    }
+
 
     @PluginMethod
     fun readRssi(call: PluginCall) {

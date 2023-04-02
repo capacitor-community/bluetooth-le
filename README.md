@@ -71,6 +71,7 @@ Below is an index of all the methods available.
 - [`getServices(...)`](#getservices)
 - [`discoverServices(...)`](#discoverservices)
 - [`getMtu(...)`](#getmtu)
+- [`requestConnectionPriority(...)`](#requestconnectionpriority)
 - [`readRssi(...)`](#readrssi)
 - [`read(...)`](#read)
 - [`write(...)`](#write)
@@ -340,6 +341,7 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`getServices(...)`](#getservices)                             |   ✅    | ✅  | ✅  |
 | [`discoverServices(...)`](#discoverservices)                   |   ✅    | ✅  | ❌  |
 | [`getMtu(...)`](#getmtu)                                       |   ✅    | ✅  | ❌  |
+| [`requestConnectionPriority(...)`](#requestconnectionpriority) |   ✅    | ❌  | ❌  |
 | [`readRssi(...)`](#readrssi)                                   |   ✅    | ✅  | ❌  |
 | [`read(...)`](#read)                                           |   ✅    | ✅  | ✅  |
 | [`write(...)`](#write)                                         |   ✅    | ✅  | ✅  |
@@ -694,6 +696,22 @@ Not available on **web**.
 
 ---
 
+### requestConnectionPriority(...)
+
+```typescript
+requestConnectionPriority(deviceId: string, connectionPriority: ConnectionPriority) => Promise<void>
+```
+
+Request a connection parameter update.
+Only available on **Android**. https://developer.android.com/reference/android/bluetooth/BluetoothGatt#requestConnectionPriority(int)
+
+| Param                    | Type                                                              | Description                                                                                                    |
+| ------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**           | <code>string</code>                                               | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`connectionPriority`** | <code><a href="#connectionpriority">ConnectionPriority</a></code> | Request a specific connection priority. See [ConnectionPriority](#connectionpriority)                          |
+
+---
+
 ### readRssi(...)
 
 ```typescript
@@ -985,6 +1003,14 @@ buffer as needed.
 | **`SCAN_MODE_LOW_POWER`**   | <code>0</code> | Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER                                                        |
 | **`SCAN_MODE_BALANCED`**    | <code>1</code> | Perform Bluetooth LE scan in balanced power mode. (default) Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_BALANCED |
 | **`SCAN_MODE_LOW_LATENCY`** | <code>2</code> | Scan using highest duty cycle. It's recommended to only use this mode when the application is running in the foreground. https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY                                                  |
+
+#### ConnectionPriority
+
+| Members                             | Value          | Description                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`CONNECTION_PRIORITY_BALANCED`**  | <code>0</code> | Use the connection parameters recommended by the Bluetooth SIG. This is the default value if no connection parameter update is requested. https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_BALANCED                                                                                                                                                                     |
+| **`CONNECTION_PRIORITY_HIGH`**      | <code>1</code> | Request a high priority, low latency connection. An application should only request high priority connection parameters to transfer large amounts of data over LE quickly. Once the transfer is complete, the application should request CONNECTION_PRIORITY_BALANCED connection parameters to reduce energy use. https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_HIGH |
+| **`CONNECTION_PRIORITY_LOW_POWER`** | <code>2</code> | Request low power, reduced data rate connection parameters. https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER                                                                                                                                                                                                                                                  |
 
 </docgen-api>
 

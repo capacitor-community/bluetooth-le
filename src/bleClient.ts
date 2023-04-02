@@ -6,6 +6,7 @@ import { dataViewToHexString, hexStringToDataView } from './conversion';
 import type {
   BleDevice,
   BleService,
+  ConnectionPriority,
   Data,
   InitializeOptions,
   ReadResult,
@@ -177,6 +178,14 @@ export interface BleClientInterface {
    * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
    */
   getMtu(deviceId: string): Promise<number>;
+
+  /**
+   * Request a connection parameter update.
+   * Only available on **Android**. https://developer.android.com/reference/android/bluetooth/BluetoothGatt#requestConnectionPriority(int)
+   * @param deviceId The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param connectionPriority Request a specific connection priority. See [ConnectionPriority](#connectionpriority)
+   */
+  requestConnectionPriority(deviceId: string, connectionPriority: ConnectionPriority): Promise<void>;
 
   /**
    * Read the RSSI value of a connected device.
@@ -495,6 +504,12 @@ class BleClientClass implements BleClientInterface {
       return result.value;
     });
     return value;
+  }
+
+  async requestConnectionPriority(deviceId: string, connectionPriority: ConnectionPriority): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.requestConnectionPriority({ deviceId, connectionPriority });
+    });
   }
 
   async readRssi(deviceId: string): Promise<number> {

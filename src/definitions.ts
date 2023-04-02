@@ -69,6 +69,27 @@ export enum ScanMode {
   SCAN_MODE_LOW_LATENCY = 2,
 }
 
+/**
+ * Android connection priority used in `requestConnectionPriority`
+ */
+export enum ConnectionPriority {
+  /**
+   * Use the connection parameters recommended by the Bluetooth SIG. This is the default value if no connection parameter update is requested.
+   * https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_BALANCED
+   */
+  CONNECTION_PRIORITY_BALANCED = 0,
+  /**
+   * Request a high priority, low latency connection. An application should only request high priority connection parameters to transfer large amounts of data over LE quickly. Once the transfer is complete, the application should request CONNECTION_PRIORITY_BALANCED connection parameters to reduce energy use.
+   * https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_HIGH
+   */
+  CONNECTION_PRIORITY_HIGH = 1,
+  /**
+   * Request low power, reduced data rate connection parameters.
+   * https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER
+   */
+  CONNECTION_PRIORITY_LOW_POWER = 2,
+}
+
 export interface BleDevice {
   /**
    * ID of the device, which will be needed for further calls.
@@ -92,6 +113,10 @@ export interface TimeoutOptions {
    * Default is 10000 for `connect` and 5000 for other plugin methods.
    */
   timeout?: number;
+}
+
+export interface RequestConnectionPriorityOptions extends DeviceIdOptions {
+  connectionPriority: ConnectionPriority;
 }
 
 export interface GetDevicesOptions {
@@ -273,6 +298,7 @@ export interface BluetoothLePlugin {
   getServices(options: DeviceIdOptions): Promise<BleServices>;
   discoverServices(options: DeviceIdOptions): Promise<void>;
   getMtu(options: DeviceIdOptions): Promise<GetMtuResult>;
+  requestConnectionPriority(options: RequestConnectionPriorityOptions): Promise<void>;
   readRssi(options: DeviceIdOptions): Promise<ReadRssiResult>;
   read(options: ReadOptions & TimeoutOptions): Promise<ReadResult>;
   write(options: WriteOptions & TimeoutOptions): Promise<void>;
