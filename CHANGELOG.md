@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.0...v2.2.1) (2023-04-08)
+
+
+### Bug Fixes
+
+* **ios:** fix conversion of descriptor value ([1881b9d](https://github.com/capacitor-community/bluetooth-le/commit/1881b9defae9e15026562c005fb936d3eca9d427))
+* **ios:** fix getDevices and getConnectedDevices to not stop existing notifications ([565ce8c](https://github.com/capacitor-community/bluetooth-le/commit/565ce8cd050afcd5c41ab29a6f71043401ae4408))
+* **web:** filter getDevices result according to deviceIds parameter ([652f33f](https://github.com/capacitor-community/bluetooth-le/commit/652f33f00a8adeb4099ee0f9dd163dc913072af4))
+
 ## [2.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v2.1.0...v2.2.0) (2023-04-02)
 
 
