@@ -557,9 +557,9 @@ Uses [retrievePeripherals](https://developer.apple.com/documentation/corebluetoo
 [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
 On Android, you can directly connect to the device with the deviceId.
 
-| Param           | Type                  | Description                                                                 |
-| --------------- | --------------------- | --------------------------------------------------------------------------- |
-| **`deviceIds`** | <code>string[]</code> | List of device IDs, e.g. saved from a previous app run. No used on **web**. |
+| Param           | Type                  | Description                                             |
+| --------------- | --------------------- | ------------------------------------------------------- |
+| **`deviceIds`** | <code>string[]</code> | List of device IDs, e.g. saved from a previous app run. |
 
 **Returns:** <code>Promise&lt;BleDevice[]&gt;</code>
 
