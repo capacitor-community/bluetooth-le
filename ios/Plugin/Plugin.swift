@@ -175,9 +175,14 @@ public class BluetoothLe: CAPPlugin {
         let deviceUUIDs: [UUID] = deviceIds.compactMap({ deviceId in
             return UUID(uuidString: deviceId)
         })
-        let devices: [Device] = deviceManager.getDevices(deviceUUIDs)
-        let bleDevices: [BleDevice] = devices.map({device in
-            self.deviceMap[device.getId()] = device
+        let peripherals = deviceManager.getDevices(deviceUUIDs)
+        let bleDevices: [BleDevice] = peripherals.map({peripheral in
+            let deviceId = peripheral.identifier.uuidString
+            guard let device = self.deviceMap[deviceId] else {
+                let newDevice = Device(peripheral)
+                self.deviceMap[newDevice.getId()] = newDevice
+                return self.getBleDevice(newDevice)
+            }
             return self.getBleDevice(device)
         })
         call.resolve(["devices": bleDevices])
@@ -192,9 +197,14 @@ public class BluetoothLe: CAPPlugin {
         let serviceUUIDs: [CBUUID] = services.compactMap({ service in
             return CBUUID(string: service)
         })
-        let devices: [Device] = deviceManager.getConnectedDevices(serviceUUIDs)
-        let bleDevices: [BleDevice] = devices.map({device in
-            self.deviceMap[device.getId()] = device
+        let peripherals = deviceManager.getConnectedDevices(serviceUUIDs)
+        let bleDevices: [BleDevice] = peripherals.map({peripheral in
+            let deviceId = peripheral.identifier.uuidString
+            guard let device = self.deviceMap[deviceId] else {
+                let newDevice = Device(peripheral)
+                self.deviceMap[newDevice.getId()] = newDevice
+                return self.getBleDevice(newDevice)
+            }
             return self.getBleDevice(device)
         })
         call.resolve(["devices": bleDevices])
