@@ -2,14 +2,15 @@ import Foundation
 import CoreBluetooth
 
 func descriptorValueToString(_ value: Any) -> String {
+    // https://developer.apple.com/documentation/corebluetooth/cbdescriptor
     if let str = value as? String {
-        return str
+        return dataToString(Data(str.utf8))
     }
     if let data = value as? Data {
         return dataToString(data)
     }
-    if let uuid = value as? CBUUID {
-        return uuid.uuidString
+    if let num = value as? UInt16 {
+        return dataToString(Data([UInt8(truncatingIfNeeded: num), UInt8(truncatingIfNeeded: num >> 8)]))
     }
     return ""
 }

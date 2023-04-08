@@ -43,4 +43,13 @@ class ConversionTests: XCTestCase {
         XCTAssertEqual("\(str!)", "180D")
     }
 
+    func testDescriptorValueToString() throws {
+        XCTAssertEqual(descriptorValueToString("Hello"), "48 65 6c 6c 6f ")
+        XCTAssertEqual(descriptorValueToString(Data([0, 5, 255])), "00 05 ff ")
+        XCTAssertEqual(descriptorValueToString(UInt16(258)), "02 01 ")
+        XCTAssertEqual(descriptorValueToString(UInt16(1)), "01 00 ")
+        XCTAssertEqual(descriptorValueToString(NSNumber(1)), "01 00 ")
+        XCTAssertEqual(descriptorValueToString(0), "")
+    }
+
 }
