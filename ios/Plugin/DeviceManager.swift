@@ -186,22 +186,14 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
     func getDevices(
         _ deviceUUIDs: [UUID]
-    ) -> [Device] {
-        let peripherals = self.centralManager.retrievePeripherals(withIdentifiers: deviceUUIDs)
-        let devices = peripherals.map({peripheral in
-            return Device(peripheral)
-        })
-        return devices
+    ) -> [CBPeripheral] {
+        return self.centralManager.retrievePeripherals(withIdentifiers: deviceUUIDs)
     }
 
     func getConnectedDevices(
         _ serviceUUIDs: [CBUUID]
-    ) -> [Device] {
-        let peripherals = self.centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
-        let devices = peripherals.map({peripheral in
-            return Device(peripheral)
-        })
-        return devices
+    ) -> [CBPeripheral] {
+        return self.centralManager.retrieveConnectedPeripherals(withServices: serviceUUIDs)
     }
 
     func connect(
