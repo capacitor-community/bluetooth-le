@@ -116,7 +116,7 @@ export interface BleClientInterface {
    * Uses [retrievePeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1519127-retrieveperipherals) on iOS and
    * [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
    * On Android, you can directly connect to the device with the deviceId.
-   * @param deviceIds List of device IDs, e.g. saved from a previous app run. No used on **web**.
+   * @param deviceIds List of device IDs, e.g. saved from a previous app run.
    */
   getDevices(deviceIds: string[]): Promise<BleDevice[]>;
 
