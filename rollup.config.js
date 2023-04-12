@@ -7,7 +7,6 @@ export default {
       name: 'capacitorCommunityBluetoothLe',
       globals: {
         '@capacitor/core': 'capacitorExports',
-        throat: 'throat',
       },
       sourcemap: true,
       inlineDynamicImports: true,
@@ -19,5 +18,5 @@ export default {
       inlineDynamicImports: true,
     },
   ],
-  external: ['@capacitor/core', 'throat'],
+  external: ['@capacitor/core'],
 };
