@@ -33,7 +33,8 @@
     "author": "pwespi",
     "license": "MIT",
     "dependencies": {
-        "@types/web-bluetooth": "^0.0.16"
+        "@types/web-bluetooth": "^0.0.16",
+        "throat": "^6.0.2"
     },
     "devDependencies": {
         "@capacitor/android": "^4.6.1",
