@@ -25,7 +25,7 @@ describe('queue', () => {
 
   it('should run jobs in sequence with queue', async () => {
     const queue = getQueue(true);
-    await Promise.all([queue(() => job('a')), queue(() => job('b'))]);
-    expect(sequenceOfEvents).toEqual(['a started', 'a done', 'b started', 'b done']);
+    await Promise.all([queue(() => job('a')), queue(() => job('b')), queue(() => job('c'))]);
+    expect(sequenceOfEvents).toEqual(['a started', 'a done', 'b started', 'b done', 'c started', 'c done']);
   });
 });
