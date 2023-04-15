@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.2](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.1...v2.2.2) (2023-04-15)
+
+
+### Bug Fixes
+
+* **deps:** remove throat dependency ([#521](https://github.com/capacitor-community/bluetooth-le/issues/521)) ([565dc59](https://github.com/capacitor-community/bluetooth-le/commit/565dc59c5d64bdbca1cd22caf6bc0500179904db))
+
 ### [2.2.1](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.0...v2.2.1) (2023-04-08)
 
 
