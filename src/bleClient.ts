@@ -424,6 +424,9 @@ class BleClientClass implements BleClientInterface {
   }
 
   async getDevices(deviceIds: string[]): Promise<BleDevice[]> {
+    if (!Array.isArray(deviceIds)) {
+      throw new Error('deviceIds must be an array');
+    }
     return this.queue(async () => {
       const result = await BluetoothLe.getDevices({ deviceIds });
       return result.devices;
