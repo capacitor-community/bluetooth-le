@@ -314,15 +314,6 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  /**
-   * Reports whether BLE is enabled on this device.
-   * Always returns `true` on **web**.
-   * @deprecated Use `isEnabled` instead.
-   */
-  async getEnabled(): Promise<boolean> {
-    return this.isEnabled();
-  }
-
   async isEnabled(): Promise<boolean> {
     const enabled = await this.queue(async () => {
       const result = await BluetoothLe.isEnabled();
