@@ -373,7 +373,7 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun getDevices(call: PluginCall) {
         assertBluetoothAdapter(call) ?: return
-        val deviceIds = call.getArray("deviceIds").toList<String>()
+        val deviceIds = (call.getArray("deviceIds", JSArray()) as JSArray).toList<String>()
         val bleDevices = JSArray()
         deviceIds.forEach { deviceId ->
             val bleDevice = JSObject()
