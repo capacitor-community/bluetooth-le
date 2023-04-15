@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.3](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.2...v2.2.3) (2023-04-15)
+
+
+### Bug Fixes
+
+* **android:** fix disconnecting when connect was called multiple times ([#523](https://github.com/capacitor-community/bluetooth-le/issues/523)) ([3a8595b](https://github.com/capacitor-community/bluetooth-le/commit/3a8595b7f10fc8a3866d5c7915f902c85015552d))
+
 ### [2.2.2](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.1...v2.2.2) (2023-04-15)
 
 
