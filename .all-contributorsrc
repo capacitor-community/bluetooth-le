@@ -79,6 +79,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "aadito123",
+      "name": "Aadit Olkar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63646058?v=4",
+      "profile": "https://github.com/aadito123",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
