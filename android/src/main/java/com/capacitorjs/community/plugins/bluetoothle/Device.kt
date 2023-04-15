@@ -187,6 +187,12 @@ class Device(
     ) {
         val key = "connect"
         callbackMap[key] = callback
+        if (isConnected()) {
+            resolve(key, "Already connected.")
+            return
+        }
+        bluetoothGatt?.close()
+        connectionState = STATE_CONNECTING
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             bluetoothGatt = device.connectGatt(
                 context, false, gattCallback, BluetoothDevice.TRANSPORT_LE
@@ -196,7 +202,6 @@ class Device(
                 context, false, gattCallback
             )
         }
-        connectionState = STATE_CONNECTING
         setConnectionTimeout(key, "Connection timeout.", bluetoothGatt, timeout)
     }
 
@@ -205,7 +210,7 @@ class Device(
     }
 
     fun isConnected(): Boolean {
-        return connectionState == STATE_CONNECTED
+        return bluetoothGatt != null && connectionState == STATE_CONNECTED
     }
 
     private fun requestMtu(mtu: Int) {
@@ -541,6 +546,7 @@ class Device(
         val handler = Handler(Looper.getMainLooper())
         timeoutMap[key] = handler
         handler.postDelayed({
+            connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
             reject(key, message)
