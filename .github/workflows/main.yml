@@ -18,30 +18,34 @@ jobs:
   lint:
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 18.x
       - run: npm ci
       - run: npm run lint
 
   verify-web:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 18.x
       - run: npm ci
       - run: npm run verify:web
 
   verify-android:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 18.x
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
       - run: npm ci
       - run: npm run verify:android
 
@@ -49,10 +53,10 @@ jobs:
     runs-on: macos-12
     steps:
     # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-12-Readme.md#xcode
-      - run: sudo xcode-select --switch /Applications/Xcode_13.3.1.app
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - run: sudo xcode-select --switch /Applications/Xcode_14.2.app
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 18.x
       - run: npm ci
       - run: npm run verify:ios
