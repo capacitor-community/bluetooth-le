@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v3.0.0-1...v3.0.0) (2023-05-07)
+
+
+### Features
+
+* update plugin to Capacitor 5 final ([210f9aa](https://github.com/capacitor-community/bluetooth-le/commit/210f9aab7450dfadbf660f67f410bad945f1a314))
+
+
+### Bug Fixes
+
+* **android:** bump sourceCompatibility and targetCompatibility from java 11 to 17 ([#533](https://github.com/capacitor-community/bluetooth-le/issues/533)) ([228c231](https://github.com/capacitor-community/bluetooth-le/commit/228c2318526c004c5d5cf83190aff49aa156b2b9))
+
 ## [3.0.0-1](https://github.com/capacitor-community/bluetooth-le/compare/v3.0.0-0...v3.0.0-1) (2023-04-15)
 
 ## [3.0.0-0](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.3...v3.0.0-0) (2023-04-15)
