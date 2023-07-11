@@ -122,6 +122,8 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 
 ```
 
+**Note**: Bluetooth is **not** available in the iOS simulator. The `initialize` call will be rejected with an error "BLE unsupported". You have to test your app on a real device.
+
 ### Android
 
 On Android, no further steps are required to use the plugin (if you are using Capacitor 2, see [here](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md#android)).
@@ -528,7 +530,7 @@ requestLEScan(options: RequestBleDeviceOptions, callback: (result: ScanResult) =
 
 Start scanning for BLE devices to interact with according to the filters in the options. The callback will be invoked on each device that is found.
 Scanning will continue until `stopLEScan` is called. For an example, see [usage](#usage).
-**NOTE**: Use with care on **web** platform, the required API is still behind a flag in most browsers.
+**Note**: Use with care on **web** platform, the required API is still behind a flag in most browsers.
 
 | Param          | Type                                                                        |
 | -------------- | --------------------------------------------------------------------------- |
