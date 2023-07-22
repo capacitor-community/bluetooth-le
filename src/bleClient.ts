@@ -36,12 +36,14 @@ export interface BleClientInterface {
   /**
    * Enable Bluetooth.
    * Only available on **Android**.
+   * @deprecated See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
    */
   enable(): Promise<void>;
 
   /**
    * Disable Bluetooth.
    * Only available on **Android**.
+   * @deprecated See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
    */
   disable(): Promise<void>;
 
@@ -100,7 +102,7 @@ export interface BleClientInterface {
   /**
    * Start scanning for BLE devices to interact with according to the filters in the options. The callback will be invoked on each device that is found.
    * Scanning will continue until `stopLEScan` is called. For an example, see [usage](#usage).
-   * **NOTE**: Use with care on **web** platform, the required API is still behind a flag in most browsers.
+   * **Note**: Use with care on **web** platform, the required API is still behind a flag in most browsers.
    * @param options
    * @param callback
    */
