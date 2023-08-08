@@ -1,5 +1,6 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,11 +11,31 @@ import android.os.Handler
 import android.os.Looper
 import com.getcapacitor.Logger
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicReference
 
 class CallbackResponse(
     val success: Boolean,
     val value: String,
 )
+
+class WriteTimeout(
+    val key: String,
+    val handler: Handler
+)
+
+fun <T> ConcurrentLinkedQueue<T>.popFirstMatch(predicate: (T) -> Boolean): T? {
+    val removed = AtomicReference<T>()
+    this.removeIf { item ->
+        if (removed.get() == null && predicate(item)) {
+            removed.set(item)
+            true
+        } else {
+            false
+        }
+    }
+    return removed.get()
+}
 
 class Device(
     private val context: Context,
@@ -35,7 +56,7 @@ class Device(
     private var device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
     private var bluetoothGatt: BluetoothGatt? = null
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
-    private var timeoutMap = HashMap<String, Handler>()
+    private val timeoutQueue = ConcurrentLinkedQueue<WriteTimeout>()
     private var bondStateReceiver: BroadcastReceiver? = null
     private var currentMtu = -1
 
@@ -120,7 +141,7 @@ class Device(
             super.onCharacteristicWrite(gatt, characteristic, status)
             val key = "write|${characteristic.service.uuid}|${characteristic.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                resolve(key, "Characteristic successfully written.")
+                resolve(key, "Characteristic successfully written.")// ${characteristic.value.toHex()}")
             } else {
                 reject(key, "Writing characteristic failed.")
             }
@@ -395,7 +416,7 @@ class Device(
             reject(key, "Writing characteristic failed.")
             return
         }
-        setTimeout(key, "Write timeout.", timeout)
+        setTimeout(key, "Write timeout. for $value", timeout)
     }
 
     fun setNotifications(
@@ -510,20 +531,19 @@ class Device(
     private fun resolve(key: String, value: String) {
         if (callbackMap.containsKey(key)) {
             Logger.debug(TAG, "resolve: $key $value")
+
+            timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
             callbackMap[key]?.invoke(CallbackResponse(true, value))
             callbackMap.remove(key)
-            timeoutMap[key]?.removeCallbacksAndMessages(null)
-            timeoutMap.remove(key)
         }
     }
 
     private fun reject(key: String, value: String) {
         if (callbackMap.containsKey(key)) {
             Logger.debug(TAG, "reject: $key $value")
+            timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
             callbackMap[key]?.invoke(CallbackResponse(false, value))
             callbackMap.remove(key)
-            timeoutMap[key]?.removeCallbacksAndMessages(null)
-            timeoutMap.remove(key)
         }
     }
 
@@ -531,7 +551,7 @@ class Device(
         key: String, message: String, timeout: Long
     ) {
         val handler = Handler(Looper.getMainLooper())
-        timeoutMap[key] = handler
+        timeoutQueue.add(WriteTimeout(key, handler))
         handler.postDelayed({
             reject(key, message)
         }, timeout)
@@ -544,7 +564,7 @@ class Device(
         timeout: Long,
     ) {
         val handler = Handler(Looper.getMainLooper())
-        timeoutMap[key] = handler
+        timeoutQueue.add(WriteTimeout(key, handler))
         handler.postDelayed({
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
