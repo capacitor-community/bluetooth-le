@@ -1,6 +1,5 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
-import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -19,7 +18,7 @@ class CallbackResponse(
     val value: String,
 )
 
-class WriteTimeout(
+class TimeoutHandler(
     val key: String,
     val handler: Handler
 )
@@ -56,7 +55,7 @@ class Device(
     private var device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
     private var bluetoothGatt: BluetoothGatt? = null
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
-    private val timeoutQueue = ConcurrentLinkedQueue<WriteTimeout>()
+    private val timeoutQueue = ConcurrentLinkedQueue<TimeoutHandler>()
     private var bondStateReceiver: BroadcastReceiver? = null
     private var currentMtu = -1
 
@@ -141,7 +140,7 @@ class Device(
             super.onCharacteristicWrite(gatt, characteristic, status)
             val key = "write|${characteristic.service.uuid}|${characteristic.uuid}"
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                resolve(key, "Characteristic successfully written.")// ${characteristic.value.toHex()}")
+                resolve(key, "Characteristic successfully written.")
             } else {
                 reject(key, "Writing characteristic failed.")
             }
@@ -416,7 +415,7 @@ class Device(
             reject(key, "Writing characteristic failed.")
             return
         }
-        setTimeout(key, "Write timeout. for $value", timeout)
+        setTimeout(key, "Write timeout.", timeout)
     }
 
     fun setNotifications(
@@ -551,7 +550,7 @@ class Device(
         key: String, message: String, timeout: Long
     ) {
         val handler = Handler(Looper.getMainLooper())
-        timeoutQueue.add(WriteTimeout(key, handler))
+        timeoutQueue.add(TimeoutHandler(key, handler))
         handler.postDelayed({
             reject(key, message)
         }, timeout)
@@ -564,7 +563,7 @@ class Device(
         timeout: Long,
     ) {
         val handler = Handler(Looper.getMainLooper())
-        timeoutQueue.add(WriteTimeout(key, handler))
+        timeoutQueue.add(TimeoutHandler(key, handler))
         handler.postDelayed({
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
