@@ -403,6 +403,7 @@ enable() => Promise<void>
 
 Enable Bluetooth.
 Only available on **Android**.
+_deprecated_ See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
 
 ---
 
@@ -414,6 +415,7 @@ disable() => Promise<void>
 
 Disable Bluetooth.
 Only available on **Android**.
+_deprecated_ See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
 
 ---
 

@@ -36,6 +36,7 @@ export interface BleClientInterface {
   /**
    * Enable Bluetooth.
    * Only available on **Android**.
+   * *deprecated* See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
    * @deprecated See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
    */
   enable(): Promise<void>;
@@ -43,6 +44,7 @@ export interface BleClientInterface {
   /**
    * Disable Bluetooth.
    * Only available on **Android**.
+   * *deprecated* See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
    * @deprecated See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
    */
   disable(): Promise<void>;
