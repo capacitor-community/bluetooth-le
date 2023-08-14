@@ -1,6 +1,13 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,9 +16,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.getcapacitor.Logger
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicReference
 
 class CallbackResponse(
     val success: Boolean,
@@ -531,7 +537,6 @@ class Device(
     private fun resolve(key: String, value: String) {
         if (callbackMap.containsKey(key)) {
             Logger.debug(TAG, "resolve: $key $value")
-
             timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
             callbackMap[key]?.invoke(CallbackResponse(true, value))
             callbackMap.remove(key)
