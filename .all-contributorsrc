@@ -97,6 +97,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Andy3189",
+      "name": "Andy3189",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2084016?v=4",
+      "profile": "https://github.com/Andy3189",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
@@ -105,5 +114,6 @@
   "projectOwner": "capacitor-community",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitType": "docs"
 }
