@@ -24,16 +24,17 @@ class TimeoutHandler(
 )
 
 fun <T> ConcurrentLinkedQueue<T>.popFirstMatch(predicate: (T) -> Boolean): T? {
-    val removed = AtomicReference<T>()
-    this.removeIf { item ->
-        if (removed.get() == null && predicate(item)) {
-            removed.set(item)
-            true
-        } else {
-            false
+    synchronized(this) {
+        val iterator = this.iterator()
+        while (iterator.hasNext()) {
+            val nextItem = iterator.next()
+            if (predicate(nextItem)) {
+                iterator.remove()
+                return nextItem
+            }
         }
+        return null
     }
-    return removed.get()
 }
 
 class Device(
