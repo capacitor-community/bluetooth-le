@@ -135,10 +135,12 @@ Initialize requests the location permission but when it is not enabled globally 
 ``` typescript
  async initialize() {
     // Check if location is enabled
-    const isLocationEnabled = await BleClient.isLocationEnabled();
-    if (!isLocationEnabled) {
-      await BleClient.openLocationSettings();
-    }    
+    if (this.platform.is('android')) {
+      const isLocationEnabled = await BleClient.isLocationEnabled();
+      if (!isLocationEnabled) {
+        await BleClient.openLocationSettings();
+      }
+    }
     await BleClient.initialize({androidNeverForLocation: true});
   }
 ```
