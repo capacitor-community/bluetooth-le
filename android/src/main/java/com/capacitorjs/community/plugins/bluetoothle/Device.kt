@@ -415,9 +415,16 @@ class Device(
             return
         }
         val bytes = stringToBytes(value)
-        characteristic.value = bytes
-        characteristic.writeType = writeType
-        val result = bluetoothGatt?.writeCharacteristic(characteristic)
+
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val statusCode = bluetoothGatt?.writeCharacteristic(characteristic, bytes, writeType)
+            statusCode == 0
+        } else {
+            characteristic.value = bytes
+            characteristic.writeType = writeType
+            bluetoothGatt?.writeCharacteristic(characteristic)
+        }
+        
         if (result != true) {
             reject(key, "Writing characteristic failed.")
             return
