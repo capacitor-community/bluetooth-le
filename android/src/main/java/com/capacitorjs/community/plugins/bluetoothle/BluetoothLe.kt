@@ -1,6 +1,7 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -36,6 +37,7 @@ import com.getcapacitor.annotation.PermissionCallback
 import java.util.UUID
 
 
+@SuppressLint("MissingPermission")
 @CapacitorPlugin(
     name = "BluetoothLe",
     permissions = [

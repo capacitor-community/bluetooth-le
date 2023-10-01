@@ -1,5 +1,6 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -27,6 +28,7 @@ class DisplayStrings(
     val noDeviceFound: String,
 )
 
+@SuppressLint("MissingPermission")
 class DeviceScanner(
     private val context: Context,
     bluetoothAdapter: BluetoothAdapter,
