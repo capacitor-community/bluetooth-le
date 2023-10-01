@@ -1,5 +1,6 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -43,6 +44,7 @@ fun <T> ConcurrentLinkedQueue<T>.popFirstMatch(predicate: (T) -> Boolean): T? {
     }
 }
 
+@SuppressLint("MissingPermission")
 class Device(
     private val context: Context,
     bluetoothAdapter: BluetoothAdapter,
