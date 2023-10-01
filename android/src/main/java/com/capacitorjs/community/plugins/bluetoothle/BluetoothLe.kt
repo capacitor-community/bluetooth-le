@@ -98,8 +98,7 @@ class BluetoothLe : Plugin() {
 
     @PluginMethod
     fun initialize(call: PluginCall) {
-        // Build.VERSION_CODES.S = 31
-        if (Build.VERSION.SDK_INT >= 31) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val neverForLocation = call.getBoolean("androidNeverForLocation", false) as Boolean
             aliases = if (neverForLocation) {
                 arrayOf(
