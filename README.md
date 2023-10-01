@@ -128,6 +128,23 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 
 On Android, no further steps are required to use the plugin (if you are using Capacitor 2, see [here](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md#android)).
 
+#### Check if location is enabled globally
+
+Initialize requests the location permission but when it is not enabled globally it will not return any devices and throws no error. Just check if the location is enabled and open the settings when not.
+
+``` typescript
+ async initialize() {
+    // Check if location is enabled
+    if (this.platform.is('android')) {
+      const isLocationEnabled = await BleClient.isLocationEnabled();
+      if (!isLocationEnabled) {
+        await BleClient.openLocationSettings();
+      }
+    }
+    await BleClient.initialize({androidNeverForLocation: true});
+  }
+```
+
 #### (Optional) Android 12 Bluetooth permissions
 
 If your app targets Android 12 (API level 31) or higher and your app doesn't use Bluetooth scan results to derive physical location information, you can strongly assert that your app doesn't derive physical location. This allows the app to scan for Bluetooth devices without asking for location permissions. See the [Android documentation](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#declare-android12-or-higher).
