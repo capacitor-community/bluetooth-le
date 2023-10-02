@@ -439,7 +439,9 @@ class BluetoothLe : Plugin() {
     @PluginMethod
     fun createBond(call: PluginCall) {
         val device = getOrCreateDevice(call) ?: return
-        device.createBond { response ->
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
+
+        device.createBond(timeout) { response ->
             run {
                 if (response.success) {
                     call.resolve()
