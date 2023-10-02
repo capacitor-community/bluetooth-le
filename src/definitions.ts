@@ -292,7 +292,7 @@ export interface BluetoothLePlugin {
   addListener(eventName: string, listenerFunc: (event: ReadResult) => void): PluginListenerHandle;
   addListener(eventName: 'onScanResult', listenerFunc: (result: ScanResultInternal) => void): PluginListenerHandle;
   connect(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
-  createBond(options: DeviceIdOptions): Promise<void>;
+  createBond(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;
   getServices(options: DeviceIdOptions): Promise<BleServices>;

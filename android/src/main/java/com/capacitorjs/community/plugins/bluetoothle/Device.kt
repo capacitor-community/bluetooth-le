@@ -256,7 +256,7 @@ class Device(
         return bluetoothGatt?.requestConnectionPriority(connectionPriority) ?: false
     }
 
-    fun createBond(callback: (CallbackResponse) -> Unit) {
+    fun createBond(timeout: Long, callback: (CallbackResponse) -> Unit) {
         val key = "createBond"
         callbackMap[key] = callback
         try {
@@ -277,6 +277,7 @@ class Device(
             return
         }
         // otherwise, wait for bond state change
+        setTimeout(key, "Bonding timeout.", timeout)
     }
 
     private fun createBondStateReceiver() {

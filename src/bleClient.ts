@@ -145,8 +145,9 @@ export interface BleClientInterface {
    * Create a bond with a peripheral BLE device.
    * Only available on **Android**. On iOS bonding is handled by the OS.
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param options Options for plugin call
    */
-  createBond(deviceId: string): Promise<void>;
+  createBond(deviceId: string, options?: TimeoutOptions): Promise<void>;
 
   /**
    * Report whether a peripheral BLE device is bonded.
@@ -462,9 +463,9 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async createBond(deviceId: string): Promise<void> {
+  async createBond(deviceId: string, options?: TimeoutOptions): Promise<void> {
     await this.queue(async () => {
-      await BluetoothLe.createBond({ deviceId });
+      await BluetoothLe.createBond({ deviceId, ...options });
     });
   }
 
