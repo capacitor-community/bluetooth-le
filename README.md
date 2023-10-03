@@ -283,6 +283,8 @@ function parseHeartRate(value: DataView): number {
 
 ### Scanning API
 
+Here is an example of using the scanning API.
+
 ```typescript
 import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
 
@@ -308,23 +310,6 @@ export async function scan(): Promise<void> {
   } catch (error) {
     console.error(error);
   }
-}
-```
-
-### Check if location is enabled
-
-On Android, the `initialize` call requests the location permission. However, if location services are disable on the OS level, the app will not find any devices. You can check if the location is enabled and open the settings when not.
-
-```typescript
-async function initialize() {
-  // Check if location is enabled
-  if (this.platform.is('android')) {
-    const isLocationEnabled = await BleClient.isLocationEnabled();
-    if (!isLocationEnabled) {
-      await BleClient.openLocationSettings();
-    }
-  }
-  await BleClient.initialize();
 }
 ```
 
@@ -1064,6 +1049,23 @@ const device = await BleClient.requestDevice({
 // ...
 await BleClient.disconnect(device.deviceId);
 await BleClient.connect(device.deviceId);
+```
+
+#### No devices found on Android
+
+On Android, the `initialize` call requests the location permission. However, if location services are disable on the OS level, the app will not find any devices. You can check if the location is enabled and open the settings when not.
+
+```typescript
+async function initialize() {
+  // Check if location is enabled
+  if (this.platform.is('android')) {
+    const isLocationEnabled = await BleClient.isLocationEnabled();
+    if (!isLocationEnabled) {
+      await BleClient.openLocationSettings();
+    }
+  }
+  await BleClient.initialize();
+}
 ```
 
 ## Contributors ✨
