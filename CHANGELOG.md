@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.2](https://github.com/capacitor-community/bluetooth-le/compare/v3.0.1...v3.0.2) (2023-10-03)
+
+
+### Bug Fixes
+
+* **android:** added timeout on Device#createBond ([#573](https://github.com/capacitor-community/bluetooth-le/issues/573)) ([48f664f](https://github.com/capacitor-community/bluetooth-le/commit/48f664fc42e0cbf666abc5b3fb27a0e6fea8fa72))
+* **android:** use new methods from API level 33 ([9798e0f](https://github.com/capacitor-community/bluetooth-le/commit/9798e0f68b5c3c2416ebff36545c6f1d0665b31c))
+* **android:** use new writeCharacteristic method for API Level >= 33 ([#562](https://github.com/capacitor-community/bluetooth-le/issues/562)) ([cb74440](https://github.com/capacitor-community/bluetooth-le/commit/cb74440fd0d9963f9a388f7c876224e9bf520595))
+
 ### [3.0.1](https://github.com/capacitor-community/bluetooth-le/compare/v3.0.0...v3.0.1) (2023-08-14)
 
 
