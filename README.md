@@ -128,23 +128,6 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 
 On Android, no further steps are required to use the plugin (if you are using Capacitor 2, see [here](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md#android)).
 
-#### Check if location is enabled globally
-
-Initialize requests the location permission but when it is not enabled globally it will not return any devices and throws no error. Just check if the location is enabled and open the settings when not.
-
-``` typescript
- async initialize() {
-    // Check if location is enabled
-    if (this.platform.is('android')) {
-      const isLocationEnabled = await BleClient.isLocationEnabled();
-      if (!isLocationEnabled) {
-        await BleClient.openLocationSettings();
-      }
-    }
-    await BleClient.initialize({androidNeverForLocation: true});
-  }
-```
-
 #### (Optional) Android 12 Bluetooth permissions
 
 If your app targets Android 12 (API level 31) or higher and your app doesn't use Bluetooth scan results to derive physical location information, you can strongly assert that your app doesn't derive physical location. This allows the app to scan for Bluetooth devices without asking for location permissions. See the [Android documentation](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions#declare-android12-or-higher).
@@ -224,6 +207,8 @@ import { BleClient } from '@capacitor-community/bluetooth-le';
 import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 ```
 
+### Heart rate monitor
+
 Here is an example of how to use the plugin. It shows how to read the heart rate from a BLE heart rate monitor such as the Polar H10.
 
 ```typescript
@@ -296,7 +281,7 @@ function parseHeartRate(value: DataView): number {
 }
 ```
 
-An example of using the scanning API:
+### Scanning API
 
 ```typescript
 import { BleClient, numberToUUID } from '@capacitor-community/bluetooth-le';
@@ -323,6 +308,23 @@ export async function scan(): Promise<void> {
   } catch (error) {
     console.error(error);
   }
+}
+```
+
+### Check if location is enabled
+
+On Android, the `initialize` call requests the location permission. However, if location services are disable on the OS level, the app will not find any devices. You can check if the location is enabled and open the settings when not.
+
+```typescript
+async function initialize() {
+  // Check if location is enabled
+  if (this.platform.is('android')) {
+    const isLocationEnabled = await BleClient.isLocationEnabled();
+    if (!isLocationEnabled) {
+      await BleClient.openLocationSettings();
+    }
+  }
+  await BleClient.initialize();
 }
 ```
 
@@ -625,15 +627,16 @@ Connect to a peripheral BLE device. For an example, see [usage](#usage).
 ### createBond(...)
 
 ```typescript
-createBond(deviceId: string) => Promise<void>
+createBond(deviceId: string, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Create a bond with a peripheral BLE device.
 Only available on **Android**. On iOS bonding is handled by the OS.
 
-| Param          | Type                | Description                                                                                                    |
-| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`** | <code>string</code> | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| Param          | Type                                                      | Description                                                                                                    |
+| -------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`** | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`options`**  | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                        |
 
 ---
 
