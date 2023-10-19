@@ -76,7 +76,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     }
 
     func startScanning(
-        _ serviceUUIDs: [CBUUID],
+        _ serviceUUIDs: [CBUUID]?,
         _ name: String?,
         _ namePrefix: String?,
         _ allowDuplicates: Bool,

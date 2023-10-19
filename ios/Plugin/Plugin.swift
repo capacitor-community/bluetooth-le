@@ -505,8 +505,11 @@ public class BluetoothLe: CAPPlugin {
         return deviceManager
     }
 
-    private func getServiceUUIDs(_ call: CAPPluginCall) -> [CBUUID] {
+    private func getServiceUUIDs(_ call: CAPPluginCall) -> [CBUUID]? {
         let services = call.getArray("services", String.self) ?? []
+        if (services.count == 0) {
+            return nil
+        }
         let serviceUUIDs = services.map({(service) -> CBUUID in
             return CBUUID(string: service)
         })
