@@ -1,6 +1,6 @@
 {
-  "name": "@capacitor-community/bluetooth-le",
-  "version": "3.0.2",
+  "name": "@maelp/bluetooth-le",
+  "version": "3.0.3",
   "description": "Capacitor plugin for Bluetooth Low Energy ",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -91,13 +91,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/capacitor-community/bluetooth-le"
+    "url": "git+https://github.com/maelp/bluetooth-le.git"
   },
   "bugs": {
-    "url": "https://github.com/capacitor-community/bluetooth-le/issues"
+    "url": "https://github.com/maelp/bluetooth-le/issues"
   },
   "volta": {
     "node": "16.18.0",
     "npm": "8.19.2"
-  }
+  },
+  "homepage": "https://github.com/maelp/bluetooth-le#readme"
 }
