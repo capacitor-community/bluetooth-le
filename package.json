@@ -1,6 +1,6 @@
 {
   "name": "@maelp/bluetooth-le",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Capacitor plugin for Bluetooth Low Energy ",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -68,7 +68,7 @@
     "android/build.gradle",
     "dist/",
     "ios/Plugin/",
-    "CapacitorCommunityBluetoothLe.podspec"
+    "MaelpBluetoothLe.podspec"
   ],
   "keywords": [
     "capacitor",
