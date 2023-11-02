@@ -34,18 +34,23 @@ export interface BleClientInterface {
   isEnabled(): Promise<boolean>;
 
   /**
+   * Request enabling Bluetooth. Show a system activity that allows the user to turn on Bluetooth. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#ACTION_REQUEST_ENABLE
+   * Only available on **Android**.*/
+  requestEnable(): Promise<void>;
+
+  /**
    * Enable Bluetooth.
    * Only available on **Android**.
-   * *deprecated* See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
-   * @deprecated See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
+   * **Deprecated** Will fail on Android SDK >= 33. Use `requestEnable` instead. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
+   * @deprecated Will fail on Android SDK >= 33. Use `requestEnable` instead. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
    */
   enable(): Promise<void>;
 
   /**
    * Disable Bluetooth.
    * Only available on **Android**.
-   * *deprecated* See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
-   * @deprecated See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
+   * **Deprecated** Will fail on Android SDK >= 33. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
+   * @deprecated Will fail on Android SDK >= 33. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
    */
   disable(): Promise<void>;
 
@@ -333,6 +338,12 @@ class BleClientClass implements BleClientInterface {
       return result.value;
     });
     return enabled;
+  }
+
+  async requestEnable(): Promise<void> {
+    await this.queue(async () => {
+      await BluetoothLe.requestEnable();
+    });
   }
 
   async enable(): Promise<void> {

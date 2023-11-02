@@ -1,7 +1,13 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
 import android.Manifest
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
@@ -14,13 +20,21 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelUuid
-import android.provider.Settings.*
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
+import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
 import androidx.core.location.LocationManagerCompat
-import com.getcapacitor.*
+import com.getcapacitor.JSArray
+import com.getcapacitor.JSObject
+import com.getcapacitor.Logger
+import com.getcapacitor.PermissionState
+import com.getcapacitor.Plugin
+import com.getcapacitor.PluginCall
+import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
 import com.getcapacitor.annotation.PermissionCallback
-import java.util.*
+import java.util.UUID
 
 
 @CapacitorPlugin(
@@ -145,6 +159,13 @@ class BluetoothLe : Plugin() {
         val result = JSObject()
         result.put("value", enabled)
         call.resolve(result)
+    }
+
+    @PluginMethod
+    fun requestEnable(call: PluginCall) {
+        val intent = Intent(ACTION_REQUEST_ENABLE)
+        activity.startActivity(intent)
+        call.resolve()
     }
 
     @PluginMethod

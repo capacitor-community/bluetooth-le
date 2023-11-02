@@ -37,6 +37,10 @@ public class BluetoothLe: CAPPlugin {
         call.resolve(["value": enabled])
     }
 
+    @objc func requestEnable(_ call: CAPPluginCall) {
+        call.unavailable("requestEnable is not available on iOS.")
+    }
+
     @objc func enable(_ call: CAPPluginCall) {
         call.unavailable("enable is not available on iOS.")
     }
