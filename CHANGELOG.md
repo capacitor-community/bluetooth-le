@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v3.0.2...v3.1.0) (2023-11-02)
+
+
+### Features
+
+* **android:** add requestEnable method ([#591](https://github.com/capacitor-community/bluetooth-le/issues/591)) ([79c5742](https://github.com/capacitor-community/bluetooth-le/commit/79c5742d58865bdd7524a1c55cccfd97dd0c1aca))
+
+
+### Bug Fixes
+
+* **ios:** fix multiple instances of same device object during ble scan ([#589](https://github.com/capacitor-community/bluetooth-le/issues/589)) ([b5219ad](https://github.com/capacitor-community/bluetooth-le/commit/b5219adf15566c31d0b53112f5878cb0018c11e7))
+
 ### [3.0.2](https://github.com/capacitor-community/bluetooth-le/compare/v3.0.1...v3.0.2) (2023-10-03)
 
 
