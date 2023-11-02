@@ -51,6 +51,7 @@ Below is an index of all the methods available.
 
 - [`initialize(...)`](#initialize)
 - [`isEnabled()`](#isenabled)
+- [`requestEnable()`](#requestenable)
 - [`enable()`](#enable)
 - [`disable()`](#disable)
 - [`startEnabledNotifications(...)`](#startenablednotifications)
@@ -327,6 +328,7 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | -------------------------------------------------------------- | :-----: | :-: | :-: |
 | [`initialize()`](#initialize)                                  |   ✅    | ✅  | ✅  |
 | [`isEnabled()`](#isenabled)                                    |   ✅    | ✅  | --  |
+| [`requestEnable()`](#requestEnable)                            |   ✅    | ❌  | ❌  |
 | [`enable()`](#enable)                                          |   ✅    | ❌  | ❌  |
 | [`disable()`](#disable)                                        |   ✅    | ❌  | ❌  |
 | [`startEnabledNotifications(...)`](#startenablednotifications) |   ✅    | ✅  | --  |
@@ -399,6 +401,17 @@ Always returns `true` on **web**.
 
 ---
 
+### requestEnable()
+
+```typescript
+requestEnable() => Promise<void>
+```
+
+Request enabling Bluetooth. Show a system activity that allows the user to turn on Bluetooth. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#ACTION_REQUEST_ENABLE
+Only available on **Android**.
+
+---
+
 ### enable()
 
 ```typescript
@@ -407,7 +420,7 @@ enable() => Promise<void>
 
 Enable Bluetooth.
 Only available on **Android**.
-_deprecated_ See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
+**Deprecated** Will fail on Android SDK &gt;= 33. Use `requestEnable` instead. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#enable()
 
 ---
 
@@ -419,7 +432,7 @@ disable() => Promise<void>
 
 Disable Bluetooth.
 Only available on **Android**.
-_deprecated_ See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
+**Deprecated** Will fail on Android SDK &gt;= 33. See https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#disable()
 
 ---
 
