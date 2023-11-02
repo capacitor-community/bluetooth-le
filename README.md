@@ -38,7 +38,9 @@ This is a Capacitor plugin for Bluetooth Low Energy. It supports the web, Androi
 
 The goal is to support the same features on all platforms. Therefore the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) is taken as a guidline for what features to implement.
 
-This plugin only supports the central role of the Bluetooth Low Energy protocol. If you need the peripheral role, take a look a these plugins:
+This plugin only supports Bluetooth **Low Energy**, not Bluetooth serial / classic.
+
+Furthermore the plugin only supports the central role of the Bluetooth Low Energy protocol. If you need the peripheral role, take a look a these plugins:
 
 - https://github.com/randdusing/cordova-plugin-bluetoothle
 - https://github.com/don/cordova-plugin-ble-peripheral
@@ -127,7 +129,7 @@ If the app needs to use Bluetooth while it is in the background, you also have t
 
 ### Android
 
-On Android, no further steps are required to use the plugin (if you are using Capacitor 2, see [here](https://github.com/capacitor-community/bluetooth-le/blob/0.x/README.md#android)).
+On Android, no further steps are required to use the plugin.
 
 #### (Optional) Android 12 Bluetooth permissions
 
@@ -136,8 +138,6 @@ If your app targets Android 12 (API level 31) or higher and your app doesn't use
 The following steps are required to scan for Bluetooth devices without location permission on Android 12 devices:
 
 - In `android/variables.gradle`, make sure `compileSdkVersion` and `targetSdkVersion` are at least 31 (changing those values can have other consequences on your app, so make sure you know what you're doing).
-- Make sure you have JDK 11+ (it is recommended to use JDK that comes with Android Studio).
-- In `android/app/src/main/AndroidManifest.xml`, add `android:exported="true"` to your activity if not already added (setting [`android:exported`](https://developer.android.com/guide/topics/manifest/activity-element#exported) is required in apps targeting Android 12 and higher).
 - In `android/app/src/main/AndroidManifest.xml`, update the permissions:
   ```diff
       <!-- Permissions -->
@@ -198,15 +198,14 @@ The display strings can also be set at run-time using [`setDisplayStrings(...)`]
 
 ## Usage
 
-It is recommended to not use the plugin class directly. There is a wrapper class `BleClient` which makes events and method arguments easier to work with.
+There is a plugin wrapper class `BleClient` which makes events and method arguments easier to work with.
 
 ```typescript
-// Import the wrapper class directly
+// Import the wrapper class
 import { BleClient } from '@capacitor-community/bluetooth-le';
-
-// DO NOT use this
-import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 ```
+
+**Note**: It is not recommended to use the `BluetoothLe` plugin class directly.
 
 ### Heart rate monitor
 
