@@ -3,6 +3,7 @@ package com.capacitorjs.community.plugins.bluetoothle
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
@@ -159,6 +160,13 @@ class BluetoothLe : Plugin() {
         val result = JSObject()
         result.put("value", enabled)
         call.resolve(result)
+    }
+
+    @PluginMethod
+    fun requestEnable(call: PluginCall) {
+        val intent = Intent(ACTION_REQUEST_ENABLE)
+        activity.startActivity(intent)
+        call.resolve()
     }
 
     @PluginMethod

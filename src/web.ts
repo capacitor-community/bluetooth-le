@@ -50,6 +50,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return { value: true };
   }
 
+  async requestEnable(): Promise<void> {
+    throw this.unavailable('requestEnable is not available on web.');
+  }
+
   async enable(): Promise<void> {
     throw this.unavailable('enable is not available on web.');
   }
