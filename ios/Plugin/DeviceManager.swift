@@ -153,9 +153,14 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
 
-        let device = Device(peripheral)
+        let device: Device
+        if self.allowDuplicates, let knownDevice = discoveredDevices.first(where: { $0.key == peripheral.identifier.uuidString })?.value {
+            device = knownDevice
+        } else {
+            device = Device(peripheral)
+            self.discoveredDevices[device.getId()] = device
+        }
         log("New device found: ", device.getName() ?? "Unknown")
-        self.discoveredDevices[device.getId()] = device
 
         if shouldShowDeviceList {
             DispatchQueue.main.async { [weak self] in
