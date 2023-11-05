@@ -1,6 +1,7 @@
 package com.capacitorjs.community.plugins.bluetoothle
 
 import android.Manifest
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE
 import android.bluetooth.BluetoothDevice
@@ -23,6 +24,7 @@ import android.os.ParcelUuid
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
 import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
+import androidx.activity.result.ActivityResult
 import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.JSArray
 import com.getcapacitor.JSObject
@@ -31,6 +33,7 @@ import com.getcapacitor.PermissionState
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
+import com.getcapacitor.annotation.ActivityCallback
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
 import com.getcapacitor.annotation.PermissionCallback
@@ -163,9 +166,18 @@ class BluetoothLe : Plugin() {
 
     @PluginMethod
     fun requestEnable(call: PluginCall) {
+        assertBluetoothAdapter(call) ?: return
         val intent = Intent(ACTION_REQUEST_ENABLE)
-        activity.startActivity(intent)
-        call.resolve()
+        startActivityForResult(call, intent, "handleRequestEnableResult")
+    }
+
+    @ActivityCallback
+    private fun handleRequestEnableResult(call: PluginCall, result: ActivityResult) {
+        if (result.resultCode == Activity.RESULT_OK) {
+            call.resolve()
+        } else {
+            call.reject("requestEnable failed.")
+        }
     }
 
     @PluginMethod
