@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.3...v2.3.0) (2023-11-05)
+
+
+### Features
+
+* **android:** add requestEnable method ([17cf684](https://github.com/capacitor-community/bluetooth-le/commit/17cf68485cd4d6a4af05bbb5c3d8aea2945559bb))
+
+
+### Bug Fixes
+
+* **android:** handle requestEnable result ([bf3f5ae](https://github.com/capacitor-community/bluetooth-le/commit/bf3f5ae05cf093ff5cec9aaa152661d61e552040))
+
 ### [2.2.3](https://github.com/capacitor-community/bluetooth-le/compare/v2.2.2...v2.2.3) (2023-04-15)
 
 
