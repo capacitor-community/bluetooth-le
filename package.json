@@ -35,7 +35,7 @@
   "author": "pwespi",
   "license": "MIT",
   "dependencies": {
-    "@types/web-bluetooth": "^0.0.16"
+    "@types/web-bluetooth": "^0.0.20"
   },
   "devDependencies": {
     "@capacitor/android": "next",
