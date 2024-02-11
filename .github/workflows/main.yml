@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   lint:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -50,10 +50,10 @@ jobs:
       - run: npm run verify:android
 
   verify-ios:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
-    # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-12-Readme.md#xcode
-      - run: sudo xcode-select --switch /Applications/Xcode_14.2.app
+      # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-13-Readme.md#xcode
+      - run: sudo xcode-select --switch /Applications/Xcode_15.2.app
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
