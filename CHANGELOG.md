@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.2](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.1...v3.1.2) (2024-02-18)
+
+
+### Bug Fixes
+
+* **android:** pin kotlin jvmTarget version ([#622](https://github.com/capacitor-community/bluetooth-le/issues/622)) ([8597092](https://github.com/capacitor-community/bluetooth-le/commit/859709211066637f565c88d8cba2bc5ea421c29d))
+
 ### [3.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.0...v3.1.1) (2023-11-05)
 
 
