@@ -353,8 +353,8 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`readRssi(...)`](#readrssi)                                   |   ✅    | ✅  | ❌  |
 | [`read(...)`](#read)                                           |   ✅    | ✅  | ✅  |
 | [`write(...)`](#write)                                         |   ✅    | ✅  | ✅  |
-| [`readDescriptor(...)`](#readdescriptor)                                 |   ✅    | ✅  | ✅  |
-| [`writeDescriptor(...)`](#writedescriptor)                               |   ✅    | ✅  | ✅  |
+| [`readDescriptor(...)`](#readdescriptor)                       |   ✅    | ✅  | ✅  |
+| [`writeDescriptor(...)`](#writedescriptor)                     |   ✅    | ✅  | ✅  |
 | [`writeWithoutResponse(...)`](#writewithoutresponse)           |   ✅    | ✅  | ✅  |
 | [`startNotifications(...)`](#startnotifications)               |   ✅    | ✅  | ✅  |
 | [`stopNotifications(...)`](#stopnotifications)                 |   ✅    | ✅  | ✅  |
