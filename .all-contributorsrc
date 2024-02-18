@@ -142,6 +142,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "OpenSrcerer",
+      "name": "Daniel Stefani",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46500918?v=4",
+      "profile": "https://github.com/OpenSrcerer",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
