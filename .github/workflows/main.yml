@@ -16,10 +16,10 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   lint:
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18.x
       - run: npm ci
@@ -28,8 +28,8 @@ jobs:
   verify-web:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18.x
       - run: npm ci
@@ -38,11 +38,11 @@ jobs:
   verify-android:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18.x
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'zulu'
@@ -50,12 +50,12 @@ jobs:
       - run: npm run verify:android
 
   verify-ios:
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-12-Readme.md#xcode
       - run: sudo xcode-select --switch /Applications/Xcode_14.2.app
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18.x
       - run: npm ci
