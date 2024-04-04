@@ -52,8 +52,12 @@ jobs:
   verify-ios:
     runs-on: macos-14
     steps:
-    # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-12-Readme.md#xcode
-      - run: sudo xcode-select --switch /Applications/Xcode_14.2.app
+      - name: Setup new version xCode and Setup Command Line Tools - macOS / iOS
+        # Doc : https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
+        if: matrix.config.runner == 'macos-14'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.3.0'
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
