@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.4](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.3...v3.1.4) (2024-04-06)
+
+
+### Bug Fixes
+
+* **ios:** make callback map thread-safe to fix high write and notify rates [#630](https://github.com/capacitor-community/bluetooth-le/issues/630) ([#642](https://github.com/capacitor-community/bluetooth-le/issues/642)) ([da9b782](https://github.com/capacitor-community/bluetooth-le/commit/da9b7823c67d892de9f5fc8c54690e7b9323fed1))
+* respect byte offset and length of data view in write call ([#641](https://github.com/capacitor-community/bluetooth-le/issues/641)) ([0f01960](https://github.com/capacitor-community/bluetooth-le/commit/0f01960495c4fa9013bf86fd7a552e9866d928c0))
+
 ### [3.1.3](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.2...v3.1.3) (2024-04-06)
 
 
