@@ -9,7 +9,7 @@ export function numbersToDataView(value: number[]): DataView {
  * Convert a DataView into an array of numbers.
  */
 export function dataViewToNumbers(value: DataView): number[] {
-  return Array.from(new Uint8Array(value.buffer));
+  return Array.from(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
 }
 
 /**

@@ -42,6 +42,13 @@ describe('dataViewToNumbers', () => {
     const result = dataViewToNumbers(value);
     expect(result).toEqual([]);
   });
+
+  it('should respect the offset and length', () => {
+    const array = [0, 5, 200];
+    const value = new DataView(Uint8Array.from([1, 2, ...array, 10, 11]).buffer, 2, 3);
+    const result = dataViewToNumbers(value);
+    expect(result).toEqual(array);
+  });
 });
 
 describe('textToDataView', () => {

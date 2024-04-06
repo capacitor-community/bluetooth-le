@@ -277,6 +277,19 @@ describe('BleClient', () => {
     });
   });
 
+  it('should respect offset and length of DataView when writing', async () => {
+    (Capacitor.getPlatform as jest.Mock).mockReturnValue('android');
+    expect(Capacitor.getPlatform()).toBe('android');
+    const dataView = new DataView(Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).buffer, 2, 5);
+    await BleClient.write(mockDevice.deviceId, service, characteristic, dataView);
+    expect(BluetoothLe.write).toHaveBeenCalledWith({
+      deviceId: mockDevice.deviceId,
+      service,
+      characteristic,
+      value: '03 04 05 06 07',
+    });
+  });
+
   it('should run write with timeout', async () => {
     (Capacitor.getPlatform as jest.Mock).mockReturnValue('android');
     await BleClient.write(mockDevice.deviceId, service, characteristic, numbersToDataView([0, 1]), { timeout: 6000 });
