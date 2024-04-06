@@ -71,7 +71,7 @@ class Device(
     private val timeoutQueue = ConcurrentLinkedQueue<TimeoutHandler>()
     private var bondStateReceiver: BroadcastReceiver? = null
     private var currentMtu = -1
-    
+
     private lateinit var callbacksHandlerThread: HandlerThread
     private lateinit var callbacksHandler: Handler
 
@@ -79,13 +79,13 @@ class Device(
         synchronized(this) {
             callbacksHandlerThread = HandlerThread("Callbacks thread")
             callbacksHandlerThread.start()
-            callbacksHandler = Handler(callbacksHandlerThread.getLooper())
+            callbacksHandler = Handler(callbacksHandlerThread.looper)
         }
     }
 
     private fun cleanupCallbacksHandlerThread() {
         synchronized(this) {
-            if(::callbacksHandlerThread.isInitialized) {
+            if (::callbacksHandlerThread.isInitialized) {
                 callbacksHandlerThread.quitSafely()
             }
         }
@@ -309,10 +309,19 @@ class Device(
         }
         bluetoothGatt?.close()
         connectionState = STATE_CONNECTING
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initializeCallbacksHandlerThread()
             bluetoothGatt = device.connectGatt(
-                context, false, gattCallback, BluetoothDevice.TRANSPORT_LE, BluetoothDevice.PHY_OPTION_NO_PREFERRED, callbacksHandler
+                context,
+                false,
+                gattCallback,
+                BluetoothDevice.TRANSPORT_LE,
+                BluetoothDevice.PHY_OPTION_NO_PREFERRED,
+                callbacksHandler
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothGatt = device.connectGatt(
+                context, false, gattCallback, BluetoothDevice.TRANSPORT_LE
             )
         } else {
             bluetoothGatt = device.connectGatt(
@@ -702,6 +711,7 @@ class Device(
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
+            cleanupCallbacksHandlerThread()
             reject(key, message)
         }, timeout)
     }
