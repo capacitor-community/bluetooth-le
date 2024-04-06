@@ -151,6 +151,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "lhd-biosency",
+      "name": "Laurent",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71714070?v=4",
+      "profile": "https://github.com/lhd-biosency",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
