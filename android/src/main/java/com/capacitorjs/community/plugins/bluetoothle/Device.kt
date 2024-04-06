@@ -17,6 +17,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import com.getcapacitor.Logger
@@ -71,6 +72,25 @@ class Device(
     private var bondStateReceiver: BroadcastReceiver? = null
     private var currentMtu = -1
 
+    private lateinit var callbacksHandlerThread: HandlerThread
+    private lateinit var callbacksHandler: Handler
+
+    private fun initializeCallbacksHandlerThread() {
+        synchronized(this) {
+            callbacksHandlerThread = HandlerThread("Callbacks thread")
+            callbacksHandlerThread.start()
+            callbacksHandler = Handler(callbacksHandlerThread.looper)
+        }
+    }
+
+    private fun cleanupCallbacksHandlerThread() {
+        synchronized(this) {
+            if (::callbacksHandlerThread.isInitialized) {
+                callbacksHandlerThread.quitSafely()
+            }
+        }
+    }
+
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
             gatt: BluetoothGatt, status: Int, newState: Int
@@ -89,6 +109,7 @@ class Device(
                 bluetoothGatt?.close()
                 bluetoothGatt = null
                 Logger.debug(TAG, "Disconnected from GATT server.")
+                cleanupCallbacksHandlerThread()
                 resolve("disconnect", "Disconnected.")
             }
         }
@@ -288,7 +309,17 @@ class Device(
         }
         bluetoothGatt?.close()
         connectionState = STATE_CONNECTING
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            initializeCallbacksHandlerThread()
+            bluetoothGatt = device.connectGatt(
+                context,
+                false,
+                gattCallback,
+                BluetoothDevice.TRANSPORT_LE,
+                BluetoothDevice.PHY_OPTION_NO_PREFERRED,
+                callbacksHandler
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             bluetoothGatt = device.connectGatt(
                 context, false, gattCallback, BluetoothDevice.TRANSPORT_LE
             )
@@ -680,6 +711,7 @@ class Device(
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
+            cleanupCallbacksHandlerThread()
             reject(key, message)
         }, timeout)
     }
