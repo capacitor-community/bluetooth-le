@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.3](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.2...v3.1.3) (2024-04-06)
+
+
+### Bug Fixes
+
+* **android:** set custom callback handler to address callbacks execution order [#635](https://github.com/capacitor-community/bluetooth-le/issues/635) ([#637](https://github.com/capacitor-community/bluetooth-le/issues/637)) ([c1af071](https://github.com/capacitor-community/bluetooth-le/commit/c1af07176a1ac3c083a8ecc25c300962e251f805))
+
 ### [3.1.2](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.1...v3.1.2) (2024-02-18)
 
 
