@@ -423,16 +423,28 @@ class Device(
         return device.bondState == BluetoothDevice.BOND_BONDED
     }
 
-    fun disconnect(
-        timeout: Long, callback: (CallbackResponse) -> Unit
-    ) {
+    fun disconnect(timeout: Long, callback: (CallbackResponse) -> Unit) {
         val key = "disconnect"
         callbackMap[key] = callback
-        if (bluetoothGatt == null) {
-            resolve(key, "Disconnected.")
+
+        // Add a listener for Bluetooth status to dynamically handle status changes
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (!bluetoothAdapter.isEnabled) {
+            // If Bluetooth is disabled, immediately inform the callback of the disconnection failure
+            resolve(key, "Failed: Bluetooth is turned off.")
             return
         }
+
+        // If bluetoothGatt is null, this means that the connection is no longer active or was never established
+        if (bluetoothGatt == null) {
+            resolve(key, "Disconnected: No active connection.")
+            return
+        }
+
+        // Proceed with disconnection
         bluetoothGatt?.disconnect()
+
+        // Set a timeout for disconnection
         setTimeout(key, "Disconnection timeout.", timeout)
     }
 
