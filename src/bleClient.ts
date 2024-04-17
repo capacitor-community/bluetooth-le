@@ -488,9 +488,9 @@ class BleClientClass implements BleClientInterface {
     return isBonded;
   }
 
-  async disconnect(deviceId: string): Promise<void> {
+  async disconnect(deviceId: string, options?: TimeoutOptions): Promise<void> {
     await this.queue(async () => {
-      await BluetoothLe.disconnect({ deviceId });
+      await BluetoothLe.disconnect({ deviceId, ...options });
     });
   }
 
