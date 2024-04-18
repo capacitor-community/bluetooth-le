@@ -164,8 +164,9 @@ export interface BleClientInterface {
   /**
    * Disconnect from a peripheral BLE device. For an example, see [usage](#usage).
    * @param deviceId  The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan))
+   * @param options Options for plugin call
    */
-  disconnect(deviceId: string): Promise<void>;
+  disconnect(deviceId: string, options?: TimeoutOptions): Promise<void>;
 
   /**
    * Get services, characteristics and descriptors of a device.
@@ -488,9 +489,9 @@ class BleClientClass implements BleClientInterface {
     return isBonded;
   }
 
-  async disconnect(deviceId: string): Promise<void> {
+  async disconnect(deviceId: string, options?: TimeoutOptions): Promise<void> {
     await this.queue(async () => {
-      await BluetoothLe.disconnect({ deviceId });
+      await BluetoothLe.disconnect({ deviceId, ...options });
     });
   }
 

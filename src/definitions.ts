@@ -295,7 +295,7 @@ export interface BluetoothLePlugin {
   connect(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   createBond(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
-  disconnect(options: DeviceIdOptions): Promise<void>;
+  disconnect(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   getServices(options: DeviceIdOptions): Promise<BleServices>;
   discoverServices(options: DeviceIdOptions): Promise<void>;
   getMtu(options: DeviceIdOptions): Promise<GetMtuResult>;
