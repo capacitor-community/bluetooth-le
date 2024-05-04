@@ -16,7 +16,7 @@
     "lint:android": "cd android && ./gradlew clean lint && cd ..",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- lint --fix --format ios",
     "eslint": "eslint . --ext ts",
-    "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
+    "prettier": "prettier \"**/*.{css,html,ts,js}\"",
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api BleClientInterface --output-readme README.md --output-json dist/docs.json",
     "postdocgen": "prettier README.md --write",
