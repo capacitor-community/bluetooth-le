@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.4...v6.0.0) (2024-05-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* update plugin to Capacitor 6
+
+### Features
+
+* update plugin to Capacitor 6 ([619d342](https://github.com/capacitor-community/bluetooth-le/commit/619d342f7ef21057e5b950eb21a16d9d91c69a9f))
+
+## [6.0.0-0](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.1...v6.0.0-0) (2024-02-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* update plugin to Capacitor 6
+
+### Features
+
+* update plugin to Capacitor 6 ([0475e85](https://github.com/capacitor-community/bluetooth-le/commit/0475e8520c5f044fe2f693a088235ce2f5a72cde))
+
+
+### Bug Fixes
+
+* fix addListener return types ([fc94069](https://github.com/capacitor-community/bluetooth-le/commit/fc94069ad72ea16a2e74a8382597d61d6e23434e))
+
 ## [6.0.0-0](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.1...v6.0.0-0) (2024-02-11)
 
 
