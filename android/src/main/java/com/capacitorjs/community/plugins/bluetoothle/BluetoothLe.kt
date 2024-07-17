@@ -26,6 +26,7 @@ import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
 import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
 import androidx.activity.result.ActivityResult
+import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import com.getcapacitor.JSArray
 import com.getcapacitor.JSObject
@@ -240,7 +241,9 @@ class BluetoothLe : Plugin() {
                 }
             }
             val intentFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-            context.registerReceiver(stateReceiver, intentFilter)
+            ContextCompat.registerReceiver(context, stateReceiver, intentFilter,
+                ContextCompat.RECEIVER_EXPORTED
+            )
         }
     }
 

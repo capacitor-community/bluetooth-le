@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.getcapacitor.Logger
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -415,7 +416,9 @@ class Device(
                 }
             }
             val intentFilter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
-            context.registerReceiver(bondStateReceiver, intentFilter)
+            ContextCompat.registerReceiver(context, bondStateReceiver, intentFilter,
+                ContextCompat.RECEIVER_EXPORTED
+            )
         }
     }
 
