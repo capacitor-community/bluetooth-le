@@ -160,6 +160,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "peitschie",
+      "name": "Philip Peitsch",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1052079?v=4",
+      "profile": "https://github.com/peitschie",
+      "contributions": [
+        "code",
+        "question"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
