@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-17-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-18-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -1112,6 +1112,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mchl18"><img src="https://avatars.githubusercontent.com/u/6136970?v=4?s=100" width="100px;" alt="mchl18"/><br /><sub><b>mchl18</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=mchl18" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/OpenSrcerer"><img src="https://avatars.githubusercontent.com/u/46500918?v=4?s=100" width="100px;" alt="Daniel Stefani"/><br /><sub><b>Daniel Stefani</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=OpenSrcerer" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lhd-biosency"><img src="https://avatars.githubusercontent.com/u/71714070?v=4?s=100" width="100px;" alt="Laurent"/><br /><sub><b>Laurent</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=lhd-biosency" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/peitschie"><img src="https://avatars.githubusercontent.com/u/1052079?v=4?s=100" width="100px;" alt="Philip Peitsch"/><br /><sub><b>Philip Peitsch</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=peitschie" title="Code">💻</a> <a href="#question-peitschie" title="Answering Questions">💬</a></td>
     </tr>
   </tbody>
 </table>
