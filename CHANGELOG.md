@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.0.1](https://github.com/capacitor-community/bluetooth-le/compare/v6.0.0...v6.0.1) (2024-07-22)
+
+
+### Bug Fixes
+
+* **android:** remove unused layout files ([#670](https://github.com/capacitor-community/bluetooth-le/issues/670)) ([72ce7ab](https://github.com/capacitor-community/bluetooth-le/commit/72ce7abd6911d29ab54610ef61398eaf7e5f8fcd))
+
 ## [6.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v3.1.4...v6.0.0) (2024-05-04)
 
 
