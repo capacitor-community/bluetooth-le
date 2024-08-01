@@ -19,9 +19,10 @@
 
 ## Maintainers
 
-| Maintainer    | GitHub                              | Social |
-| ------------- | ----------------------------------- | ------ |
-| Patrick Wespi | [pwespi](https://github.com/pwespi) |        |
+| Maintainer     | GitHub                                    |
+| -------------- | ----------------------------------------- |
+| Patrick Wespi  | [pwespi](https://github.com/pwespi)       |
+| Philip Peitsch | [peitschie](https://github.com/peitschie) |
 
 ## Versions
 
