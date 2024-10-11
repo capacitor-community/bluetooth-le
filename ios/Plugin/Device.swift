@@ -6,7 +6,7 @@ class Device: NSObject, CBPeripheralDelegate {
     typealias Callback = (_ success: Bool, _ value: String) -> Void
 
     private var peripheral: CBPeripheral!
-    private var callbackMap = ThreadSafeDictionary<String,Callback>()
+    private var callbackMap = ThreadSafeDictionary<String, Callback>()
     private var timeoutMap = [String: DispatchWorkItem]()
     private var servicesCount = 0
     private var servicesDiscovered = 0

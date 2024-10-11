@@ -164,7 +164,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
         if shouldShowDeviceList {
             DispatchQueue.main.async { [weak self] in
-                self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) -> Void in
+                self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
                     log("Selected device")
                     self?.stopScan()
                     self?.resolve("startScanning", device.getId())
@@ -180,7 +180,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     func showDeviceList() {
         DispatchQueue.main.async { [weak self] in
             self?.alertController = UIAlertController(title: self?.displayStrings["scanning"], message: nil, preferredStyle: UIAlertController.Style.alert)
-            self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"], style: UIAlertAction.Style.cancel, handler: { (_) -> Void in
+            self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"], style: UIAlertAction.Style.cancel, handler: { (_) in
                 log("Cancelled request device.")
                 self?.stopScan()
                 self?.reject("startScanning", "requestDevice cancelled.")
