@@ -15,12 +15,23 @@ func descriptorValueToString(_ value: Any) -> String {
     return ""
 }
 
-func dataToString(_ data: Data) -> String {
-    var valueString = ""
-    for byte in data {
-        valueString += String(format: "%02hhx ", byte)
+extension Data {
+    func toHexString() -> String {
+        let hexChars = Array("0123456789abcdef".utf8)
+        return String(unsafeUninitializedCapacity: self.count*2) { (ptr) ->Int in
+            var s = ptr.baseAddress!
+            for byte in self {
+                s[0] = hexChars[Int(byte >> 4)]
+                s[1] = hexChars[Int(byte & 0xF)]
+                s += 2
+            }
+            return 2 * self.count
+        }
     }
-    return valueString
+}
+
+func dataToString(_ data: Data) -> String {
+    return data.toHexString()
 }
 
 func stringToData(_ dataString: String) -> Data {
