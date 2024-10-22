@@ -8,7 +8,7 @@ class ConversionTests: XCTestCase {
     func testDataToString() throws {
         let input = Data([0xA1, 0x2E, 0x38, 0xD4, 0x89, 0xC3])
         let output = dataToString(input)
-        XCTAssertEqual(output, "a1 2e 38 d4 89 c3 ")
+        XCTAssertEqual(output, "a12e38d489c3")
     }
 
     func testStringToData() throws {
@@ -44,11 +44,11 @@ class ConversionTests: XCTestCase {
     }
 
     func testDescriptorValueToString() throws {
-        XCTAssertEqual(descriptorValueToString("Hello"), "48 65 6c 6c 6f ")
-        XCTAssertEqual(descriptorValueToString(Data([0, 5, 255])), "00 05 ff ")
-        XCTAssertEqual(descriptorValueToString(UInt16(258)), "02 01 ")
-        XCTAssertEqual(descriptorValueToString(UInt16(1)), "01 00 ")
-        XCTAssertEqual(descriptorValueToString(NSNumber(1)), "01 00 ")
+        XCTAssertEqual(descriptorValueToString("Hello"), "48656c6c6f")
+        XCTAssertEqual(descriptorValueToString(Data([0, 5, 255])), "0005ff")
+        XCTAssertEqual(descriptorValueToString(UInt16(258)), "0201")
+        XCTAssertEqual(descriptorValueToString(UInt16(1)), "0100")
+        XCTAssertEqual(descriptorValueToString(NSNumber(1)), "0100")
         XCTAssertEqual(descriptorValueToString(0), "")
     }
 
