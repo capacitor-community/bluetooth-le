@@ -18,14 +18,27 @@ func descriptorValueToString(_ value: Any) -> String {
 extension Data {
     func toHexString() -> String {
         let hexChars = Array("0123456789abcdef".utf8)
-        return String(unsafeUninitializedCapacity: self.count*2) { (ptr) ->Int in
-            var s = ptr.baseAddress!
-            for byte in self {
-                s[0] = hexChars[Int(byte >> 4)]
-                s[1] = hexChars[Int(byte & 0xF)]
-                s += 2
+        if #available(iOS 14, *) {
+            return String(unsafeUninitializedCapacity: self.count*2) { (ptr) ->Int in
+                var s = ptr.baseAddress!
+                for byte in self {
+                    s[0] = hexChars[Int(byte >> 4)]
+                    s[1] = hexChars[Int(byte & 0xF)]
+                    s += 2
+                }
+                return 2 * self.count
             }
-            return 2 * self.count
+        } else {
+            // Fallback implementation for iOS < 14, a bit slower
+            var result = ""
+            result.reserveCapacity(self.count * 2)
+            for byte in self {
+                let h = Int(byte >> 4)
+                let l = Int(byte & 0x0F)
+                result.append(hexChars[h])
+                result.append(hexChars[l])
+            }
+            return result
         }
     }
 }
