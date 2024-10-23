@@ -19,12 +19,12 @@ extension Data {
     func toHexString() -> String {
         let hexChars = Array("0123456789abcdef".utf8)
         if #available(iOS 14, *) {
-            return String(unsafeUninitializedCapacity: self.count*2) { (ptr) ->Int in
-                var s = ptr.baseAddress!
+            return String(unsafeUninitializedCapacity: self.count*2) { (ptr) -> Int in
+                var strp = ptr.baseAddress!
                 for byte in self {
-                    s[0] = hexChars[Int(byte >> 4)]
-                    s[1] = hexChars[Int(byte & 0xF)]
-                    s += 2
+                    strp[0] = hexChars[Int(byte >> 4)]
+                    strp[1] = hexChars[Int(byte & 0xF)]
+                    strp += 2
                 }
                 return 2 * self.count
             }
@@ -33,10 +33,10 @@ extension Data {
             var result = ""
             result.reserveCapacity(self.count * 2)
             for byte in self {
-                let h = Int(byte >> 4)
-                let l = Int(byte & 0xF)
-                result.append(Character(UnicodeScalar(hexChars[h])))
-                result.append(Character(UnicodeScalar(hexChars[l])))
+                let high = Int(byte >> 4)
+                let low  = Int(byte & 0xF)
+                result.append(Character(UnicodeScalar(hexChars[high])))
+                result.append(Character(UnicodeScalar(hexChars[low])))
             }
             return result
         }
