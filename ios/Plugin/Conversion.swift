@@ -34,9 +34,9 @@ extension Data {
             result.reserveCapacity(self.count * 2)
             for byte in self {
                 let h = Int(byte >> 4)
-                let l = Int(byte & 0x0F)
-                result.append(hexChars[h])
-                result.append(hexChars[l])
+                let l = Int(byte & 0xF)
+                result.append(Character(UnicodeScalar(hexChars[h])))
+                result.append(Character(UnicodeScalar(hexChars[l])))
             }
             return result
         }
