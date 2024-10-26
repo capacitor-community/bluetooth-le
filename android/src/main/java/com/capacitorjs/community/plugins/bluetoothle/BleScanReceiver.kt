@@ -10,28 +10,32 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 
+@RequiresApi(Build.VERSION_CODES.O)
 class BleScanReceiver : BroadcastReceiver() {
     companion object {
         var scanCallback: ScanCallback? = null  // Reference to the existing ScanCallback
-        var action = "com.capacitorjs.community.plugins.bluetoothle.ACTION_FOUND"
         private val TAG = BleScanReceiver::class.java.simpleName
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onReceive(context: Context?, intent: Intent?) {
-            val results: List<ScanResult>? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // For Android 13 and above
-                intent?.getParcelableArrayListExtra(BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT, ScanResult::class.java)
-            } else {
-                // For Android 12 and below
-                @Suppress("DEPRECATION")
-                intent?.getParcelableArrayListExtra(BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT)
-            }
+    override fun onReceive(context: Context, intent: Intent) {
+        val results = intent.getScanResults()
 
-            results?.forEach { result ->
+
+        results.forEach { result ->
                 // Forward the results to the ScanCallback
                 scanCallback?.onScanResult(ScanSettings.CALLBACK_TYPE_ALL_MATCHES, result)
             }
         }
+
+    private fun Intent.getScanResults(): List<ScanResult> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getParcelableArrayListExtra(
+                BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT,
+                ScanResult::class.java,
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            getParcelableArrayListExtra(BluetoothLeScanner.EXTRA_LIST_SCAN_RESULT)
+        } ?: emptyList()
 }

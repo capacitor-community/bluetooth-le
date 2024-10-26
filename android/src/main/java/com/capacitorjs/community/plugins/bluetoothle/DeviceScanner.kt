@@ -106,11 +106,10 @@ class DeviceScanner(
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && usePendingIntent) {
                 // Use PendingIntent for background scanning
-                val intent = Intent(context, BleScanReceiver::class.java).setAction(BleScanReceiver.action)
                 val pendingIntent = PendingIntent.getBroadcast(
                     context,
-                    0,
-                    intent,
+                    1,
+                    Intent(context, BleScanReceiver::class.java),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 )
 
@@ -163,7 +162,7 @@ class DeviceScanner(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && usePendingIntent) {
             // Stop scan using PendingIntent
-            val intent = Intent(context, BleScanReceiver::class.java).setAction(BleScanReceiver.action)
+            val intent = Intent(context, BleScanReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,

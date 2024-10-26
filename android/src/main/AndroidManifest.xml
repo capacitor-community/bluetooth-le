@@ -3,31 +3,38 @@
   <!-- Bluetooth -->
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+  <!-- Request legacy Bluetooth permissions on older devices. -->
   <uses-permission
     android:name="android.permission.BLUETOOTH"
     android:maxSdkVersion="30" />
   <uses-permission
     android:name="android.permission.BLUETOOTH_ADMIN"
     android:maxSdkVersion="30" />
+
+  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+
+  <!-- Needed only if your app looks for Bluetooth devices.
+         If your app doesn't use Bluetooth scan results to derive physical
+         location information, you can strongly assert that your app
+         doesn't derive physical location. -->
   <uses-permission
     android:name="android.permission.BLUETOOTH_SCAN"
-    tools:targetApi="s" />
-  <uses-permission
-    android:name="android.permission.BLUETOOTH_CONNECT"
-    tools:targetApi="s" />
+    android:usesPermissionFlags="neverForLocation" />
 
-  <uses-feature
-    android:name="android.hardware.bluetooth_le"
-    android:required="false" />
+  <!-- Needed only if your app communicates with already-paired Bluetooth
+         devices. -->
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+  <!-- Needed only if your app uses Bluetooth scan results to derive physical location otherwise
+         it's not needed for device running Android 12 or above -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
   <application>
-    <receiver android:name="com.capacitorjs.community.plugins.bluetoothle.BleScanReceiver"
-        android:exported="false">
-      <intent-filter>
-        <action android:name="com.capacitorjs.community.plugins.bluetoothle.ACTION_FOUND" />
-      </intent-filter>
-    </receiver>
-  </application>
 
+    <receiver
+      android:name=".BleScanReceiver"
+      android:exported="false" />
+  </application>
 </manifest>
-  
