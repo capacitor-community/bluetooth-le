@@ -35,13 +35,28 @@ export function numberToUUID(value: number): string {
   return `0000${value.toString(16).padStart(4, '0')}-0000-1000-8000-00805f9b34fb`;
 }
 
-export function hexStringToDataView(value: string): DataView {
-  const numbers: number[] = value
-    .trim()
-    .split(' ')
-    .filter((e) => e !== '')
-    .map((s) => parseInt(s, 16));
-  return numbersToDataView(numbers);
+/**
+ * Convert a string of hex into a DataView of raw bytes.
+ * Note: characters other than [0-9a-fA-F] are ignored
+ * @param hex string of values, e.g. "00 01 02" or "000102"
+ * @return DataView of raw bytes
+ */
+export function hexStringToDataView(hex: string): DataView {
+  const bin = [];
+  let i,
+    c,
+    isEmpty = 1,
+    buffer = 0;
+  for (i = 0; i < hex.length; i++) {
+    c = hex.charCodeAt(i);
+    if ((c > 47 && c < 58) || (c > 64 && c < 71) || (c > 96 && c < 103)) {
+      buffer = (buffer << 4) ^ ((c > 64 ? c + 9 : c) & 15);
+      if ((isEmpty ^= 1)) {
+        bin.push(buffer & 0xff);
+      }
+    }
+  }
+  return numbersToDataView(bin);
 }
 
 export function dataViewToHexString(value: DataView): string {

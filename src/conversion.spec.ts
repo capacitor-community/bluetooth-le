@@ -114,6 +114,15 @@ describe('hexStringToDataView', () => {
     expect(result.getUint8(2)).toEqual(200);
   });
 
+  it('should work without spaces', () => {
+    const value = '0005C8';
+    const result = hexStringToDataView(value);
+    expect(result.byteLength).toEqual(3);
+    expect(result.getUint8(0)).toEqual(0);
+    expect(result.getUint8(1)).toEqual(5);
+    expect(result.getUint8(2)).toEqual(200);
+  });
+
   it('should convert an empty hex string to a DataView', () => {
     const value = '';
     const result = hexStringToDataView(value);

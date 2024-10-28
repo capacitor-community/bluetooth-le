@@ -9,7 +9,7 @@ class ConversionKtTest : TestCase() {
     fun testBytesToString() {
         val input = byteArrayOfInts(0xA1, 0x2E, 0x38, 0xD4, 0x89, 0xC3)
         val output = bytesToString(input)
-        assertEquals("A1 2E 38 D4 89 C3 ", output)
+        assertEquals("A12E38D489C3", output)
     }
 
     fun testEmptyBytesToString() {
