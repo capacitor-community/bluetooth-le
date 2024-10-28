@@ -113,7 +113,7 @@ describe('hexStringToDataView', () => {
     expect(result.getUint8(1)).toEqual(5);
     expect(result.getUint8(2)).toEqual(200);
   });
-  
+
   it('should work without spaces', () => {
     const value = '0005C8';
     const result = hexStringToDataView(value);
