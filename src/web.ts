@@ -174,6 +174,10 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return { devices: bleDevices };
   }
 
+  async getBondedDevices(): Promise<GetDevicesResult> {
+    return {} as Promise<GetDevicesResult>;
+  }
+
   async connect(options: DeviceIdOptions & TimeoutOptions): Promise<void> {
     const device = this.getDeviceFromMap(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnectedCallback);

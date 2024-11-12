@@ -289,6 +289,7 @@ export interface BluetoothLePlugin {
   stopLEScan(): Promise<void>;
   getDevices(options: GetDevicesOptions): Promise<GetDevicesResult>;
   getConnectedDevices(options: GetConnectedDevicesOptions): Promise<GetDevicesResult>;
+  getBondedDevices(): Promise<GetDevicesResult>;
   addListener(
     eventName: 'onEnabledChanged',
     listenerFunc: (result: BooleanResult) => void

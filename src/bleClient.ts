@@ -131,6 +131,13 @@ export interface BleClientInterface {
 
   /**
    * Get a list of currently connected devices.
+   * Only available on **Android**.
+   * [getBondedDevices](https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getBondedDevices()) on Android
+   */
+  getBondedDevices(): Promise<BleDevice[]>;
+
+  /**
+   * Get a list of currently bonded devices.
    * Uses [retrieveConnectedPeripherals](https://developer.apple.com/documentation/corebluetooth/cbcentralmanager/1518924-retrieveconnectedperipherals) on iOS,
    * [getConnectedDevices](https://developer.android.com/reference/android/bluetooth/BluetoothManager#getConnectedDevices(int)) on Android
    * and [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getDevices) on web.
@@ -456,6 +463,13 @@ class BleClientClass implements BleClientInterface {
     services = services.map(parseUUID);
     return this.queue(async () => {
       const result = await BluetoothLe.getConnectedDevices({ services });
+      return result.devices;
+    });
+  }
+
+  async getBondedDevices(): Promise<BleDevice[]> {
+    return this.queue(async () => {
+      const result = await BluetoothLe.getBondedDevices();
       return result.devices;
     });
   }
