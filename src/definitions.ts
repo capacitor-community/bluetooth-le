@@ -46,6 +46,12 @@ export interface RequestBleDeviceOptions {
    * Android scan mode (default: ScanMode.SCAN_MODE_BALANCED)
    */
   scanMode?: ScanMode;
+
+  /**
+   * Use pending intent for scan results for background scanning. (Android only)
+   * https://developer.android.com/develop/connectivity/bluetooth/ble/background#find-device
+   */
+  usePendingIntent?: boolean;
 }
 
 /**
