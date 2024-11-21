@@ -35,6 +35,9 @@ jest.mock('./plugin', () => {
     getConnectedDevices: jest.fn(() => {
       return Promise.resolve({ devices: [] });
     }),
+    getBondeddDevices: jest.fn(() => {
+      return Promise.resolve({ devices: [] });
+    }),
     connect: jest.fn(),
     createBond: jest.fn(),
     isBonded: jest.fn(),

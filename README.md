@@ -69,6 +69,7 @@ Below is an index of all the methods available.
 - [`requestLEScan(...)`](#requestlescan)
 - [`stopLEScan()`](#stoplescan)
 - [`getDevices(...)`](#getdevices)
+- [`getBondedDevices()`](#getbondeddevices)
 - [`getConnectedDevices(...)`](#getconnecteddevices)
 - [`connect(...)`](#connect)
 - [`createBond(...)`](#createbond)
@@ -583,6 +584,20 @@ On Android, you can directly connect to the device with the deviceId.
 | Param           | Type                  | Description                                             |
 | --------------- | --------------------- | ------------------------------------------------------- |
 | **`deviceIds`** | <code>string[]</code> | List of device IDs, e.g. saved from a previous app run. |
+
+**Returns:** <code>Promise&lt;BleDevice[]&gt;</code>
+
+---
+
+### getBondedDevices()
+
+```typescript
+getBondedDevices() => Promise<BleDevice[]>
+```
+
+Get a list of currently bonded devices.
+Only available on **Android**.
+Uses [getBondedDevices](<https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getBondedDevices()>) on Android
 
 **Returns:** <code>Promise&lt;BleDevice[]&gt;</code>
 
