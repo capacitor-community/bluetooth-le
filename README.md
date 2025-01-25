@@ -345,6 +345,7 @@ _Note_: web support depends on the browser, see [implementation status](https://
 | [`requestLEScan(...)`](#requestlescan)                         |   ✅    | ✅  | 🚩  |
 | [`stopLEScan()`](#stoplescan)                                  |   ✅    | ✅  | 🚩  |
 | [`getDevices(...)`](#getdevices)                               |   ✅    | ✅  | 🚩  |
+| [`getBondedDevices(...)`](#getbondeddevices)                   |   ✅    | ❌  | ❌  |
 | [`getConnectedDevices(...)`](#getconnecteddevices)             |   ✅    | ✅  | 🚩  |
 | [`connect(...)`](#connect)                                     |   ✅    | ✅  | ✅  |
 | [`createBond(...)`](#createbond)                               |   ✅    | ❌  | ❌  |
