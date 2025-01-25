@@ -253,7 +253,7 @@ export async function main(): Promise<void> {
       HEART_RATE_MEASUREMENT_CHARACTERISTIC,
       (value) => {
         console.log('current heart rate', parseHeartRate(value));
-      }
+      },
     );
 
     // disconnect after 10 sec
@@ -303,7 +303,7 @@ export async function scan(): Promise<void> {
       },
       (result) => {
         console.log('received new scan result', result);
-      }
+      },
     );
 
     setTimeout(async () => {
@@ -1087,7 +1087,7 @@ On Android, the `initialize` call requests the location permission. However, if 
 ```typescript
 async function initialize() {
   // Check if location is enabled
-  if (this.platform.is('android')) {
+  if (Capacitor.getPlatform() === 'android') {
     const isLocationEnabled = await BleClient.isLocationEnabled();
     if (!isLocationEnabled) {
       await BleClient.openLocationSettings();

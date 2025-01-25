@@ -233,7 +233,7 @@ export interface BleClientInterface {
     service: string,
     characteristic: string,
     value: DataView,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<void>;
 
   /**
@@ -249,7 +249,7 @@ export interface BleClientInterface {
     service: string,
     characteristic: string,
     value: DataView,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<void>;
 
   /**
@@ -265,7 +265,7 @@ export interface BleClientInterface {
     service: string,
     characteristic: string,
     descriptor: string,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<DataView>;
 
   /**
@@ -283,7 +283,7 @@ export interface BleClientInterface {
     characteristic: string,
     descriptor: string,
     value: DataView,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<void>;
 
   /**
@@ -300,7 +300,7 @@ export interface BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    callback: (value: DataView) => void
+    callback: (value: DataView) => void,
   ): Promise<void>;
 
   /**
@@ -564,7 +564,7 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
     value: DataView,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<void> {
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
@@ -592,7 +592,7 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
     value: DataView,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<void> {
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
@@ -620,7 +620,7 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
     descriptor: string,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<DataView> {
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
@@ -644,7 +644,7 @@ class BleClientClass implements BleClientInterface {
     characteristic: string,
     descriptor: string,
     value: DataView,
-    options?: TimeoutOptions
+    options?: TimeoutOptions,
   ): Promise<void> {
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
@@ -673,7 +673,7 @@ class BleClientClass implements BleClientInterface {
     deviceId: string,
     service: string,
     characteristic: string,
-    callback: (value: DataView) => void
+    callback: (value: DataView) => void,
   ): Promise<void> {
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
