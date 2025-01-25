@@ -1087,7 +1087,7 @@ On Android, the `initialize` call requests the location permission. However, if 
 ```typescript
 async function initialize() {
   // Check if location is enabled
-  if (this.platform.is('android')) {
+  if (Capacitor.getPlatform() === 'android') {
     const isLocationEnabled = await BleClient.isLocationEnabled();
     if (!isLocationEnabled) {
       await BleClient.openLocationSettings();
