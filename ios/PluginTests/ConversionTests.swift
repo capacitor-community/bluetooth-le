@@ -12,7 +12,7 @@ class ConversionTests: XCTestCase {
     }
 
     func testStringToData() throws {
-        let input = "a1 2e 38 d4 89 c3"
+        let input = "a12e38d489c3"
         let output = stringToData(input)
         let expected = Data([0xA1, 0x2E, 0x38, 0xD4, 0x89, 0xC3])
         for (index, byte) in output.enumerated() {
