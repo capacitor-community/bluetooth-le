@@ -253,7 +253,7 @@ export async function main(): Promise<void> {
       HEART_RATE_MEASUREMENT_CHARACTERISTIC,
       (value) => {
         console.log('current heart rate', parseHeartRate(value));
-      }
+      },
     );
 
     // disconnect after 10 sec
@@ -303,7 +303,7 @@ export async function scan(): Promise<void> {
       },
       (result) => {
         console.log('received new scan result', result);
-      }
+      },
     );
 
     setTimeout(async () => {
