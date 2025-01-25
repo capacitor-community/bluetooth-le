@@ -96,11 +96,11 @@ describe('BluetoothLe web', () => {
     await BluetoothLe.requestLEScan();
     expect(mockBluetooth.removeEventListener).toHaveBeenCalledWith(
       'advertisementreceived',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceivedCallback
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceivedCallback,
     );
     expect(mockBluetooth.addEventListener).toHaveBeenCalledWith(
       'advertisementreceived',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceivedCallback
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onAdvertisementReceivedCallback,
     );
     expect(mockBluetooth.requestLEScan).toHaveBeenCalledWith({ filters: undefined, acceptAllAdvertisements: true });
   });
@@ -173,11 +173,11 @@ describe('BluetoothLe web', () => {
     await BluetoothLe.connect({ deviceId: mockDevice.id! });
     expect(mockDevice.removeEventListener).toHaveBeenCalledWith(
       'gattserverdisconnected',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnectedCallback
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnectedCallback,
     );
     expect(mockDevice.addEventListener).toHaveBeenCalledWith(
       'gattserverdisconnected',
-      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnectedCallback
+      (BluetoothLe as unknown as BluetoothLeWithPrivate).onDisconnectedCallback,
     );
     expect(mockDevice.gatt!.connect).toHaveBeenCalledTimes(1);
   });

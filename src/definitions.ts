@@ -292,12 +292,12 @@ export interface BluetoothLePlugin {
   getBondedDevices(): Promise<GetDevicesResult>;
   addListener(
     eventName: 'onEnabledChanged',
-    listenerFunc: (result: BooleanResult) => void
+    listenerFunc: (result: BooleanResult) => void,
   ): Promise<PluginListenerHandle>;
   addListener(eventName: string, listenerFunc: (event: ReadResult) => void): Promise<PluginListenerHandle>;
   addListener(
     eventName: 'onScanResult',
-    listenerFunc: (result: ScanResultInternal) => void
+    listenerFunc: (result: ScanResultInternal) => void,
   ): Promise<PluginListenerHandle>;
   connect(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   createBond(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
