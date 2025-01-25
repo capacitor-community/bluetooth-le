@@ -19,7 +19,7 @@ class ConversionKtTest : TestCase() {
     }
 
     fun testStringToBytes() {
-        val input = "A1 2E 38 D4 89 C3"
+        val input = "a12e38d489c3"
         val output = stringToBytes(input)
         val expected = byteArrayOfInts(0xA1, 0x2E, 0x38, 0xD4, 0x89, 0xC3)
         expected.forEachIndexed { index, byte ->

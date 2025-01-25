@@ -29,10 +29,11 @@ fun stringToBytes(value: String): ByteArray {
     if (value == "") {
         return ByteArray(0)
     }
-    val hexValues = value.split(" ")
-    val bytes = ByteArray(hexValues.size)
-    for (i in hexValues.indices) {
-        bytes[i] = hexToByte(hexValues[i])
+    require(value.length % 2 == 0) { "Input string must have an even length, not ${value.length}" }
+    val bytes = ByteArray(value.length / 2)
+    for (i in bytes.indices) {
+        val hexPair = value.substring(i * 2, i * 2 + 2)
+        bytes[i] = hexToByte(hexPair)
     }
     return bytes
 }

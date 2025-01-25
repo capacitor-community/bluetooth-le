@@ -56,7 +56,7 @@ describe('textToDataView', () => {
     const result = textToDataView('Hello world');
     expect(result.byteLength).toEqual(11);
     expect(result.byteOffset).toEqual(0);
-    expect(dataViewToHexString(result)).toEqual('48 65 6c 6c 6f 20 77 6f 72 6c 64');
+    expect(dataViewToHexString(result)).toEqual('48656c6c6f20776f726c64');
   });
 
   it('should convert an empty text to a DataView', () => {
@@ -69,7 +69,7 @@ describe('textToDataView', () => {
 
 describe('dataViewToText', () => {
   it('should convert a DataView to text', () => {
-    const value = hexStringToDataView('48 65 6c 6c 6f 20 77 6f 72 6c 64');
+    const value = hexStringToDataView('48656c6c6f20776f726c64');
     const result = dataViewToText(value);
     expect(result).toEqual('Hello world');
   });
@@ -96,7 +96,7 @@ describe('numberToUUID', () => {
 
 describe('hexStringToDataView', () => {
   it('should convert a hex string to a DataView', () => {
-    const value = '00 05 c8';
+    const value = '0005c8';
     const result = hexStringToDataView(value);
     expect(result.byteLength).toEqual(3);
     expect(result.byteOffset).toEqual(0);
@@ -135,7 +135,7 @@ describe('dataViewToHexString', () => {
   it('should convert a DataView to a hex string', () => {
     const value = new DataView(Uint8Array.from([0, 5, 200]).buffer);
     const result = dataViewToHexString(value);
-    expect(result).toEqual('00 05 c8');
+    expect(result).toEqual('0005c8');
   });
 
   it('should convert an empty DataView to a hex string', () => {

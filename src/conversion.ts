@@ -68,7 +68,7 @@ export function dataViewToHexString(value: DataView): string {
       }
       return s;
     })
-    .join(' ');
+    .join('');
 }
 
 export function webUUIDToString(uuid: string | number): string {

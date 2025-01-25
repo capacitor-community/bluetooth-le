@@ -48,10 +48,19 @@ func dataToString(_ data: Data) -> String {
 }
 
 func stringToData(_ dataString: String) -> Data {
-    let hexValues = dataString.split(separator: " ")
-    var data = Data(capacity: hexValues.count)
-    for hex in hexValues {
-        data.append(UInt8(hex, radix: 16)!)
+    guard dataString.count % 2 == 0 else {
+        fatalError("Input string must have an even length, not \(dataString.count)")
+    }
+    var data = Data(capacity: dataString.count / 2)
+    for i in stride(from: 0, to: dataString.count, by: 2) {
+        let start = dataString.index(dataString.startIndex, offsetBy: i)
+        let end = dataString.index(start, offsetBy: 2)
+        let hexPair = dataString[start..<end]
+        if let byte = UInt8(hexPair, radix: 16) {
+            data.append(byte)
+        } else {
+            fatalError("Invalid hexadecimal value: \(hexPair)")
+        }
     }
     return data
 }
