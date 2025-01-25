@@ -95,7 +95,7 @@ describe('BleClient', () => {
     expect(BluetoothLe.addListener).toHaveBeenCalledWith('onEnabledChanged', expect.any(Function));
     expect(BluetoothLe.startEnabledNotifications).toHaveBeenCalledTimes(1);
     expect((BleClient as unknown as BleClientWithPrivate).eventListeners.get('onEnabledChanged')).toBe(
-      mockPluginListenerHandle
+      mockPluginListenerHandle,
     );
   });
 
@@ -120,7 +120,7 @@ describe('BleClient', () => {
 
     await BleClient.startEnabledNotifications(mockCallback);
     expect((BleClient as unknown as BleClientWithPrivate).eventListeners.get('onEnabledChanged')).toBe(
-      mockPluginListenerHandle
+      mockPluginListenerHandle,
     );
     await BleClient.stopEnabledNotifications();
     expect(mockPluginListenerHandle.remove).toHaveBeenCalledTimes(1);
@@ -210,7 +210,7 @@ describe('BleClient', () => {
     (BluetoothLe.addListener as jest.Mock).mockReturnValue(mockPluginListenerHandle);
     await BleClient.connect(mockDevice.deviceId, mockDisconnectCallback);
     expect((BleClient as unknown as BleClientWithPrivate).eventListeners.get('disconnected|123')).toBe(
-      mockPluginListenerHandle
+      mockPluginListenerHandle,
     );
     expect(BluetoothLe.connect).toHaveBeenCalledTimes(1);
   });
@@ -393,7 +393,7 @@ describe('BleClient', () => {
       numbersToDataView([0, 1]),
       {
         timeout: 6000,
-      }
+      },
     );
     expect(BluetoothLe.writeDescriptor).toHaveBeenCalledWith({
       deviceId: mockDevice.deviceId,
