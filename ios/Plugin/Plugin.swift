@@ -496,7 +496,7 @@ public class BluetoothLe: CAPPlugin {
     }
 
     private func getDisplayStrings() -> [String: String] {
-        let configDisplayStrings = getConfigValue("displayStrings") as? [String: String] ?? [String: String]()
+        let configDisplayStrings = getConfig().getObject("displayStrings") as? [String: String] ?? [String: String]()
         var displayStrings = [String: String]()
         displayStrings["noDeviceFound"] = configDisplayStrings["noDeviceFound"] ?? "No device found"
         displayStrings["availableDevices"] = configDisplayStrings["availableDevices"] ?? "Available devices"
