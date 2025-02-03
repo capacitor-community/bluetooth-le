@@ -1,6 +1,12 @@
 import Foundation
 import CoreBluetooth
 
+enum DeviceListMode {
+    case none
+    case alert
+    case list
+}
+
 class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias Callback = (_ success: Bool, _ message: String) -> Void
     typealias StateReceiver = (_ enabled: Bool) -> Void
@@ -15,10 +21,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var timeoutMap = [String: DispatchWorkItem]()
     private var stopScanWorkItem: DispatchWorkItem?
     private var alertController: UIAlertController?
+    private var deviceListView: DeviceListView?
+    private var popoverController: UIPopoverPresentationController?
     private var discoveredDevices = [String: Device]()
     private var deviceNameFilter: String?
     private var deviceNamePrefixFilter: String?
-    private var shouldShowDeviceList = false
+    private var deviceListMode: DeviceListMode = .none
     private var allowDuplicates = false
     private var manufacturerDataFilters: [ManufacturerDataFilter]?
 
@@ -82,7 +90,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ namePrefix: String?,
         _ manufacturerDataFilters: [ManufacturerDataFilter]?,
         _ allowDuplicates: Bool,
-        _ shouldShowDeviceList: Bool,
+        _ deviceListMode: DeviceListMode,
         _ scanDuration: Double?,
         _ callback: @escaping Callback,
         _ scanResultCallback: @escaping ScanResultCallback
@@ -92,13 +100,13 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
         if self.centralManager.isScanning == false {
             self.discoveredDevices = [String: Device]()
-            self.shouldShowDeviceList = shouldShowDeviceList
+            self.deviceListMode = deviceListMode
             self.allowDuplicates = allowDuplicates
             self.deviceNameFilter = name
             self.deviceNamePrefixFilter = namePrefix
             self.manufacturerDataFilters = manufacturerDataFilters
 
-            if shouldShowDeviceList {
+            if deviceListMode != .none {
                 self.showDeviceList()
             }
 
@@ -113,7 +121,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 options: [CBCentralManagerScanOptionAllowDuplicatesKey: allowDuplicates]
             )
 
-            if shouldShowDeviceList == false {
+            if deviceListMode == .none {
                 self.resolve("startScanning", "Scan started.")
             }
         } else {
@@ -128,10 +136,22 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.stopScanWorkItem?.cancel()
         self.stopScanWorkItem = nil
         DispatchQueue.main.async { [weak self] in
-            if self?.discoveredDevices.count == 0 {
-                self?.alertController?.title = self?.displayStrings["noDeviceFound"]
-            } else {
-                self?.alertController?.title = self?.displayStrings["availableDevices"]
+            guard let self = self else { return }
+            switch self.deviceListMode {
+            case .alert:
+                if self.discoveredDevices.count == 0 {
+                    self.alertController?.title = self.displayStrings["noDeviceFound"]
+                } else {
+                    self.alertController?.title = self.displayStrings["availableDevices"]
+                }
+            case .list:
+                if self.discoveredDevices.count == 0 {
+                    self.deviceListView?.setTitle(self.displayStrings["noDeviceFound"])
+                } else {
+                    self.deviceListView?.setTitle(self.displayStrings["availableDevices"])
+                }
+            case .none:
+                break
             }
         }
     }
@@ -166,7 +186,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         }
         log("New device found: ", device.getName() ?? "Unknown")
 
-        if shouldShowDeviceList {
+        switch deviceListMode {
+        case .none:
+            if self.scanResultCallback != nil {
+                self.scanResultCallback!(device, advertisementData, RSSI)
+            }
+        case .alert:
             DispatchQueue.main.async { [weak self] in
                 self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
                     log("Selected device")
@@ -174,14 +199,29 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                     self?.resolve("startScanning", device.getId())
                 }))
             }
-        } else {
-            if self.scanResultCallback != nil {
-                self.scanResultCallback!(device, advertisementData, RSSI)
+        case .list:
+            DispatchQueue.main.async { [weak self] in
+                self?.deviceListView?.addItem(device.getName() ?? "Unknown", action: {
+                    log("Selected device")
+                    self?.stopScan()
+                    self?.resolve("startScanning", device.getId())
+                })
             }
         }
     }
 
     func showDeviceList() {
+        switch deviceListMode {
+        case .none:
+            break
+        case .alert:
+            showDeviceListAlert()
+        case .list:
+            showDeviceListView()
+        }
+    }
+
+    func showDeviceListAlert() {
         DispatchQueue.main.async { [weak self] in
             self?.alertController = UIAlertController(title: self?.displayStrings["scanning"], message: nil, preferredStyle: UIAlertController.Style.alert)
             self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"], style: UIAlertAction.Style.cancel, handler: { (_) in
@@ -190,6 +230,22 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 self?.reject("startScanning", "requestDevice cancelled.")
             }))
             self?.viewController?.present((self?.alertController)!, animated: true, completion: nil)
+        }
+    }
+
+    func showDeviceListView() {
+        DispatchQueue.main.async { [weak self] in
+            self?.deviceListView = DeviceListView()
+            if #available(macCatalyst 15.0, iOS 15.0, *) {
+                self?.deviceListView?.sheetPresentationController?.detents = [.medium()]
+            }
+            self?.viewController?.present((self?.deviceListView)!, animated: true, completion: nil)
+            self?.deviceListView?.setTitle(self?.displayStrings["scanning"])
+            self?.deviceListView?.setCancelButton(self?.displayStrings["cancel"], action: {
+                log("Cancelled request device.")
+                self?.stopScan()
+                self?.reject("startScanning", "requestDevice cancelled.")
+            })
         }
     }
 

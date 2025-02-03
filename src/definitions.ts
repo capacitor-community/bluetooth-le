@@ -51,6 +51,13 @@ export interface RequestBleDeviceOptions {
    * https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata
    */
   manufacturerData?: ManufacturerDataFilter[];
+  /**
+   * Display mode for the device list in `requestDevice` (**iOS** only).
+   * - `"alert"`: Classic alert dialog (default)
+   * - `"list"`: Scrollable list view
+   * @default "alert"
+   */
+  displayMode?: 'alert' | 'list';
 }
 
 /**

@@ -118,13 +118,20 @@ public class BluetoothLe: CAPPlugin {
         let namePrefix = call.getString("namePrefix")
         let manufacturerDataFilters = self.getManufacturerDataFilters(call)
 
+        let displayModeString = (call.getString("displayMode") ?? "alert").lowercased()
+        guard ["alert", "list"].contains(displayModeString) else {
+            call.reject("Invalid displayMode '\(call.getString("displayMode") ?? "")'. Use 'alert' or 'list'.")
+            return
+        }
+        let deviceListMode: DeviceListMode = displayModeString == "list" ? .list : .alert
+
         deviceManager.startScanning(
             serviceUUIDs,
             name,
             namePrefix,
             manufacturerDataFilters,
             false,
-            true,
+            deviceListMode,
             30,
             {(success, message) in
                 if success {
@@ -158,7 +165,7 @@ public class BluetoothLe: CAPPlugin {
             namePrefix,
             manufacturerDataFilters,
             allowDuplicates,
-            false,
+            .none,
             nil,
             { (success, message) in
                 if success {
