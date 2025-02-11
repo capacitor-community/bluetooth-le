@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.0...v9.0.0) (2025-02-11)
+
 ## [8.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.0...v8.1.0) (2025-02-11)
 
 ## 8.0.0 (2025-02-11)
