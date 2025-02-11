@@ -545,16 +545,16 @@ class BleClientClass implements BleClientInterface {
   }
 
   async read(deviceId: string, service: string, characteristic: string, options?: TimeoutOptions): Promise<DataView> {
+    let batteryServiceUUID = '0000180f-0000-1000-8000-00805f9b34fb';
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
     const value = await this.queue(async () => {
-      const result = await BluetoothLe.read({
-        deviceId,
-        service,
-        characteristic,
-        ...options,
-      });
-      return this.convertValue(result.value);
+        const result = await BluetoothLe.read(Object.assign({ deviceId,
+            service,
+            characteristic }, options));
+                    
+        if(service != batteryServiceUUID)return this.convertValue(result.value);
+        else return result.value;
     });
     return value;
   }
