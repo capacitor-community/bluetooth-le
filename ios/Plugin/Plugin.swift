@@ -7,6 +7,13 @@ import CoreBluetooth
 let CONNECTION_TIMEOUT: Double = 10
 let DEFAULT_TIMEOUT: Double = 5
 
+struct ManufacturerDataFilter {
+    let companyIdentifier: UInt16
+    let dataPrefix: Data?
+    let mask: Data?
+}
+
+
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
@@ -103,38 +110,40 @@ public class BluetoothLe: CAPPlugin {
         call.resolve()
     }
 
-    @objc func requestDevice(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        deviceManager.setDisplayStrings(self.displayStrings)
+		@objc func requestDevice(_ call: CAPPluginCall) {
+				guard let deviceManager = self.getDeviceManager(call) else { return }
+				deviceManager.setDisplayStrings(self.displayStrings)
 
-        let serviceUUIDs = self.getServiceUUIDs(call)
-        let name = call.getString("name")
-        let namePrefix = call.getString("namePrefix")
+				let serviceUUIDs = self.getServiceUUIDs(call)
+				let name = call.getString("name")
+				let namePrefix = call.getString("namePrefix")
+				let manufacturerDataFilters = self.getManufacturerDataFilters(call)
 
-        deviceManager.startScanning(
-            serviceUUIDs,
-            name,
-            namePrefix,
-            false,
-            true,
-            30, {(success, message) in
-                // selected a device
-                if success {
-                    guard let device = deviceManager.getDevice(message) else {
-                        call.reject("Device not found.")
-                        return
-                    }
-                    self.deviceMap[device.getId()] = device
-                    let bleDevice: BleDevice = self.getBleDevice(device)
-                    call.resolve(bleDevice)
-                } else {
-                    call.reject(message)
-                }
-            }, {(_, _, _) in
+				deviceManager.startScanning(
+						serviceUUIDs,
+						name,
+						namePrefix,
+						manufacturerDataFilters,
+						false,
+						true,
+						30,
+						{(success, message) in
+								if success {
+										guard let device = deviceManager.getDevice(message) else {
+												call.reject("Device not found.")
+												return
+										}
+										self.deviceMap[device.getId()] = device
+										let bleDevice: BleDevice = self.getBleDevice(device)
+										call.resolve(bleDevice)
+								} else {
+										call.reject(message)
+								}
+						},
+						{ (_, _, _) in }
+				)
+		}
 
-            }
-        )
-    }
 
     @objc func requestLEScan(_ call: CAPPluginCall) {
         guard let deviceManager = self.getDeviceManager(call) else { return }
@@ -143,20 +152,24 @@ public class BluetoothLe: CAPPlugin {
         let name = call.getString("name")
         let namePrefix = call.getString("namePrefix")
         let allowDuplicates = call.getBool("allowDuplicates", false)
+		let manufacturerDataFilters = self.getManufacturerDataFilters(call)
+
 
         deviceManager.startScanning(
             serviceUUIDs,
             name,
             namePrefix,
+			manufacturerDataFilters,
             allowDuplicates,
             false,
-            nil, {(success, message) in
+			nil,
+            { (success, message) in
                 if success {
                     call.resolve()
                 } else {
                     call.reject(message)
                 }
-            }, {(device, advertisementData, rssi) in
+            }, { (device, advertisementData, rssi) in
                 self.deviceMap[device.getId()] = device
                 let data = self.getScanResult(device, advertisementData, rssi)
                 self.notifyListeners("onScanResult", data: data)
@@ -520,6 +533,43 @@ public class BluetoothLe: CAPPlugin {
         })
         return serviceUUIDs
     }
+
+    private func getManufacturerDataFilters(_ call: CAPPluginCall) -> [ManufacturerDataFilter]? {
+        guard let manufacturerDataArray = call.getArray("manufacturerData") else {
+            return nil
+        }
+
+        var manufacturerDataFilters: [ManufacturerDataFilter] = []
+
+        for index in 0..<manufacturerDataArray.count {
+            guard let dataObject = manufacturerDataArray[index] as? JSObject,
+                  let companyIdentifier = dataObject["companyIdentifier"] as? UInt16 else {
+                // Invalid or missing company identifier
+                return nil
+            }
+
+            let dataPrefix: Data? = {
+                guard let prefixArray = dataObject["dataPrefix"] as? [Int] else { return nil }
+                return Data(prefixArray.map { UInt8($0 & 0xFF) })
+            }()
+
+            let mask: Data? = {
+                guard let maskArray = dataObject["mask"] as? [Int] else { return nil }
+                return Data(maskArray.map { UInt8($0 & 0xFF) })
+            }()
+
+            let manufacturerFilter = ManufacturerDataFilter(
+                companyIdentifier: companyIdentifier,
+                dataPrefix: dataPrefix,
+                mask: mask
+            )
+
+            manufacturerDataFilters.append(manufacturerFilter)
+        }
+
+        return manufacturerDataFilters
+    }
+
 
     private func getDevice(_ call: CAPPluginCall, checkConnection: Bool = true) -> Device? {
         guard let deviceId = call.getString("deviceId") else {

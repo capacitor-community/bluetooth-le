@@ -376,6 +376,11 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
         namePrefix: options.namePrefix,
       });
     }
+    for (const manufacturerData of options?.manufacturerData ?? []) {
+      filters.push({
+        manufacturerData: [manufacturerData],
+      });
+    }
     return filters;
   }
 
