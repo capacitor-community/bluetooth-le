@@ -675,8 +675,9 @@ class Device(
         if (callbackMap.containsKey(key)) {
             Logger.debug(TAG, "resolve: $key $value")
             timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
-            callbackMap[key]?.invoke(CallbackResponse(true, value))
+            val callback = callbackMap[key]
             callbackMap.remove(key)
+            callback?.invoke(CallbackResponse(true, value))
         }
     }
 
@@ -684,8 +685,9 @@ class Device(
         if (callbackMap.containsKey(key)) {
             Logger.debug(TAG, "reject: $key $value")
             timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
-            callbackMap[key]?.invoke(CallbackResponse(false, value))
+            val callback = callbackMap[key]
             callbackMap.remove(key)
+            callback?.invoke(CallbackResponse(false, value))
         }
     }
 
