@@ -935,6 +935,7 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`optionalServices`** | <code>string[]</code>                         | For **web**, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                           |
 | **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                |
 | **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                          |
+| **`usePendingIntent`** | <code>boolean</code>                          | Use pending intent for scan results for background scanning. (Android only) https://developer.android.com/develop/connectivity/bluetooth/ble/background#find-device                                                                                       |
 
 #### ScanResult
 

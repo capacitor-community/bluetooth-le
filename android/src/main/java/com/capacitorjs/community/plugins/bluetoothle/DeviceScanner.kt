@@ -2,6 +2,7 @@ package com.capacitorjs.community.plugins.bluetoothle
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
@@ -9,6 +10,8 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.widget.ArrayAdapter
@@ -52,6 +55,7 @@ class DeviceScanner(
     private var stopScanHandler: Handler? = null
     private var allowDuplicates: Boolean = false
     private var namePrefix: String = ""
+    private var usePendingIntent: Boolean = false
 
     private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -82,6 +86,7 @@ class DeviceScanner(
         scanSettings: ScanSettings,
         allowDuplicates: Boolean,
         namePrefix: String,
+        usePendingIntent: Boolean, // Flag to control PendingIntent vs ScanCallback
         callback: (ScanResponse) -> Unit,
         scanResultCallback: ((ScanResult) -> Unit)?
     ) {
@@ -89,14 +94,35 @@ class DeviceScanner(
         this.scanResultCallback = scanResultCallback
         this.allowDuplicates = allowDuplicates
         this.namePrefix = namePrefix
+        this.usePendingIntent = usePendingIntent
 
         deviceStrings.clear()
         deviceList.clear()
+
         if (!isScanning) {
             setTimeoutForStopScanning()
-            Logger.debug(TAG, "Start scanning.")
+            Logger.debug(TAG, "Start scanning" + (if (usePendingIntent) " with pendingIntent!" else "."))
             isScanning = true
-            bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && usePendingIntent) {
+                // Use PendingIntent for background scanning
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    1,
+                    Intent(context, BleScanReceiver::class.java),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                )
+
+                // Store the ScanCallback inside the BroadcastReceiver
+                BleScanReceiver.scanCallback = scanCallback
+
+                // Start the scan with PendingIntent
+                bluetoothLeScanner?.startScan(scanFilters, scanSettings, pendingIntent)
+            } else {
+                // Use ScanCallback for foreground scanning
+                bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
+            }
+
             if (showDialog) {
                 dialogHandler = Handler(Looper.getMainLooper())
                 showDeviceList()
@@ -133,7 +159,21 @@ class DeviceScanner(
         }
         Logger.debug(TAG, "Stop scanning.")
         isScanning = false
-        bluetoothLeScanner?.stopScan(scanCallback)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && usePendingIntent) {
+            // Stop scan using PendingIntent
+            val intent = Intent(context, BleScanReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+            bluetoothLeScanner?.stopScan(pendingIntent)
+        } else {
+            // Stop scan using ScanCallback
+            bluetoothLeScanner?.stopScan(scanCallback)
+        }
     }
 
     private fun showDeviceList() {

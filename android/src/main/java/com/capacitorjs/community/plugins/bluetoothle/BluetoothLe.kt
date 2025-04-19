@@ -310,6 +310,7 @@ class BluetoothLe : Plugin() {
         val scanFilters = getScanFilters(call) ?: return
         val scanSettings = getScanSettings(call) ?: return
         val namePrefix = call.getString("namePrefix", "") as String
+        val usePendingIntent = call.getBoolean("usePendingIntent", false ) as Boolean
 
         try {
             deviceScanner?.stopScanning()
@@ -327,7 +328,7 @@ class BluetoothLe : Plugin() {
             showDialog = true,
         )
         deviceScanner?.startScanning(
-            scanFilters, scanSettings, false, namePrefix, { scanResponse ->
+            scanFilters, scanSettings, false, namePrefix, usePendingIntent, { scanResponse ->
                 run {
                     if (scanResponse.success) {
                         if (scanResponse.device == null) {
@@ -352,6 +353,7 @@ class BluetoothLe : Plugin() {
         val scanSettings = getScanSettings(call) ?: return
         val namePrefix = call.getString("namePrefix", "") as String
         val allowDuplicates = call.getBoolean("allowDuplicates", false) as Boolean
+        val usePendingIntent = call.getBoolean("usePendingIntent", false) as Boolean // Get the flag from JS
 
         try {
             deviceScanner?.stopScanning()
@@ -372,6 +374,7 @@ class BluetoothLe : Plugin() {
             scanSettings,
             allowDuplicates,
             namePrefix,
+            usePendingIntent,
             { scanResponse ->
                 run {
                     if (scanResponse.success) {
