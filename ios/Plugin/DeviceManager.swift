@@ -80,7 +80,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ serviceUUIDs: [CBUUID],
         _ name: String?,
         _ namePrefix: String?,
-		_ manufacturerDataFilters: [ManufacturerDataFilter]?,
+        _ manufacturerDataFilters: [ManufacturerDataFilter]?,
         _ allowDuplicates: Bool,
         _ shouldShowDeviceList: Bool,
         _ scanDuration: Double?,
@@ -97,7 +97,6 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.deviceNameFilter = name
             self.deviceNamePrefixFilter = namePrefix
             self.manufacturerDataFilters = manufacturerDataFilters
-
 
             if shouldShowDeviceList {
                 self.showDeviceList()
