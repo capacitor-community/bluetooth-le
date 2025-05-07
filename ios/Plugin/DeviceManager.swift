@@ -20,6 +20,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var deviceNamePrefixFilter: String?
     private var shouldShowDeviceList = false
     private var allowDuplicates = false
+    private var manufacturerDataFilters: [ManufacturerDataFilter]?
 
     init(_ viewController: UIViewController?, _ displayStrings: [String: String], _ callback: @escaping Callback) {
         super.init()
@@ -79,6 +80,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ serviceUUIDs: [CBUUID],
         _ name: String?,
         _ namePrefix: String?,
+        _ manufacturerDataFilters: [ManufacturerDataFilter]?,
         _ allowDuplicates: Bool,
         _ shouldShowDeviceList: Bool,
         _ scanDuration: Double?,
@@ -94,6 +96,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.allowDuplicates = allowDuplicates
             self.deviceNameFilter = name
             self.deviceNamePrefixFilter = namePrefix
+            self.manufacturerDataFilters = manufacturerDataFilters
 
             if shouldShowDeviceList {
                 self.showDeviceList()
@@ -152,6 +155,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
         guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
+        guard self.passesManufacturerDataFilter(advertisementData) else { return }
 
         let device: Device
         if self.allowDuplicates, let knownDevice = discoveredDevices.first(where: { $0.key == peripheral.identifier.uuidString })?.value {
@@ -294,6 +298,54 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard let prefix = self.deviceNamePrefixFilter else { return true }
         guard let name = peripheralName else { return false }
         return name.hasPrefix(prefix)
+    }
+
+    private func passesManufacturerDataFilter(_ advertisementData: [String: Any]) -> Bool {
+        guard let filters = self.manufacturerDataFilters, !filters.isEmpty else {
+            return true  // No filters means everything passes
+        }
+
+        guard let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data,
+              manufacturerData.count >= 2 else {
+            return false  // If there's no valid manufacturer data, fail
+        }
+
+        let companyIdentifier = manufacturerData.prefix(2).withUnsafeBytes {
+            $0.load(as: UInt16.self).littleEndian // Manufacturer ID is little-endian
+        }
+
+        let payload = manufacturerData.dropFirst(2)
+
+        for filter in filters {
+            if filter.companyIdentifier != companyIdentifier {
+                continue  // Skip if company ID does not match
+            }
+
+            if let dataPrefix = filter.dataPrefix {
+                if payload.count < dataPrefix.count {
+                    continue // Payload too short, does not match
+                }
+
+                if let mask = filter.mask {
+                    var matches = true
+                    for i in 0..<dataPrefix.count {
+                        if (payload[i] & mask[i]) != (dataPrefix[i] & mask[i]) {
+                            matches = false
+                            break
+                        }
+                    }
+                    if matches {
+                        return true
+                    }
+                } else if payload.starts(with: dataPrefix) {
+                    return true
+                }
+            } else {
+                return true // Company ID matched, and no dataPrefix required
+            }
+        }
+
+        return false  // If none matched, return false
     }
 
     private func resolve(_ key: String, _ value: String) {

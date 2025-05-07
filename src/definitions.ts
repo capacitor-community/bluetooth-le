@@ -46,6 +46,11 @@ export interface RequestBleDeviceOptions {
    * Android scan mode (default: ScanMode.SCAN_MODE_BALANCED)
    */
   scanMode?: ScanMode;
+  /**
+   * Allow scanning for devices with a specific manufacturer data
+   * https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata
+   */
+  manufacturerData?: { companyIdentifier: number; dataPrefix?: Uint8Array; mask?: Uint8Array }[];
 }
 
 /**

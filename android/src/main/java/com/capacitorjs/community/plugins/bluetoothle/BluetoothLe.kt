@@ -368,7 +368,8 @@ class BluetoothLe : Plugin() {
             displayStrings = displayStrings!!,
             showDialog = false,
         )
-        deviceScanner?.startScanning(scanFilters,
+        deviceScanner?.startScanning(
+            scanFilters,
             scanSettings,
             allowDuplicates,
             namePrefix,
@@ -808,8 +809,11 @@ class BluetoothLe : Plugin() {
         val filters: ArrayList<ScanFilter> = ArrayList()
 
         val services = (call.getArray("services", JSArray()) as JSArray).toList<String>()
+        val manufacturerDataArray = call.getArray("manufacturerData", JSArray())
         val name = call.getString("name", null)
+
         try {
+            // Create filters based on services
             for (service in services) {
                 val filter = ScanFilter.Builder()
                 filter.setServiceUuid(ParcelUuid.fromString(service))
@@ -818,18 +822,66 @@ class BluetoothLe : Plugin() {
                 }
                 filters.add(filter.build())
             }
+
+            // Manufacturer Data Handling (with optional parameters)
+            manufacturerDataArray?.let {
+                for (i in 0 until it.length()) {
+                    val manufacturerDataObject = it.getJSONObject(i)
+
+                    val companyIdentifier = manufacturerDataObject.getInt("companyIdentifier")
+
+                    val dataPrefix = if (manufacturerDataObject.has("dataPrefix")) {
+                        val dataPrefixObject = manufacturerDataObject.getJSONObject("dataPrefix")
+                        val byteLength = dataPrefixObject.length()
+
+                        ByteArray(byteLength).apply {
+                            for (idx in 0 until byteLength) {
+                                val key = idx.toString()
+                                this[idx] = (dataPrefixObject.getInt(key) and 0xFF).toByte()
+                            }
+                        }
+                    } else null
+
+
+                    val mask = if (manufacturerDataObject.has("mask")) {
+                        val maskObject = manufacturerDataObject.getJSONObject("mask")
+                        val byteLength = maskObject.length()
+
+                        ByteArray(byteLength).apply {
+                            for (idx in 0 until byteLength) {
+                                val key = idx.toString()
+                                this[idx] = (maskObject.getInt(key) and 0xFF).toByte()
+                            }
+                        }
+                    } else null
+
+                    val filterBuilder = ScanFilter.Builder()
+
+                    if (dataPrefix != null && mask != null) {
+                        filterBuilder.setManufacturerData(companyIdentifier, dataPrefix, mask)
+                    } else if (dataPrefix != null) {
+                        filterBuilder.setManufacturerData(companyIdentifier, dataPrefix)
+                    } else {
+                        // Android requires at least dataPrefix for manufacturer filters.
+                        call.reject("dataPrefix is required when specifying manufacturerData.")
+                        return null
+                    }
+
+                    if (name != null) {
+                        filterBuilder.setDeviceName(name)
+                    }
+
+                    filters.add(filterBuilder.build())
+                }
+            }
+            return filters;
         } catch (e: IllegalArgumentException) {
-            call.reject("Invalid service UUID.")
+            call.reject("Invalid UUID or Manufacturer data provided.")
+            return null
+        } catch (e: Exception) {
+            call.reject("Invalid or malformed filter data provided.")
             return null
         }
-
-        if (name != null && filters.isEmpty()) {
-            val filter = ScanFilter.Builder()
-            filter.setDeviceName(name)
-            filters.add(filter.build())
-        }
-
-        return filters
     }
 
     private fun getScanSettings(call: PluginCall): ScanSettings? {
