@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.0.0...v7.1.0) (2025-05-07)
+
+
+### Features
+
+* **all:** support to pass manufacturerData to the scan filters ([#752](https://github.com/capacitor-community/bluetooth-le/issues/752)) ([c56b670](https://github.com/capacitor-community/bluetooth-le/commit/c56b6709c42133d56ff7a6b96fdd8fed16253b12))
+
+
+### Bug Fixes
+
+* remove callback from map before invocation ([06eab26](https://github.com/capacitor-community/bluetooth-le/commit/06eab2606ab6c2dd08f16fe4022f2c5670b6f47a)), closes [#751](https://github.com/capacitor-community/bluetooth-le/issues/751)
+
 ## [7.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v6.1.0...v7.0.0) (2025-01-25)
 
 
