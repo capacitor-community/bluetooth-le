@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-20-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-21-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -1133,6 +1133,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/peitschie"><img src="https://avatars.githubusercontent.com/u/1052079?v=4?s=100" width="100px;" alt="Philip Peitsch"/><br /><sub><b>Philip Peitsch</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=peitschie" title="Code">💻</a> <a href="#question-peitschie" title="Answering Questions">💬</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/NaterGator"><img src="https://avatars.githubusercontent.com/u/2575?v=4?s=100" width="100px;" alt="Nate Weibley"/><br /><sub><b>Nate Weibley</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=NaterGator" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://www.enesi.it"><img src="https://avatars.githubusercontent.com/u/2611534?v=4?s=100" width="100px;" alt="Emanuele Toffolon"/><br /><sub><b>Emanuele Toffolon</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=emanueletoffolon" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/gion-andri"><img src="https://avatars.githubusercontent.com/u/540998?v=4?s=100" width="100px;" alt="Gion-Andri Cantieni"/><br /><sub><b>Gion-Andri Cantieni</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=gion-andri" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
