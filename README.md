@@ -935,6 +935,15 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`optionalServices`** | <code>string[]</code>                         | For **web**, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                           |
 | **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                |
 | **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                          |
+| **`manufacturerData`** | <code>ManufacturerDataFilter[]</code>         | Allow scanning for devices with a specific manufacturer data https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata                                                                                                    |
+
+#### ManufacturerDataFilter
+
+| Prop                    | Type                                              | Description                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`companyIdentifier`** | <code>number</code>                               | Company ID (sometimes called the manufacturer ID) to search for in the manufacturer data field.                                                                                                             |
+| **`dataPrefix`**        | <code><a href="#uint8array">Uint8Array</a></code> | Prefix to match in the manufacturer data field. On **Android** this field is mandatory.                                                                                                                     |
+| **`mask`**              | <code><a href="#uint8array">Uint8Array</a></code> | Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0. The `mask` must have the same length of dataPrefix. |
 
 #### ScanResult
 
