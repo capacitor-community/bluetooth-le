@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v7.1.0...v7.1.1) (2025-05-16)
+
+
+### Bug Fixes
+
+* **filters:** restore filtering only with name functionality ([#763](https://github.com/capacitor-community/bluetooth-le/issues/763)) ([cbab0c2](https://github.com/capacitor-community/bluetooth-le/commit/cbab0c2e4249f49de4ecec4d4d81caccefd1bce9))
+
 ## [7.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.0.0...v7.1.0) (2025-05-07)
 
 
