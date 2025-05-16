@@ -874,6 +874,13 @@ class BluetoothLe : Plugin() {
                     filters.add(filterBuilder.build())
                 }
             }
+            // Create filters when providing only name
+            if (name != null && filters.isEmpty()) {
+                val filterBuilder = ScanFilter.Builder()
+                filterBuilder.setDeviceName(name)
+                filters.add(filterBuilder.build())
+            }
+
             return filters;
         } catch (e: IllegalArgumentException) {
             call.reject("Invalid UUID or Manufacturer data provided.")
