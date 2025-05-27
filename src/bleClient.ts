@@ -295,12 +295,14 @@ export interface BleClientInterface {
    * @param service UUID of the service (see [UUID format](#uuid-format))
    * @param characteristic UUID of the characteristic (see [UUID format](#uuid-format))
    * @param callback Callback function to use when the value of the characteristic changes
+   * @param options Options for plugin call. Timeout not supported on **web**.
    */
   startNotifications(
     deviceId: string,
     service: string,
     characteristic: string,
     callback: (value: DataView) => void,
+    options?: TimeoutOptions,
   ): Promise<void>;
 
   /**
@@ -674,6 +676,7 @@ class BleClientClass implements BleClientInterface {
     service: string,
     characteristic: string,
     callback: (value: DataView) => void,
+    options?: TimeoutOptions,
   ): Promise<void> {
     service = parseUUID(service);
     characteristic = parseUUID(characteristic);
@@ -688,6 +691,7 @@ class BleClientClass implements BleClientInterface {
         deviceId,
         service,
         characteristic,
+        ...options,
       });
     });
   }
