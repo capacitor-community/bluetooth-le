@@ -68,6 +68,7 @@ class Device(
     private var device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
     private var bluetoothGatt: BluetoothGatt? = null
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
+    private val bondReceiverMap = HashMap<String, BroadcastReceiver>()
     private val timeoutQueue = ConcurrentLinkedQueue<TimeoutHandler>()
     private var bondStateReceiver: BroadcastReceiver? = null
     private var currentMtu = -1
@@ -280,6 +281,9 @@ class Device(
             super.onDescriptorWrite(gatt, descriptor, status)
             val key =
                 "writeDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
+            bondReceiverMap.remove(key)?.let {
+                context.unregisterReceiver(it)
+            }
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 resolve(key, "Descriptor successfully written.")
             } else {
@@ -546,6 +550,7 @@ class Device(
         characteristicUUID: UUID,
         enable: Boolean,
         notifyCallback: ((CallbackResponse) -> Unit)?,
+        timeout: Long,
         callback: (CallbackResponse) -> Unit,
     ) {
         val key = "writeDescriptor|$serviceUUID|$characteristicUUID|$CLIENT_CHARACTERISTIC_CONFIG"
@@ -585,9 +590,30 @@ class Device(
             BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
         }
 
+        val bondReceiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                if (intent.action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
+                    val prev = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
+                    val state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
+                    if (prev == BluetoothDevice.BOND_BONDING && state == BluetoothDevice.BOND_NONE) {
+                        ctx.unregisterReceiver(this)
+                        reject(key, "Pairing request was cancelled by the user.")
+                    }
+                }
+            }
+        }
+        bondReceiverMap[key] = bondReceiver
+        context.registerReceiver(
+            bondReceiver,
+            IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+        )
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val statusCode = bluetoothGatt?.writeDescriptor(descriptor, value)
             if (statusCode != BluetoothStatusCodes.SUCCESS) {
+                bondReceiverMap.remove(key)?.let {
+                    context.unregisterReceiver(it)
+                }
                 reject(key, "Setting notification failed with status code $statusCode.")
                 return
             }
@@ -595,11 +621,15 @@ class Device(
             descriptor.value = value
             val resultDesc = bluetoothGatt?.writeDescriptor(descriptor)
             if (resultDesc != true) {
+                bondReceiverMap.remove(key)?.let {
+                    context.unregisterReceiver(it)
+                }
                 reject(key, "Setting notification failed.")
                 return
             }
 
         }
+        setTimeout(key, "Set notifications timeout.", timeout)
         // wait for onDescriptorWrite
     }
 
