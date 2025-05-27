@@ -757,6 +757,7 @@ class BluetoothLe : Plugin() {
     fun startNotifications(call: PluginCall) {
         val device = getDevice(call) ?: return
         val characteristic = getCharacteristic(call) ?: return
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
         device.setNotifications(characteristic.first, characteristic.second, true, { response ->
             run {
                 val key =
@@ -769,7 +770,7 @@ class BluetoothLe : Plugin() {
                     Logger.error(TAG, "Error in notifyListeners: ${e.localizedMessage}", e)
                 }
             }
-        }, { response ->
+        }, timeout, { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -784,8 +785,9 @@ class BluetoothLe : Plugin() {
     fun stopNotifications(call: PluginCall) {
         val device = getDevice(call) ?: return
         val characteristic = getCharacteristic(call) ?: return
+        val timeout = call.getFloat("timeout", DEFAULT_TIMEOUT)!!.toLong()
         device.setNotifications(
-            characteristic.first, characteristic.second, false, null
+            characteristic.first, characteristic.second, false, null, timeout
         ) { response ->
             run {
                 if (response.success) {

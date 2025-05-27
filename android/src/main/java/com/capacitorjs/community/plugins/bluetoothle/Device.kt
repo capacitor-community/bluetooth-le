@@ -546,6 +546,7 @@ class Device(
         characteristicUUID: UUID,
         enable: Boolean,
         notifyCallback: ((CallbackResponse) -> Unit)?,
+        timeout: Long,
         callback: (CallbackResponse) -> Unit,
     ) {
         val key = "writeDescriptor|$serviceUUID|$characteristicUUID|$CLIENT_CHARACTERISTIC_CONFIG"
@@ -600,6 +601,7 @@ class Device(
             }
 
         }
+        setTimeout(key, "Setting notification timeout.", timeout)
         // wait for onDescriptorWrite
     }
 

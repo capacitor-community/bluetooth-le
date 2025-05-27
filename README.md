@@ -867,7 +867,7 @@ Write a value to a descriptor.
 ### startNotifications(...)
 
 ```typescript
-startNotifications(deviceId: string, service: string, characteristic: string, callback: (value: DataView) => void) => Promise<void>
+startNotifications(deviceId: string, service: string, characteristic: string, callback: (value: DataView) => void, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Start listening to changes of the value of a characteristic.
@@ -881,6 +881,7 @@ For an example, see [usage](#usage).
 | **`service`**        | <code>string</code>                                               | UUID of the service (see [UUID format](#uuid-format))                                                          |
 | **`characteristic`** | <code>string</code>                                               | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
 | **`callback`**       | <code>(value: <a href="#dataview">DataView</a>) =&gt; void</code> | Callback function to use when the value of the characteristic changes                                          |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code>         | Options for plugin call. Timeout not supported on **web**.                                                     |
 
 ---
 
