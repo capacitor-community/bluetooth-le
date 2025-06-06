@@ -14,7 +14,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var stateReceiver: StateReceiver?
     private var timeoutMap = [String: DispatchWorkItem]()
     private var stopScanWorkItem: DispatchWorkItem?
-    private var alertController: UIAlertController?
+    private var deviceListView: DeviceListView?
+    private var popoverController: UIPopoverPresentationController?
     private var discoveredDevices = [String: Device]()
     private var deviceNameFilter: String?
     private var deviceNamePrefixFilter: String?
@@ -129,9 +130,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.stopScanWorkItem = nil
         DispatchQueue.main.async { [weak self] in
             if self?.discoveredDevices.count == 0 {
-                self?.alertController?.title = self?.displayStrings["noDeviceFound"]
+                self?.deviceListView?.setTitle (self?.displayStrings["noDeviceFound"])
             } else {
-                self?.alertController?.title = self?.displayStrings["availableDevices"]
+                self?.deviceListView?.setTitle (self?.displayStrings["availableDevices"])
             }
         }
     }
@@ -168,11 +169,11 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
         if shouldShowDeviceList {
             DispatchQueue.main.async { [weak self] in
-                self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
+                self?.deviceListView?.addItem(device.getName() ?? "Unknown", action: {
                     log("Selected device")
                     self?.stopScan()
                     self?.resolve("startScanning", device.getId())
-                }))
+                })
             }
         } else {
             if self.scanResultCallback != nil {
@@ -183,13 +184,17 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
     func showDeviceList() {
         DispatchQueue.main.async { [weak self] in
-            self?.alertController = UIAlertController(title: self?.displayStrings["scanning"], message: nil, preferredStyle: UIAlertController.Style.alert)
-            self?.alertController?.addAction(UIAlertAction(title: self?.displayStrings["cancel"], style: UIAlertAction.Style.cancel, handler: { (_) in
+            self?.deviceListView = DeviceListView()
+            if #available(macCatalyst 15.0, iOS 15.0, *) {
+                self?.deviceListView?.sheetPresentationController?.detents = [.medium()]
+            }
+            self?.viewController?.present((self?.deviceListView)!, animated: true, completion: nil)
+            self?.deviceListView?.setTitle(self?.displayStrings["scanning"])
+            self?.deviceListView?.setCancelButton(self?.displayStrings["cancel"], action: {
                 log("Cancelled request device.")
                 self?.stopScan()
                 self?.reject("startScanning", "requestDevice cancelled.")
-            }))
-            self?.viewController?.present((self?.alertController)!, animated: true, completion: nil)
+            })
         }
     }
 
