@@ -337,6 +337,6 @@ export interface BluetoothLePlugin {
   writeWithoutResponse(options: WriteOptions & TimeoutOptions): Promise<void>;
   readDescriptor(options: ReadDescriptorOptions & TimeoutOptions): Promise<ReadResult>;
   writeDescriptor(options: WriteDescriptorOptions & TimeoutOptions): Promise<void>;
-  startNotifications(options: ReadOptions): Promise<void>;
+  startNotifications(options: ReadOptions & TimeoutOptions): Promise<void>;
   stopNotifications(options: ReadOptions): Promise<void>;
 }
