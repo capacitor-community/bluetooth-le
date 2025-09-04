@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.1.1...v7.2.0) (2025-09-04)
+
+
+### Features
+
+* abort startNotifications on Android when bonding is cancelled ([a064cf0](https://github.com/capacitor-community/bluetooth-le/commit/a064cf0ccedfec0fff13458a4cde504c7939939b))
+* unify and expose timeout for startNotifications ([0c47df2](https://github.com/capacitor-community/bluetooth-le/commit/0c47df2d4b51a25ee025472eb69ace446aa44759))
+
 ### [7.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v7.1.0...v7.1.1) (2025-05-16)
 
 
