@@ -13,6 +13,12 @@ struct ManufacturerDataFilter {
     let mask: Data?
 }
 
+struct ServiceDataFilter {
+    let serviceUuid: CBUUID
+    let dataPrefix: Data?
+    let mask: Data?
+}
+
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
@@ -117,12 +123,14 @@ public class BluetoothLe: CAPPlugin {
         let name = call.getString("name")
         let namePrefix = call.getString("namePrefix")
         let manufacturerDataFilters = self.getManufacturerDataFilters(call)
+        let serviceDataFilters = self.getServiceDataFilters(call)
 
         deviceManager.startScanning(
             serviceUUIDs,
             name,
             namePrefix,
             manufacturerDataFilters,
+            serviceDataFilters,
             false,
             true,
             30,
@@ -151,12 +159,14 @@ public class BluetoothLe: CAPPlugin {
         let namePrefix = call.getString("namePrefix")
         let allowDuplicates = call.getBool("allowDuplicates", false)
         let manufacturerDataFilters = self.getManufacturerDataFilters(call)
+        let serviceDataFilters = self.getServiceDataFilters(call)
 
         deviceManager.startScanning(
             serviceUUIDs,
             name,
             namePrefix,
             manufacturerDataFilters,
+            serviceDataFilters,
             allowDuplicates,
             false,
             nil,
@@ -565,6 +575,44 @@ public class BluetoothLe: CAPPlugin {
         }
 
         return manufacturerDataFilters
+    }
+
+    private func getServiceDataFilters(_ call: CAPPluginCall) -> [ServiceDataFilter]? {
+        guard let serviceDataArray = call.getArray("serviceData") else {
+            return nil
+        }
+
+        var serviceDataFilters: [ServiceDataFilter] = []
+
+        for index in 0..<serviceDataArray.count {
+            guard let dataObject = serviceDataArray[index] as? JSObject,
+                  let serviceUuidString = dataObject["serviceUuid"] as? String else {
+                // Invalid or missing service UUID
+                return nil
+            }
+
+            let serviceUuid = CBUUID(string: serviceUuidString)
+
+            let dataPrefix: Data? = {
+                guard let prefixArray = dataObject["dataPrefix"] as? [Int] else { return nil }
+                return Data(prefixArray.map { UInt8($0 & 0xFF) })
+            }()
+
+            let mask: Data? = {
+                guard let maskArray = dataObject["mask"] as? [Int] else { return nil }
+                return Data(maskArray.map { UInt8($0 & 0xFF) })
+            }()
+
+            let serviceDataFilter = ServiceDataFilter(
+                serviceUuid: serviceUuid,
+                dataPrefix: dataPrefix,
+                mask: mask
+            )
+
+            serviceDataFilters.append(serviceDataFilter)
+        }
+
+        return serviceDataFilters
     }
 
     private func getDevice(_ call: CAPPluginCall, checkConnection: Bool = true) -> Device? {

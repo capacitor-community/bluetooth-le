@@ -51,6 +51,12 @@ export interface RequestBleDeviceOptions {
    * https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata
    */
   manufacturerData?: ManufacturerDataFilter[];
+  /**
+   * Allow scanning for devices with specific service data.
+   * Service data is data associated with a specific service UUID in the advertisement packet.
+   * Useful for protocols like OpenDroneID.
+   */
+  serviceData?: ServiceDataFilter[];
 }
 
 /**
@@ -110,6 +116,27 @@ export interface ManufacturerDataFilter {
   /**
    * Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0.
    * The `mask` must have the same length of dataPrefix.
+   */
+  mask?: Uint8Array;
+}
+
+export interface ServiceDataFilter {
+  /**
+   * Service UUID to filter by. The service data must be associated with this UUID.
+   * UUIDs have to be specified as 128 bit UUID strings,
+   * e.g. '0000fffa-0000-1000-8000-00805f9b34fb'
+   */
+  serviceUuid: string;
+
+  /**
+   * Prefix to match in the service data field.
+   * For example, OpenDroneID uses [0x0D] as the advertisement code.
+   */
+  dataPrefix?: Uint8Array;
+
+  /**
+   * Set filter on partial service data. For any bit in the mask, set it to 1 if it needs to match the one in service data, otherwise set it to 0.
+   * The `mask` must have the same length as dataPrefix.
    */
   mask?: Uint8Array;
 }

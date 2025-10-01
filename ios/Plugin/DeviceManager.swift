@@ -21,6 +21,10 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var shouldShowDeviceList = false
     private var allowDuplicates = false
     private var manufacturerDataFilters: [ManufacturerDataFilter]?
+    private var serviceDataFilters: [ServiceDataFilter]?
+
+    static let serviceUUID = CBUUID(string: "0000fffa-0000-1000-8000-00805f9b34fb")
+    static let odidAdCode: [UInt8] = [ 0x0D ]
 
     init(_ viewController: UIViewController?, _ displayStrings: [String: String], _ callback: @escaping Callback) {
         super.init()
@@ -81,6 +85,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ name: String?,
         _ namePrefix: String?,
         _ manufacturerDataFilters: [ManufacturerDataFilter]?,
+        _ serviceDataFilters: [ServiceDataFilter]?,
         _ allowDuplicates: Bool,
         _ shouldShowDeviceList: Bool,
         _ scanDuration: Double?,
@@ -97,6 +102,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             self.deviceNameFilter = name
             self.deviceNamePrefixFilter = namePrefix
             self.manufacturerDataFilters = manufacturerDataFilters
+            self.serviceDataFilters = serviceDataFilters
 
             if shouldShowDeviceList {
                 self.showDeviceList()
@@ -156,6 +162,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
         guard self.passesManufacturerDataFilter(advertisementData) else { return }
+        guard self.passesServiceDataFilter(advertisementData) else { return }
 
         let device: Device
         if self.allowDuplicates, let knownDevice = discoveredDevices.first(where: { $0.key == peripheral.identifier.uuidString })?.value {
@@ -342,6 +349,47 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 }
             } else {
                 return true // Company ID matched, and no dataPrefix required
+            }
+        }
+
+        return false  // If none matched, return false
+    }
+
+    private func passesServiceDataFilter(_ advertisementData: [String: Any]) -> Bool {
+        guard let filters = self.serviceDataFilters, !filters.isEmpty else {
+            return true  // No filters means everything passes
+        }
+
+        guard let serviceDataDict = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] else {
+            return false  // If there's no service data, fail
+        }
+
+        for filter in filters {
+            guard let serviceData = serviceDataDict[filter.serviceUuid] else {
+                continue  // Skip if service UUID does not match
+            }
+
+            if let dataPrefix = filter.dataPrefix {
+                if serviceData.count < dataPrefix.count {
+                    continue // Service data too short, does not match
+                }
+
+                if let mask = filter.mask {
+                    var matches = true
+                    for i in 0..<dataPrefix.count {
+                        if (serviceData[i] & mask[i]) != (dataPrefix[i] & mask[i]) {
+                            matches = false
+                            break
+                        }
+                    }
+                    if matches {
+                        return true
+                    }
+                } else if serviceData.starts(with: dataPrefix) {
+                    return true
+                }
+            } else {
+                return true // Service UUID matched, and no dataPrefix required
             }
         }
 
