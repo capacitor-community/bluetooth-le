@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-20-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-23-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -867,7 +867,7 @@ Write a value to a descriptor.
 ### startNotifications(...)
 
 ```typescript
-startNotifications(deviceId: string, service: string, characteristic: string, callback: (value: DataView) => void) => Promise<void>
+startNotifications(deviceId: string, service: string, characteristic: string, callback: (value: DataView) => void, options?: TimeoutOptions | undefined) => Promise<void>
 ```
 
 Start listening to changes of the value of a characteristic.
@@ -881,6 +881,7 @@ For an example, see [usage](#usage).
 | **`service`**        | <code>string</code>                                               | UUID of the service (see [UUID format](#uuid-format))                                                          |
 | **`characteristic`** | <code>string</code>                                               | UUID of the characteristic (see [UUID format](#uuid-format))                                                   |
 | **`callback`**       | <code>(value: <a href="#dataview">DataView</a>) =&gt; void</code> | Callback function to use when the value of the characteristic changes                                          |
+| **`options`**        | <code><a href="#timeoutoptions">TimeoutOptions</a></code>         | Options for plugin call. Timeout not supported on **web**.                                                     |
 
 ---
 
@@ -935,6 +936,15 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`optionalServices`** | <code>string[]</code>                         | For **web**, all services that will be used have to be listed under services or optionalServices, e.g. [numberToUUID(0x180f)] (see [UUID format](#uuid-format))                                                                                           |
 | **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                |
 | **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                          |
+| **`manufacturerData`** | <code>ManufacturerDataFilter[]</code>         | Allow scanning for devices with a specific manufacturer data https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata                                                                                                    |
+
+#### ManufacturerDataFilter
+
+| Prop                    | Type                                              | Description                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`companyIdentifier`** | <code>number</code>                               | Company ID (sometimes called the manufacturer ID) to search for in the manufacturer data field.                                                                                                             |
+| **`dataPrefix`**        | <code><a href="#uint8array">Uint8Array</a></code> | Prefix to match in the manufacturer data field. On **Android** this field is mandatory.                                                                                                                     |
+| **`mask`**              | <code><a href="#uint8array">Uint8Array</a></code> | Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0. The `mask` must have the same length of dataPrefix. |
 
 #### ScanResult
 
@@ -1133,6 +1143,11 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/peitschie"><img src="https://avatars.githubusercontent.com/u/1052079?v=4?s=100" width="100px;" alt="Philip Peitsch"/><br /><sub><b>Philip Peitsch</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=peitschie" title="Code">💻</a> <a href="#question-peitschie" title="Answering Questions">💬</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/NaterGator"><img src="https://avatars.githubusercontent.com/u/2575?v=4?s=100" width="100px;" alt="Nate Weibley"/><br /><sub><b>Nate Weibley</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=NaterGator" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://www.enesi.it"><img src="https://avatars.githubusercontent.com/u/2611534?v=4?s=100" width="100px;" alt="Emanuele Toffolon"/><br /><sub><b>Emanuele Toffolon</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=emanueletoffolon" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/steinerjakob"><img src="https://avatars.githubusercontent.com/u/23446667?v=4?s=100" width="100px;" alt="Jakob Steiner"/><br /><sub><b>Jakob Steiner</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=steinerjakob" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/gion-andri"><img src="https://avatars.githubusercontent.com/u/540998?v=4?s=100" width="100px;" alt="Gion-Andri Cantieni"/><br /><sub><b>Gion-Andri Cantieni</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=gion-andri" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JasonAsmk"><img src="https://avatars.githubusercontent.com/u/994111?v=4?s=100" width="100px;" alt="Iason Asimakopoulos"/><br /><sub><b>Iason Asimakopoulos</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=JasonAsmk" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

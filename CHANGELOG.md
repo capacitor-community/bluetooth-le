@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.1.1...v7.2.0) (2025-09-04)
+
+
+### Features
+
+* abort startNotifications on Android when bonding is cancelled ([a064cf0](https://github.com/capacitor-community/bluetooth-le/commit/a064cf0ccedfec0fff13458a4cde504c7939939b))
+* unify and expose timeout for startNotifications ([0c47df2](https://github.com/capacitor-community/bluetooth-le/commit/0c47df2d4b51a25ee025472eb69ace446aa44759))
+
+### [7.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v7.1.0...v7.1.1) (2025-05-16)
+
+
+### Bug Fixes
+
+* **filters:** restore filtering only with name functionality ([#763](https://github.com/capacitor-community/bluetooth-le/issues/763)) ([cbab0c2](https://github.com/capacitor-community/bluetooth-le/commit/cbab0c2e4249f49de4ecec4d4d81caccefd1bce9))
+
+## [7.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.0.0...v7.1.0) (2025-05-07)
+
+
+### Features
+
+* **all:** support to pass manufacturerData to the scan filters ([#752](https://github.com/capacitor-community/bluetooth-le/issues/752)) ([c56b670](https://github.com/capacitor-community/bluetooth-le/commit/c56b6709c42133d56ff7a6b96fdd8fed16253b12))
+
+
+### Bug Fixes
+
+* remove callback from map before invocation ([06eab26](https://github.com/capacitor-community/bluetooth-le/commit/06eab2606ab6c2dd08f16fe4022f2c5670b6f47a)), closes [#751](https://github.com/capacitor-community/bluetooth-le/issues/751)
+
 ## [7.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v6.1.0...v7.0.0) (2025-01-25)
 
 

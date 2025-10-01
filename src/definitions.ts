@@ -46,6 +46,11 @@ export interface RequestBleDeviceOptions {
    * Android scan mode (default: ScanMode.SCAN_MODE_BALANCED)
    */
   scanMode?: ScanMode;
+  /**
+   * Allow scanning for devices with a specific manufacturer data
+   * https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata
+   */
+  manufacturerData?: ManufacturerDataFilter[];
 }
 
 /**
@@ -88,6 +93,25 @@ export enum ConnectionPriority {
    * https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER
    */
   CONNECTION_PRIORITY_LOW_POWER = 2,
+}
+
+export interface ManufacturerDataFilter {
+  /**
+   * Company ID (sometimes called the manufacturer ID) to search for in the manufacturer data field.
+   */
+  companyIdentifier: number;
+
+  /**
+   * Prefix to match in the manufacturer data field.
+   * On **Android** this field is mandatory.
+   */
+  dataPrefix?: Uint8Array;
+
+  /**
+   * Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0.
+   * The `mask` must have the same length of dataPrefix.
+   */
+  mask?: Uint8Array;
 }
 
 export interface BleDevice {
@@ -313,6 +337,6 @@ export interface BluetoothLePlugin {
   writeWithoutResponse(options: WriteOptions & TimeoutOptions): Promise<void>;
   readDescriptor(options: ReadDescriptorOptions & TimeoutOptions): Promise<ReadResult>;
   writeDescriptor(options: WriteDescriptorOptions & TimeoutOptions): Promise<void>;
-  startNotifications(options: ReadOptions): Promise<void>;
+  startNotifications(options: ReadOptions & TimeoutOptions): Promise<void>;
   stopNotifications(options: ReadOptions): Promise<void>;
 }
