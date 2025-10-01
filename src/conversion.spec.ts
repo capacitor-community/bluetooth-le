@@ -8,6 +8,8 @@ import {
   textToDataView,
   webUUIDToString,
   mapToObject,
+  toUint8Array,
+  toHexString,
 } from './conversion';
 
 describe('numbersToDataView', () => {
@@ -176,5 +178,69 @@ describe('mapToObject', () => {
   it('should return undefined for undefined input', () => {
     expect(mapToObject()).toBeUndefined();
     expect(mapToObject(undefined)).toBeUndefined();
+  });
+});
+
+describe('toUint8Array', () => {
+  it('should convert a DataView to Uint8Array', () => {
+    const dataView = new DataView(Uint8Array.from([13, 255]).buffer);
+    const result = toUint8Array(dataView);
+    expect(result).toBeInstanceOf(Uint8Array);
+    expect(result?.length).toEqual(2);
+    expect(result?.[0]).toEqual(13);
+    expect(result?.[1]).toEqual(255);
+  });
+
+  it('should return Uint8Array as-is', () => {
+    const uint8Array = new Uint8Array([13, 255]);
+    const result = toUint8Array(uint8Array);
+    expect(result).toBe(uint8Array);
+  });
+
+  it('should respect DataView offset and length', () => {
+    const buffer = new Uint8Array([1, 2, 13, 255, 10, 11]).buffer;
+    const dataView = new DataView(buffer, 2, 2);
+    const result = toUint8Array(dataView);
+    expect(result?.length).toEqual(2);
+    expect(result?.[0]).toEqual(13);
+    expect(result?.[1]).toEqual(255);
+  });
+
+  it('should return undefined for undefined input', () => {
+    const result = toUint8Array(undefined);
+    expect(result).toBeUndefined();
+  });
+});
+
+describe('toHexString', () => {
+  it('should convert DataView to hex string', () => {
+    const dataView = new DataView(Uint8Array.from([13, 255]).buffer);
+    const result = toHexString(dataView);
+    expect(result).toEqual('0dff');
+  });
+
+  it('should convert Uint8Array to hex string', () => {
+    const uint8Array = new Uint8Array([13, 255]);
+    const result = toHexString(uint8Array);
+    expect(result).toEqual('0dff');
+  });
+
+  it('should respect DataView offset and length', () => {
+    const buffer = new Uint8Array([1, 2, 13, 255, 10, 11]).buffer;
+    const dataView = new DataView(buffer, 2, 2);
+    const result = toHexString(dataView);
+    expect(result).toEqual('0dff');
+  });
+
+  it('should respect Uint8Array offset and length', () => {
+    const buffer = new Uint8Array([1, 2, 13, 255, 10, 11]);
+    const subArray = buffer.subarray(2, 4);
+    const result = toHexString(subArray);
+    expect(result).toEqual('0dff');
+  });
+
+  it('should return undefined for undefined input', () => {
+    const result = toHexString(undefined);
+    expect(result).toBeUndefined();
   });
 });

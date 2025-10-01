@@ -812,6 +812,7 @@ class BluetoothLe : Plugin() {
 
         val services = (call.getArray("services", JSArray()) as JSArray).toList<String>()
         val manufacturerDataArray = call.getArray("manufacturerData", JSArray())
+        val serviceDataArray = call.getArray("serviceData", JSArray())
         val name = call.getString("name", null)
 
         try {
@@ -823,6 +824,43 @@ class BluetoothLe : Plugin() {
                     filter.setDeviceName(name)
                 }
                 filters.add(filter.build())
+            }
+
+            // Service Data Handling (for filtering by service data like OpenDroneID)
+            serviceDataArray?.let {
+                for (i in 0 until it.length()) {
+                    val serviceDataObject = it.getJSONObject(i)
+
+                    val serviceUuid = serviceDataObject.getString("serviceUuid")
+                    val servicePuuid = ParcelUuid.fromString(serviceUuid)
+
+                    val dataPrefix = if (serviceDataObject.has("dataPrefix")) {
+                        val dataPrefixString = serviceDataObject.getString("dataPrefix")
+                        stringToBytes(dataPrefixString)
+                    } else null
+
+                    val mask = if (serviceDataObject.has("mask")) {
+                        val maskString = serviceDataObject.getString("mask")
+                        stringToBytes(maskString)
+                    } else null
+
+                    val filterBuilder = ScanFilter.Builder()
+
+                    if (dataPrefix != null && mask != null) {
+                        filterBuilder.setServiceData(servicePuuid, dataPrefix, mask)
+                    } else if (dataPrefix != null) {
+                        filterBuilder.setServiceData(servicePuuid, dataPrefix)
+                    } else {
+                        // Set service data filter without data (just match the service UUID)
+                        filterBuilder.setServiceData(servicePuuid, byteArrayOf())
+                    }
+
+                    if (name != null) {
+                        filterBuilder.setDeviceName(name)
+                    }
+
+                    filters.add(filterBuilder.build())
+                }
             }
 
             // Manufacturer Data Handling (with optional parameters)

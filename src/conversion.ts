@@ -91,3 +91,38 @@ export function mapToObject<V>(map?: Map<string | number, V>): { [key: string]: 
   });
   return obj;
 }
+
+/**
+ * Convert Data or Uint8Array to Uint8Array.
+ * @param value DataView, Uint8Array, or undefined
+ * @return Uint8Array or undefined
+ */
+export function toUint8Array(value: DataView | Uint8Array | undefined): Uint8Array | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    const dataView = hexStringToDataView(value);
+    return new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
+  }
+  if (value instanceof DataView) {
+    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+  }
+  return value; // Already Uint8Array
+}
+
+/**
+ * Convert Data, Uint8Array, or string to hex string.
+ * @param value DataView, Uint8Array, or undefined
+ * @return hex string or undefined
+ */
+export function toHexString(value: DataView | Uint8Array | undefined): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value instanceof DataView) {
+    return dataViewToHexString(value);
+  }
+  // Uint8Array
+  return dataViewToHexString(new DataView(value.buffer, value.byteOffset, value.byteLength));
+}

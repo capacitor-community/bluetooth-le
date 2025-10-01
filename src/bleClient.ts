@@ -2,7 +2,7 @@ import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 
 import type { DisplayStrings } from './config';
-import { dataViewToHexString, hexStringToDataView } from './conversion';
+import { dataViewToHexString, hexStringToDataView, toUint8Array, toHexString } from './conversion';
 import type {
   BleDevice,
   BleService,
@@ -717,6 +717,15 @@ class BleClientClass implements BleClientInterface {
     }
     if (options.optionalServices) {
       options.optionalServices = options.optionalServices.map(parseUUID);
+    }
+    if (options.serviceData && Capacitor.getPlatform() !== 'web') {
+      // Native platforms: convert to hex strings
+      options.serviceData = options.serviceData.map((filter) => ({
+        ...filter,
+        serviceUuid: parseUUID(filter.serviceUuid),
+        dataPrefix: toHexString(filter.dataPrefix),
+        mask: toHexString(filter.mask),
+      })) as any;
     }
     return options;
   }

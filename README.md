@@ -938,6 +938,7 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                          |                      |
 | **`manufacturerData`** | <code>ManufacturerDataFilter[]</code>         | Allow scanning for devices with a specific manufacturer data https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata                                                                                                    |                      |
 | **`displayMode`**      | <code>'alert' \| 'list'</code>                | Display mode for the device list in `requestDevice` (**iOS** only). - `"alert"`: Classic alert dialog (default) - `"list"`: Scrollable list view                                                                                                          | <code>"alert"</code> |
+| **`serviceData`**      | <code>ServiceDataFilter[]</code>              | Allow scanning for devices with specific service data. Service data is data associated with a specific service UUID in the advertisement packet. Useful for protocols like OpenDroneID, EddyStone, and Open Beacon.                                       |                      |
 
 #### ManufacturerDataFilter
 
@@ -946,6 +947,14 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`companyIdentifier`** | <code>number</code>                               | Company ID (sometimes called the manufacturer ID) to search for in the manufacturer data field.                                                                                                             |
 | **`dataPrefix`**        | <code><a href="#uint8array">Uint8Array</a></code> | Prefix to match in the manufacturer data field. On **Android** this field is mandatory.                                                                                                                     |
 | **`mask`**              | <code><a href="#uint8array">Uint8Array</a></code> | Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0. The `mask` must have the same length of dataPrefix. |
+
+#### ServiceDataFilter
+
+| Prop              | Type                                              | Description                                                                                                                                                                                       |
+| ----------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`serviceUuid`** | <code>string</code>                               | Service UUID to filter by. The service data must be associated with this UUID. UUIDs have to be specified as 128 bit UUID strings, e.g. '0000fffa-0000-1000-8000-00805f9b34fb'                    |
+| **`dataPrefix`**  | <code><a href="#uint8array">Uint8Array</a></code> | Prefix to match in the service data field. For example, OpenDroneID uses [0x0D] as the advertisement code.                                                                                        |
+| **`mask`**        | <code><a href="#uint8array">Uint8Array</a></code> | Set filter on partial service data. For any bit in the mask, set it to 1 if it needs to match the one in service data, otherwise set it to 0. The `mask` must have the same length as dataPrefix. |
 
 #### ScanResult
 
