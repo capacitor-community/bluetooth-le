@@ -125,6 +125,12 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     const deviceId = event.device.id;
     this.deviceMap.set(deviceId, event.device);
     const isNew = !this.discoveredDevices.has(deviceId);
+    
+    // Apply service data filtering client-side (Web Bluetooth API doesn't support it in scan filters)
+    if (this.requestBleDeviceOptions?.serviceData && !this.matchesServiceDataFilter(event)) {
+      return;
+    }
+    
     if (isNew || this.requestBleDeviceOptions?.allowDuplicates) {
       this.discoveredDevices.set(deviceId, true);
       const device = this.getBleDevice(event.device);
@@ -381,7 +387,70 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
         manufacturerData: [manufacturerData],
       });
     }
+    // Note: Web Bluetooth API does not support service data in scan filters.
+    // Service data filtering will be done client-side in onAdvertisementReceived.
+    // We still accept serviceData in options for API consistency across platforms.
     return filters;
+  }
+
+  private matchesServiceDataFilter(event: BluetoothAdvertisingEvent): boolean {
+    const filters = this.requestBleDeviceOptions?.serviceData;
+    if (!filters || filters.length === 0) {
+      return true; // No filters, accept all
+    }
+
+    if (!event.serviceData) {
+      return false; // No service data in advertisement
+    }
+
+    // Check if any filter matches (OR logic)
+    for (const filter of filters) {
+      const serviceData = event.serviceData.get(filter.serviceUuid);
+      if (!serviceData) {
+        continue; // This filter doesn't match, try next
+      }
+
+      // If we have service data for this UUID
+      if (!filter.dataPrefix) {
+        return true; // Filter matched by service UUID alone
+      }
+
+      // Check data prefix
+      const data = new Uint8Array(serviceData.buffer);
+      const prefix = filter.dataPrefix;
+
+      if (data.length < prefix.length) {
+        continue; // Data too short
+      }
+
+      // Apply mask if provided
+      if (filter.mask) {
+        let matches = true;
+        for (let i = 0; i < prefix.length; i++) {
+          if ((data[i] & filter.mask[i]) !== (prefix[i] & filter.mask[i])) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) {
+          return true;
+        }
+      } else {
+        // Check if data starts with prefix
+        let matches = true;
+        for (let i = 0; i < prefix.length; i++) {
+          if (data[i] !== prefix[i]) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) {
+          return true;
+        }
+      }
+    }
+
+    return false; // No filter matched
   }
 
   private getDeviceFromMap(deviceId: string): BluetoothDevice {

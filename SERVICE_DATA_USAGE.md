@@ -256,9 +256,9 @@ async function scanForDrones() {
 
 | Feature | Android | iOS | Web |
 |---------|---------|-----|-----|
-| Service UUID filtering | ✅ Hardware | ✅ Software | ❌ |
-| Service data prefix | ✅ Hardware | ✅ Software | ❌ |
-| Service data mask | ✅ Hardware | ✅ Software | ❌ |
+| Service UUID filtering | ✅ Hardware | ✅ Software | ✅ Client-side |
+| Service data prefix | ✅ Hardware | ✅ Software | ✅ Client-side |
+| Service data mask | ✅ Hardware | ✅ Software | ✅ Client-side |
 
 ### Android
 - Uses `ScanFilter.Builder().setServiceData()`
@@ -271,8 +271,12 @@ async function scanForDrones() {
 - Supports all filter combinations
 
 ### Web
-- Web Bluetooth API does not support service data filtering
-- Falls back to service UUID filtering only
+- **Note:** Web Bluetooth API does not support service data in native scan filters
+- Service data filtering is done **client-side** in JavaScript
+- Filters are applied after receiving advertisement events
+- All devices are scanned, then filtered in the `onAdvertisementReceived` callback
+- Less efficient than native filtering, but functionally equivalent
+- Supports all filter combinations (serviceUuid, dataPrefix, mask)
 
 ## Key Differences from Manufacturer Data
 
