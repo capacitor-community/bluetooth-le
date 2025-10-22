@@ -938,7 +938,7 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`allowDuplicates`**  | <code>boolean</code>                          | Normally scans will discard the second and subsequent advertisements from a single device. If you need to receive them, set allowDuplicates to true (only applicable in `requestLEScan`). (default: false)                                                |
 | **`scanMode`**         | <code><a href="#scanmode">ScanMode</a></code> | Android scan mode (default: <a href="#scanmode">ScanMode.SCAN_MODE_BALANCED</a>)                                                                                                                                                                          |
 | **`manufacturerData`** | <code>ManufacturerDataFilter[]</code>         | Allow scanning for devices with a specific manufacturer data https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata                                                                                                    |
-| **`serviceData`**      | <code>ServiceDataFilter[]</code>              | Allow scanning for devices with specific service data. Service data is data associated with a specific service UUID in the advertisement packet. Useful for protocols like OpenDroneID.                                                                   |
+| **`serviceData`**      | <code>ServiceDataFilter[]</code>              | Allow scanning for devices with specific service data. Service data is data associated with a specific service UUID in the advertisement packet. Useful for protocols like OpenDroneID, EddyStone, and Open Beacon.                                       |
 
 #### ManufacturerDataFilter
 
@@ -947,8 +947,6 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`companyIdentifier`** | <code>number</code>                               | Company ID (sometimes called the manufacturer ID) to search for in the manufacturer data field.                                                                                                             |
 | **`dataPrefix`**        | <code><a href="#uint8array">Uint8Array</a></code> | Prefix to match in the manufacturer data field. On **Android** this field is mandatory.                                                                                                                     |
 | **`mask`**              | <code><a href="#uint8array">Uint8Array</a></code> | Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0. The `mask` must have the same length of dataPrefix. |
-
-#### Uint8Array
 
 A typed array of 8-bit unsigned integer values. The contents are initialized to 0. If the
 requested number of bytes could not be allocated an exception is raised.
@@ -987,22 +985,6 @@ requested number of bytes could not be allocated an exception is raised.
 | **sort**           | (compareFn?: ((a: number, b: number) =&gt; number) \| undefined) =&gt; this                                                                                                    | Sorts an array.                                                                                                                                                                                                                             |
 | **subarray**       | (begin?: number \| undefined, end?: number \| undefined) =&gt; <a href="#uint8array">Uint8Array</a>                                                                            | Gets a new <a href="#uint8array">Uint8Array</a> view of the <a href="#arraybuffer">ArrayBuffer</a> store for this array, referencing the elements at begin, inclusive, up to end, exclusive.                                                |
 | **toLocaleString** | () =&gt; string                                                                                                                                                                | Converts a number to a string by using the current locale.                                                                                                                                                                                  |
-| **toString**       | () =&gt; string                                                                                                                                                                | Returns a string representation of an array.                                                                                                                                                                                                |
-| **valueOf**        | () =&gt; <a href="#uint8array">Uint8Array</a>                                                                                                                                  | Returns the primitive value of the specified object.                                                                                                                                                                                        |
-
-#### ArrayLike
-
-| Prop         | Type                |
-| ------------ | ------------------- |
-| **`length`** | <code>number</code> |
-
-#### ArrayBufferTypes
-
-Allowed <a href="#arraybuffer">ArrayBuffer</a> types for the buffer of an ArrayBufferView and related Typed Arrays.
-
-| Prop              | Type                                                |
-| ----------------- | --------------------------------------------------- |
-| **`ArrayBuffer`** | <code><a href="#arraybuffer">ArrayBuffer</a></code> |
 
 #### ArrayBuffer
 

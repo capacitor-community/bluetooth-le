@@ -54,7 +54,7 @@ export interface RequestBleDeviceOptions {
   /**
    * Allow scanning for devices with specific service data.
    * Service data is data associated with a specific service UUID in the advertisement packet.
-   * Useful for protocols like OpenDroneID.
+   * Useful for protocols like OpenDroneID, EddyStone, and Open Beacon.
    */
   serviceData?: ServiceDataFilter[];
 }
