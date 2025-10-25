@@ -22,6 +22,7 @@ class DeviceListView: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     func setCancelButton(_ title: String?, action: @escaping () -> Void) {
         cancelButton.setTitle(title, for: .normal)
+        self.onCancel = action
     }
 
     func addItem(_ name: String, action: @escaping () -> Void) {
