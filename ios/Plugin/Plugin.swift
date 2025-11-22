@@ -563,13 +563,13 @@ public class BluetoothLe: CAPPlugin {
             }
 
             let dataPrefix: Data? = {
-                guard let prefixArray = dataObject["dataPrefix"] as? [Int] else { return nil }
-                return Data(prefixArray.map { UInt8($0 & 0xFF) })
+                guard let prefixString = dataObject["dataPrefix"] as? String else { return nil }
+                return stringToData(prefixString)
             }()
 
             let mask: Data? = {
-                guard let maskArray = dataObject["mask"] as? [Int] else { return nil }
-                return Data(maskArray.map { UInt8($0 & 0xFF) })
+                guard let maskString = dataObject["mask"] as? String else { return nil }
+                return stringToData(maskString)
             }()
 
             let manufacturerFilter = ManufacturerDataFilter(

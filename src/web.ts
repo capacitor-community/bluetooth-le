@@ -383,8 +383,9 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
       });
     }
     for (const manufacturerData of options?.manufacturerData ?? []) {
+      // Cast to any to avoid type incompatibility - conversion is handled in bleClient.ts
       filters.push({
-        manufacturerData: [manufacturerData],
+        manufacturerData: [manufacturerData as any],
       });
     }
     // Note: Web Bluetooth API does not support service data in scan filters.

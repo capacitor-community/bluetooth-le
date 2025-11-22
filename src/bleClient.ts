@@ -727,6 +727,23 @@ class BleClientClass implements BleClientInterface {
         mask: toHexString(filter.mask),
       })) as any;
     }
+    if (options.manufacturerData) {
+      if (Capacitor.getPlatform() !== 'web') {
+        // Native platforms: convert to hex strings
+        options.manufacturerData = options.manufacturerData.map((filter) => ({
+          ...filter,
+          dataPrefix: toHexString(filter.dataPrefix),
+          mask: toHexString(filter.mask),
+        })) as any;
+      } else {
+        // Web platform: convert to Uint8Array for Web Bluetooth API
+        options.manufacturerData = options.manufacturerData.map((filter) => ({
+          ...filter,
+          dataPrefix: toUint8Array(filter.dataPrefix),
+          mask: toUint8Array(filter.mask),
+        }));
+      }
+    }
     return options;
   }
 
