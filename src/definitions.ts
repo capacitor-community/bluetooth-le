@@ -117,14 +117,18 @@ export interface ManufacturerDataFilter {
   /**
    * Prefix to match in the manufacturer data field.
    * On **Android** this field is mandatory.
+   * android, ios: DataView
+   * web: Uint8Array
    */
-  dataPrefix?: Uint8Array;
+  dataPrefix?: DataView | Uint8Array;
 
   /**
    * Set filter on partial manufacture data. For any bit in the mask, set it the 1 if it needs to match the one in manufacturer data, otherwise set it to 0.
    * The `mask` must have the same length of dataPrefix.
+   * android, ios: DataView
+   * web: Uint8Array
    */
-  mask?: Uint8Array;
+  mask?: DataView | Uint8Array;
 }
 
 export interface ServiceDataFilter {

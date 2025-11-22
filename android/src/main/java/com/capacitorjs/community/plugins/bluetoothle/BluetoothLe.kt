@@ -871,28 +871,13 @@ class BluetoothLe : Plugin() {
                     val companyIdentifier = manufacturerDataObject.getInt("companyIdentifier")
 
                     val dataPrefix = if (manufacturerDataObject.has("dataPrefix")) {
-                        val dataPrefixObject = manufacturerDataObject.getJSONObject("dataPrefix")
-                        val byteLength = dataPrefixObject.length()
-
-                        ByteArray(byteLength).apply {
-                            for (idx in 0 until byteLength) {
-                                val key = idx.toString()
-                                this[idx] = (dataPrefixObject.getInt(key) and 0xFF).toByte()
-                            }
-                        }
+                        val dataPrefixString = manufacturerDataObject.getString("dataPrefix")
+                        stringToBytes(dataPrefixString)
                     } else null
 
-
                     val mask = if (manufacturerDataObject.has("mask")) {
-                        val maskObject = manufacturerDataObject.getJSONObject("mask")
-                        val byteLength = maskObject.length()
-
-                        ByteArray(byteLength).apply {
-                            for (idx in 0 until byteLength) {
-                                val key = idx.toString()
-                                this[idx] = (maskObject.getInt(key) and 0xFF).toByte()
-                            }
-                        }
+                        val maskString = manufacturerDataObject.getString("mask")
+                        stringToBytes(maskString)
                     } else null
 
                     val filterBuilder = ScanFilter.Builder()
