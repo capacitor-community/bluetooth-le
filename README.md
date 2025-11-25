@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-23-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-24-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -1149,6 +1149,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/gion-andri"><img src="https://avatars.githubusercontent.com/u/540998?v=4?s=100" width="100px;" alt="Gion-Andri Cantieni"/><br /><sub><b>Gion-Andri Cantieni</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=gion-andri" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JasonAsmk"><img src="https://avatars.githubusercontent.com/u/994111?v=4?s=100" width="100px;" alt="Iason Asimakopoulos"/><br /><sub><b>Iason Asimakopoulos</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=JasonAsmk" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.talaviram.com"><img src="https://avatars.githubusercontent.com/u/6911158?v=4?s=100" width="100px;" alt="Tal Aviram"/><br /><sub><b>Tal Aviram</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=talaviram" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
