@@ -513,6 +513,7 @@ class BluetoothLe : Plugin() {
         device.disconnect(timeout) { response ->
             run {
                 if (response.success) {
+                    device.cleanup()
                     deviceMap.remove(device.getId())
                     call.resolve()
                 } else {

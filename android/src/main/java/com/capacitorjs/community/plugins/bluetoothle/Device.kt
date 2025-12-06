@@ -21,7 +21,9 @@ import android.os.HandlerThread
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import com.getcapacitor.Logger
+import java.util.Collections
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class CallbackResponse(
@@ -68,9 +70,9 @@ class Device(
     private var device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
     private var bluetoothGatt: BluetoothGatt? = null
     private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
-    private val bondReceiverMap = HashMap<String, BroadcastReceiver>()
     private val timeoutQueue = ConcurrentLinkedQueue<TimeoutHandler>()
     private var bondStateReceiver: BroadcastReceiver? = null
+    private val pendingBondKeys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
     private var currentMtu = -1
 
     private lateinit var callbacksHandlerThread: HandlerThread
@@ -92,6 +94,22 @@ class Device(
         }
     }
 
+    fun cleanup() {
+        synchronized(this) {
+            bondStateReceiver?.let { receiver ->
+                try {
+                    context.unregisterReceiver(receiver)
+                } catch (e: IllegalArgumentException) {
+                    Logger.debug(TAG, "Bond state receiver already unregistered")
+                }
+                bondStateReceiver = null
+            }
+
+            pendingBondKeys.clear()
+            cleanupCallbacksHandlerThread()
+        }
+    }
+
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
             gatt: BluetoothGatt, status: Int, newState: Int
@@ -110,7 +128,7 @@ class Device(
                 bluetoothGatt?.close()
                 bluetoothGatt = null
                 Logger.debug(TAG, "Disconnected from GATT server.")
-                cleanupCallbacksHandlerThread()
+                cleanup()
                 resolve("disconnect", "Disconnected.")
             }
         }
@@ -281,9 +299,6 @@ class Device(
             super.onDescriptorWrite(gatt, descriptor, status)
             val key =
                 "writeDescriptor|${descriptor.characteristic.service.uuid}|${descriptor.characteristic.uuid}|${descriptor.uuid}"
-            bondReceiverMap.remove(key)?.let {
-                context.unregisterReceiver(it)
-            }
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 resolve(key, "Descriptor successfully written.")
             } else {
@@ -362,9 +377,16 @@ class Device(
     fun createBond(timeout: Long, callback: (CallbackResponse) -> Unit) {
         val key = "createBond"
         callbackMap[key] = callback
+
+        // Check if already bonded first to avoid race condition
+        if (isBonded()) {
+            resolve(key, "Creating bond succeeded.")
+            return
+        }
+
         try {
-            createBondStateReceiver()
-        } catch (e: Error) {
+            ensureBondStateReceiverRegistered()
+        } catch (e: Exception) {
             Logger.error(TAG, "Error while registering bondStateReceiver: ${e.localizedMessage}", e)
             reject(key, "Creating bond failed.")
             return
@@ -374,22 +396,17 @@ class Device(
             reject(key, "Creating bond failed.")
             return
         }
-        // if already bonded, resolve immediately
-        if (isBonded()) {
-            resolve(key, "Creating bond succeeded.")
-            return
-        }
-        // otherwise, wait for bond state change
+        // Wait for bond state change
         setTimeout(key, "Bonding timeout.", timeout)
     }
 
-    private fun createBondStateReceiver() {
-        if (bondStateReceiver == null) {
+    private fun ensureBondStateReceiverRegistered() {
+        synchronized(this) {
+            if (bondStateReceiver != null) return
+
             bondStateReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    val action = intent.action
-                    if (action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
-                        val key = "createBond"
+                override fun onReceive(ctx: Context, intent: Intent) {
+                    if (intent.action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
                         val updatedDevice =
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 intent.getParcelableExtra(
@@ -399,27 +416,44 @@ class Device(
                             } else {
                                 intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                             }
+
                         // BroadcastReceiver receives bond state updates from all devices, need to filter by device
                         if (device.address == updatedDevice?.address) {
-                            val bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
-                            val previousBondState =
-                                intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
-                            Logger.debug(
-                                TAG, "Bond state transition $previousBondState -> $bondState"
-                            )
-                            if (bondState == BluetoothDevice.BOND_BONDED) {
-                                resolve(key, "Creating bond succeeded.")
-                            } else if (previousBondState == BluetoothDevice.BOND_BONDING && bondState == BluetoothDevice.BOND_NONE) {
-                                reject(key, "Creating bond failed.")
-                            } else if (bondState == -1) {
-                                reject(key, "Creating bond failed.")
+                            val prev = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
+                            val state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
+                            Logger.debug(TAG, "Bond state transition $prev -> $state")
+
+                            // Handle createBond callback
+                            if (callbackMap.containsKey("createBond")) {
+                                if (state == BluetoothDevice.BOND_BONDED) {
+                                    resolve("createBond", "Creating bond succeeded.")
+                                } else if (prev == BluetoothDevice.BOND_BONDING && state == BluetoothDevice.BOND_NONE) {
+                                    reject("createBond", "Creating bond failed.")
+                                } else if (state == -1) {
+                                    reject("createBond", "Creating bond failed.")
+                                }
+                            }
+
+                            // Handle setNotifications callbacks (only for operations waiting on bonding)
+                            if (prev == BluetoothDevice.BOND_BONDING && state == BluetoothDevice.BOND_NONE) {
+                                val keysToReject = pendingBondKeys.toList()
+                                pendingBondKeys.clear()
+                                keysToReject.forEach { key ->
+                                    reject(key, "Pairing request was cancelled by the user.")
+                                }
                             }
                         }
                     }
                 }
             }
-            val intentFilter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
-            context.registerReceiver(bondStateReceiver, intentFilter)
+            try {
+                val intentFilter = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+                context.registerReceiver(bondStateReceiver, intentFilter)
+            } catch (e: Exception) {
+                Logger.error(TAG, "Error registering bond state receiver: ${e.localizedMessage}", e)
+                bondStateReceiver = null
+                throw e
+            }
         }
     }
 
@@ -590,47 +624,22 @@ class Device(
             BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
         }
 
-        val bondReceiver = object : BroadcastReceiver() {
-            override fun onReceive(ctx: Context, intent: Intent) {
-                if (intent.action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
-                    val updatedDevice =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            intent.getParcelableExtra(
-                                BluetoothDevice.EXTRA_DEVICE,
-                                BluetoothDevice::class.java
-                            )
-                        } else {
-                            intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        }
-
-                    // BroadcastReceiver receives bond state updates from all devices, need to filter by device
-                    if (device.address == updatedDevice?.address) {
-                        val prev = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1)
-                        val state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
-                        if (state == BluetoothDevice.BOND_BONDED) {
-                            ctx.unregisterReceiver(this)
-                        } else if (prev == BluetoothDevice.BOND_BONDING && state == BluetoothDevice.BOND_NONE) {
-                            ctx.unregisterReceiver(this)
-                            reject(key, "Pairing request was cancelled by the user.")
-                        } else if (state == -1) {
-                            ctx.unregisterReceiver(this)
-                        }
-                    }
-                }
+        // Track this operation as potentially needing bonding
+        if (!isBonded()) {
+            try {
+                ensureBondStateReceiverRegistered()
+                pendingBondKeys.add(key)
+            } catch (e: Exception) {
+                // Don't fail the notification attempt just because bonding
+                // can't be tracked. The call will still timeout if bonding is
+                // required for some reason
+                Logger.warn(TAG, "Error while registering bondStateReceiver: ${e.localizedMessage}")
             }
         }
-        bondReceiverMap[key] = bondReceiver
-        context.registerReceiver(
-            bondReceiver,
-            IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
-        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val statusCode = bluetoothGatt?.writeDescriptor(descriptor, value)
             if (statusCode != BluetoothStatusCodes.SUCCESS) {
-                bondReceiverMap.remove(key)?.let {
-                    context.unregisterReceiver(it)
-                }
                 reject(key, "Setting notification failed with status code $statusCode.")
                 return
             }
@@ -638,9 +647,6 @@ class Device(
             descriptor.value = value
             val resultDesc = bluetoothGatt?.writeDescriptor(descriptor)
             if (resultDesc != true) {
-                bondReceiverMap.remove(key)?.let {
-                    context.unregisterReceiver(it)
-                }
                 reject(key, "Setting notification failed.")
                 return
             }
@@ -719,21 +725,19 @@ class Device(
     }
 
     private fun resolve(key: String, value: String) {
-        if (callbackMap.containsKey(key)) {
+        pendingBondKeys.remove(key)
+        callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "resolve: $key $value")
             timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
-            val callback = callbackMap[key]
-            callbackMap.remove(key)
             callback?.invoke(CallbackResponse(true, value))
         }
     }
 
     private fun reject(key: String, value: String) {
-        if (callbackMap.containsKey(key)) {
+        pendingBondKeys.remove(key)
+        callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "reject: $key $value")
             timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
-            val callback = callbackMap[key]
-            callbackMap.remove(key)
             callback?.invoke(CallbackResponse(false, value))
         }
     }
@@ -760,7 +764,7 @@ class Device(
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
-            cleanupCallbacksHandlerThread()
+            cleanup()
             reject(key, message)
         }, timeout)
     }
