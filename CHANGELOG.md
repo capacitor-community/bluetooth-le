@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.2.0...v7.3.0) (2025-12-06)
+
+
+### Features
+
+* add service data filtering support for BLE scanning ([b74846e](https://github.com/capacitor-community/bluetooth-le/commit/b74846ec79b125fdf0e4a368e79412830e5a2cb7))
+* improve iOS detected devices view ([215039b](https://github.com/capacitor-community/bluetooth-le/commit/215039b7718956819ea938451bdd7a8392e58611))
+
+
+### Bug Fixes
+
+* **android:** Improve thread safety related to bond handling ([e60d856](https://github.com/capacitor-community/bluetooth-le/commit/e60d856589e693b382b02896addfdf1a1278e12c))
+* **iOS:** correctly parse manufacturerData filters ([a6908eb](https://github.com/capacitor-community/bluetooth-le/commit/a6908eb664c435d16899f613301414830c2a230d))
+
 ## [7.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.1.1...v7.2.0) (2025-09-04)
 
 
