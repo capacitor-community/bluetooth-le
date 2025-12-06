@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { numberToUUID } from './conversion';
 import type { BluetoothLePlugin } from './definitions';
