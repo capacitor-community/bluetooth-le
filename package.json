@@ -19,7 +19,7 @@
     "prettier": "prettier \"**/*.{css,html,ts,js}\"",
     "swiftlint": "node-swiftlint",
     "docgen": "docgen --api BleClientInterface --output-readme README.md --output-json dist/docs.json",
-    "postdocgen": "prettier README.md --write",
+    "postdocgen": "node scripts/fix-docgen-types.js && prettier README.md --write",
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.mjs",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
