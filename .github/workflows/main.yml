@@ -54,6 +54,8 @@ jobs:
     steps:
       # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-15-Readme.md#xcode
       - run: sudo xcode-select --switch /Applications/Xcode_16.app
+      - run: xcrun simctl list
+      - run: xcodebuild -downloadPlatform iOS
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
