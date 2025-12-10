@@ -28,7 +28,8 @@
 
 | Plugin | Capacitor | Documentation                                                                     |
 | ------ | --------- | --------------------------------------------------------------------------------- |
-| 7.x    | 7.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/main/README.md) |
+| 8.x    | 8.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/main/README.md) |
+| 7.x    | 7.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/7.x/README.md)  |
 | 6.x    | 6.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/6.x/README.md)  |
 | 3.x    | 5.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/3.x/README.md)  |
 | 2.x    | 4.x       | [README](https://github.com/capacitor-community/bluetooth-le/blob/2.x/README.md)  |
