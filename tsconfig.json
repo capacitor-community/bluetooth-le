@@ -4,6 +4,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "inlineSources": true,
+    "skipLibCheck": true, // disabled due to mismatch between AbortSignal definition
     "lib": ["dom", "es2017"],
     "module": "esnext",
     "moduleResolution": "node",
