@@ -6,7 +6,7 @@ import type {
   BleCharacteristicProperties,
   BleDescriptor,
   BleService,
-  TimeoutOptions,
+  ConnectOptions,
   BleDevice,
   BleServices,
   BluetoothLePlugin,
@@ -184,7 +184,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     return {} as Promise<GetDevicesResult>;
   }
 
-  async connect(options: DeviceIdOptions & TimeoutOptions): Promise<void> {
+  async connect(options: ConnectOptions): Promise<void> {
     const device = this.getDeviceFromMap(options.deviceId);
     device.removeEventListener('gattserverdisconnected', this.onDisconnectedCallback);
     device.addEventListener('gattserverdisconnected', this.onDisconnectedCallback);

@@ -12,6 +12,7 @@ class Device: NSObject, CBPeripheralDelegate {
     private var servicesDiscovered = 0
     private var characteristicsCount = 0
     private var characteristicsDiscovered = 0
+    private var skipDescriptorDiscovery = false
 
     init(
         _ peripheral: CBPeripheral
@@ -48,9 +49,11 @@ class Device: NSObject, CBPeripheralDelegate {
 
     func setOnConnected(
         _ connectionTimeout: Double,
+        _ skipDescriptorDiscovery: Bool,
         _ callback: @escaping Callback
     ) {
         let key = "connect"
+        self.skipDescriptorDiscovery = skipDescriptorDiscovery
         self.callbackMap[key] = callback
         self.setTimeout(key, "Connection timeout", connectionTimeout)
     }
@@ -81,11 +84,19 @@ class Device: NSObject, CBPeripheralDelegate {
         self.servicesDiscovered += 1
         log("didDiscoverCharacteristicsFor", self.servicesDiscovered, self.servicesCount)
         self.characteristicsCount += service.characteristics?.count ?? 0
-        for characteristic in service.characteristics ?? [] {
-            peripheral.discoverDescriptors(for: characteristic)
+        
+        if !self.skipDescriptorDiscovery {
+            for characteristic in service.characteristics ?? [] {
+                peripheral.discoverDescriptors(for: characteristic)
+            }
         }
-        // if the last service does not have characteristics, resolve the connect call now
-        if self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount {
+        
+        // Resolve immediately if skipping descriptor discovery or if all characteristics are discovered
+        let shouldResolve = self.skipDescriptorDiscovery
+            ? self.servicesDiscovered >= self.servicesCount
+            : self.servicesDiscovered >= self.servicesCount && self.characteristicsDiscovered >= self.characteristicsCount
+        
+        if shouldResolve {
             self.resolve("connect", "Connection successful.")
             self.resolve("discoverServices", "Services discovered.")
         }

@@ -74,6 +74,7 @@ class Device(
     private var bondStateReceiver: BroadcastReceiver? = null
     private val pendingBondKeys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
     private var currentMtu = -1
+    private var skipDescriptorDiscovery = false
 
     private lateinit var callbacksHandlerThread: HandlerThread
     private lateinit var callbacksHandler: Handler
@@ -318,9 +319,10 @@ class Device(
      * - request MTU
      */
     fun connect(
-        timeout: Long, callback: (CallbackResponse) -> Unit
+        timeout: Long, skipDescriptorDiscovery: Boolean, callback: (CallbackResponse) -> Unit
     ) {
         val key = "connect"
+        this.skipDescriptorDiscovery = skipDescriptorDiscovery
         callbackMap[key] = callback
         if (isConnected()) {
             resolve(key, "Already connected.")
@@ -476,6 +478,10 @@ class Device(
 
     fun getServices(): MutableList<BluetoothGattService> {
         return bluetoothGatt?.services ?: mutableListOf()
+    }
+
+    fun getSkipDescriptorDiscovery(): Boolean {
+        return skipDescriptorDiscovery
     }
 
     fun discoverServices(

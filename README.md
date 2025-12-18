@@ -628,16 +628,16 @@ and [getDevices](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/getD
 ### connect(...)
 
 ```typescript
-connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined, options?: TimeoutOptions | undefined) => Promise<void>
+connect(deviceId: string, onDisconnect?: ((deviceId: string) => void) | undefined, options?: ConnectClientOptions | undefined) => Promise<void>
 ```
 
 Connect to a peripheral BLE device. For an example, see [usage](#usage).
 
-| Param              | Type                                                      | Description                                                                                                    |
-| ------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`deviceId`**     | <code>string</code>                                       | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
-| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code>              | Optional disconnect callback function that will be used when the device disconnects                            |
-| **`options`**      | <code><a href="#timeoutoptions">TimeoutOptions</a></code> | Options for plugin call                                                                                        |
+| Param              | Type                                                                  | Description                                                                                                    |
+| ------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`deviceId`**     | <code>string</code>                                                   | The ID of the device to use (obtained from [requestDevice](#requestDevice) or [requestLEScan](#requestLEScan)) |
+| **`onDisconnect`** | <code>((deviceId: string) =&gt; void)</code>                          | Optional disconnect callback function that will be used when the device disconnects                            |
+| **`options`**      | <code><a href="#connectclientoptions">ConnectClientOptions</a></code> | Options for plugin call                                                                                        |
 
 ---
 
@@ -969,6 +969,12 @@ Stop listening to the changes of the value of a characteristic. For an example, 
 | **`serviceData`**      | <code>{ [key: string]: [DataView](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DataView); }</code> | Service data, key is a service UUID and value is the data.                                                                                                                                                                                                                                            |
 | **`uuids`**            | <code>string[]</code>                                                                                                            | Advertised services.                                                                                                                                                                                                                                                                                  |
 | **`rawAdvertisement`** | <code>[DataView](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DataView)</code>                     | Raw advertisement data (**Android** only).                                                                                                                                                                                                                                                            |
+
+#### ConnectClientOptions
+
+| Prop                          | Type                 | Description                                                                                                                                         | Default            |
+| ----------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **`skipDescriptorDiscovery`** | <code>boolean</code> | Skip descriptor discovery during connection to improve connection speed. When enabled, descriptors will not be available in the services structure. | <code>false</code> |
 
 #### TimeoutOptions
 
