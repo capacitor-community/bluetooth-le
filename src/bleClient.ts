@@ -7,6 +7,7 @@ import type {
   BleDevice,
   BleService,
   ConnectionPriority,
+  ConnectClientOptions,
   Data,
   InitializeOptions,
   ReadResult,
@@ -151,7 +152,7 @@ export interface BleClientInterface {
    * @param onDisconnect Optional disconnect callback function that will be used when the device disconnects
    * @param options Options for plugin call
    */
-  connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: TimeoutOptions): Promise<void>;
+  connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: ConnectClientOptions): Promise<void>;
 
   /**
    * Create a bond with a peripheral BLE device.
@@ -476,7 +477,11 @@ class BleClientClass implements BleClientInterface {
     });
   }
 
-  async connect(deviceId: string, onDisconnect?: (deviceId: string) => void, options?: TimeoutOptions): Promise<void> {
+  async connect(
+    deviceId: string,
+    onDisconnect?: (deviceId: string) => void,
+    options?: ConnectClientOptions,
+  ): Promise<void> {
     await this.queue(async () => {
       if (onDisconnect) {
         const key = `disconnected|${deviceId}`;

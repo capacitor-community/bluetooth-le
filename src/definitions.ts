@@ -181,6 +181,17 @@ export interface TimeoutOptions {
   timeout?: number;
 }
 
+export interface ConnectClientOptions extends TimeoutOptions {
+  /**
+   * Skip descriptor discovery during connection to improve connection speed.
+   * When enabled, descriptors will not be available in the services structure.
+   * @default false
+   */
+  skipDescriptorDiscovery?: boolean;
+}
+
+export interface ConnectOptions extends DeviceIdOptions, ConnectClientOptions {}
+
 export interface RequestConnectionPriorityOptions extends DeviceIdOptions {
   connectionPriority: ConnectionPriority;
 }
@@ -365,7 +376,7 @@ export interface BluetoothLePlugin {
     eventName: 'onScanResult',
     listenerFunc: (result: ScanResultInternal) => void,
   ): Promise<PluginListenerHandle>;
-  connect(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
+  connect(options: ConnectOptions): Promise<void>;
   createBond(options: DeviceIdOptions & TimeoutOptions): Promise<void>;
   isBonded(options: DeviceIdOptions): Promise<BooleanResult>;
   disconnect(options: DeviceIdOptions): Promise<void>;

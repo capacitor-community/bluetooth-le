@@ -245,7 +245,8 @@ public class BluetoothLe: CAPPlugin {
         guard self.getDeviceManager(call) != nil else { return }
         guard let device = self.getDevice(call, checkConnection: false) else { return }
         let timeout = self.getTimeout(call, defaultTimeout: CONNECTION_TIMEOUT)
-        device.setOnConnected(timeout, {(success, message) in
+        let skipDescriptorDiscovery = call.getBool("skipDescriptorDiscovery") ?? false
+        device.setOnConnected(timeout, skipDescriptorDiscovery, {(success, message) in
             if success {
                 // only resolve after service discovery
                 call.resolve()
