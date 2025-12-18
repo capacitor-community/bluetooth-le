@@ -463,7 +463,8 @@ class BluetoothLe : Plugin() {
     fun connect(call: PluginCall) {
         val device = getOrCreateDevice(call) ?: return
         val timeout = call.getFloat("timeout", CONNECTION_TIMEOUT)!!.toLong()
-        device.connect(timeout) { response ->
+        val skipDescriptorDiscovery = call.getBoolean("skipDescriptorDiscovery", false)!!
+        device.connect(timeout, skipDescriptorDiscovery) { response ->
             run {
                 if (response.success) {
                     call.resolve()
@@ -527,6 +528,7 @@ class BluetoothLe : Plugin() {
     fun getServices(call: PluginCall) {
         val device = getDevice(call) ?: return
         val services = device.getServices()
+        val skipDescriptorDiscovery = device.getSkipDescriptorDiscovery()
         val bleServices = JSArray()
         services.forEach { service ->
             val bleCharacteristics = JSArray()
@@ -535,10 +537,12 @@ class BluetoothLe : Plugin() {
                 bleCharacteristic.put("uuid", characteristic.uuid)
                 bleCharacteristic.put("properties", getProperties(characteristic))
                 val bleDescriptors = JSArray()
-                characteristic.descriptors.forEach { descriptor ->
-                    val bleDescriptor = JSObject()
-                    bleDescriptor.put("uuid", descriptor.uuid)
-                    bleDescriptors.put(bleDescriptor)
+                if (!skipDescriptorDiscovery) {
+                    characteristic.descriptors.forEach { descriptor ->
+                        val bleDescriptor = JSObject()
+                        bleDescriptor.put("uuid", descriptor.uuid)
+                        bleDescriptors.put(bleDescriptor)
+                    }
                 }
                 bleCharacteristic.put("descriptors", bleDescriptors)
                 bleCharacteristics.put(bleCharacteristic)
