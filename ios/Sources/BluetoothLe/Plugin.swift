@@ -20,7 +20,45 @@ struct ServiceDataFilter {
 }
 
 @objc(BluetoothLe)
-public class BluetoothLe: CAPPlugin {
+public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "BluetoothLe"
+    public let jsName = "BluetoothLe"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestEnable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "enable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "disable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startEnabledNotifications", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopEnabledNotifications", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isLocationEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openLocationSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openBluetoothSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openAppSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setDisplayStrings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestDevice", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestLEScan", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopLEScan", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "discoverServices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getConnectedDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "createBond", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isBonded", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getBondedDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getServices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getMtu", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestConnectionPriority", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "readRssi", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "read", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "write", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "writeWithoutResponse", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "readDescriptor", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "writeDescriptor", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startNotifications", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopNotifications", returnType: CAPPluginReturnPromise)
+    ]
     typealias BleDevice = [String: Any]
     typealias BleService = [String: Any]
     typealias BleCharacteristic = [String: Any]

@@ -8,7 +8,7 @@
   "unpkg": "dist/plugin.js",
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
-    "verify:ios": "set -o pipefail && cd ios && pod install && xcodebuild clean build test -workspace Plugin.xcworkspace -scheme Plugin -destination \"platform=iOS Simulator,name=iPhone 16\" | xcpretty && cd ..",
+    "verify:ios": "xcodebuild -scheme CapacitorCommunityBluetoothLe -destination generic/platform=iOS",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run test:coverage && npm run build",
     "lint": "npm run eslint && npm run prettier -- --check && npm run lint:ios",
@@ -27,6 +27,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
+    "test:ios": "xcodebuild test -scheme CapacitorCommunityBluetoothLe -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'",
     "version:dev": "npm version --no-git-tag-version $(git describe)",
     "release": "standard-version",
     "release:minor": "standard-version -r minor",
@@ -66,7 +67,9 @@
     "android/src/main/",
     "android/build.gradle",
     "dist/",
-    "ios/Plugin/",
+    "ios/Sources",
+    "ios/Tests",
+    "Package.swift",
     "CapacitorCommunityBluetoothLe.podspec"
   ],
   "keywords": [

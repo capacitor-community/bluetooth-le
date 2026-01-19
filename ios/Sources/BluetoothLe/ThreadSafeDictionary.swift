@@ -1,3 +1,5 @@
+import Foundation
+
 class ThreadSafeDictionary<K: Hashable, T> {
     private var dictionary: [K: T] = [:]
     private let queue = DispatchQueue(label: "threadSafeDictionaryQueue", attributes: .concurrent)
