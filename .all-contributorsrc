@@ -233,6 +233,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "timrach",
+      "name": "Tim Rach",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6890557?v=4",
+      "profile": "https://github.com/timrach",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
