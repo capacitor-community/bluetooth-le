@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.0...v8.0.0) (2026-01-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* convert iOS plugin to SPM
+* update plugin to capacitor 8
+
+### Features
+
+* convert iOS plugin to SPM ([b63068f](https://github.com/capacitor-community/bluetooth-le/commit/b63068fbdf1f811b4ba96de2ad34353f4ad07b5a))
+* update plugin to capacitor 8 ([26f2155](https://github.com/capacitor-community/bluetooth-le/commit/26f2155d9fbaf0d883d2129d3d5c584b3abb1c7d))
+
 ## [7.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.2.0...v7.3.0) (2025-12-06)
 
 
