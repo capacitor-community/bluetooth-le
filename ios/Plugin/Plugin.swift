@@ -7,18 +7,6 @@ import CoreBluetooth
 let CONNECTION_TIMEOUT: Double = 10
 let DEFAULT_TIMEOUT: Double = 5
 
-struct ManufacturerDataFilter {
-    let companyIdentifier: UInt16
-    let dataPrefix: Data?
-    let mask: Data?
-}
-
-struct ServiceDataFilter {
-    let serviceUuid: CBUUID
-    let dataPrefix: Data?
-    let mask: Data?
-}
-
 @objc(BluetoothLe)
 public class BluetoothLe: CAPPlugin {
     typealias BleDevice = [String: Any]
