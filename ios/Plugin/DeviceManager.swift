@@ -178,8 +178,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
         guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
-        guard self.passesManufacturerDataFilter(advertisementData) else { return }
-        guard self.passesServiceDataFilter(advertisementData) else { return }
+        guard ScanFilterUtils.passesManufacturerDataFilter(advertisementData, filters: self.manufacturerDataFilters) else { return }
+        guard ScanFilterUtils.passesServiceDataFilter(advertisementData, filters: self.serviceDataFilters) else { return }
 
         let device: Device
         if self.allowDuplicates, let knownDevice = discoveredDevices.first(where: { $0.key == peripheral.identifier.uuidString })?.value {
@@ -360,94 +360,6 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         return name.hasPrefix(prefix)
     }
 
-    private func passesManufacturerDataFilter(_ advertisementData: [String: Any]) -> Bool {
-        guard let filters = self.manufacturerDataFilters, !filters.isEmpty else {
-            return true  // No filters means everything passes
-        }
-
-        guard let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data,
-              manufacturerData.count >= 2 else {
-            return false  // If there's no valid manufacturer data, fail
-        }
-
-        let companyIdentifier = manufacturerData.prefix(2).withUnsafeBytes {
-            $0.load(as: UInt16.self).littleEndian // Manufacturer ID is little-endian
-        }
-
-        let payload = manufacturerData.dropFirst(2)
-
-        for filter in filters {
-            if filter.companyIdentifier != companyIdentifier {
-                continue  // Skip if company ID does not match
-            }
-
-            if let dataPrefix = filter.dataPrefix {
-                if payload.count < dataPrefix.count {
-                    continue // Payload too short, does not match
-                }
-
-                if let mask = filter.mask {
-                    var matches = true
-                    for i in 0..<dataPrefix.count {
-                        if (payload[i] & mask[i]) != (dataPrefix[i] & mask[i]) {
-                            matches = false
-                            break
-                        }
-                    }
-                    if matches {
-                        return true
-                    }
-                } else if payload.starts(with: dataPrefix) {
-                    return true
-                }
-            } else {
-                return true // Company ID matched, and no dataPrefix required
-            }
-        }
-
-        return false  // If none matched, return false
-    }
-
-    private func passesServiceDataFilter(_ advertisementData: [String: Any]) -> Bool {
-        guard let filters = self.serviceDataFilters, !filters.isEmpty else {
-            return true  // No filters means everything passes
-        }
-
-        guard let serviceDataDict = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] else {
-            return false  // If there's no service data, fail
-        }
-
-        for filter in filters {
-            guard let serviceData = serviceDataDict[filter.serviceUuid] else {
-                continue  // Skip if service UUID does not match
-            }
-
-            if let dataPrefix = filter.dataPrefix {
-                if serviceData.count < dataPrefix.count {
-                    continue // Service data too short, does not match
-                }
-
-                if let mask = filter.mask {
-                    var matches = true
-                    for i in 0..<dataPrefix.count {
-                        if (serviceData[i] & mask[i]) != (dataPrefix[i] & mask[i]) {
-                            matches = false
-                            break
-                        }
-                    }
-                    if matches {
-                        return true
-                    }
-                } else if serviceData.starts(with: dataPrefix) {
-                    return true
-                }
-            } else {
-                return true // Service UUID matched, and no dataPrefix required
-            }
-        }
-
-        return false  // If none matched, return false
-    }
 
     private func resolve(_ key: String, _ value: String) {
         let callback = self.callbackMap[key]

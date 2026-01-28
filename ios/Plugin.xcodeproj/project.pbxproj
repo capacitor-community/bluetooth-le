@@ -22,6 +22,8 @@
 		50ADFFA42020D75100D50D53 /* Capacitor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50ADFFA52020D75100D50D53 /* Capacitor.framework */; };
 		50ADFFA82020EE4F00D50D53 /* Plugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 50ADFFA72020EE4F00D50D53 /* Plugin.m */; };
 		50E1A94820377CB70090CE1A /* Plugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E1A94720377CB70090CE1A /* Plugin.swift */; };
+		AA1111112026011100111111 /* ScanFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222222026011100222222 /* ScanFilters.swift */; };
+		AA5555552026011100555555 /* ScanFiltersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA6666662026011100666666 /* ScanFiltersTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +57,8 @@
 		5E23F77F099397094342571A /* Pods-Plugin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Plugin.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Plugin/Pods-Plugin.debug.xcconfig"; sourceTree = "<group>"; };
 		91781294A431A2A7CC6EB714 /* Pods-Plugin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Plugin.release.xcconfig"; path = "Pods/Target Support Files/Pods-Plugin/Pods-Plugin.release.xcconfig"; sourceTree = "<group>"; };
 		96ED1B6440D6672E406C8D19 /* Pods-PluginTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PluginTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PluginTests/Pods-PluginTests.debug.xcconfig"; sourceTree = "<group>"; };
+		AA2222222026011100222222 /* ScanFilters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanFilters.swift; sourceTree = "<group>"; };
+		AA6666662026011100666666 /* ScanFiltersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanFiltersTests.swift; sourceTree = "<group>"; };
 		F65BB2953ECE002E1EF3E424 /* Pods-PluginTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PluginTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PluginTests/Pods-PluginTests.release.xcconfig"; sourceTree = "<group>"; };
 		F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PluginTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -110,6 +114,7 @@
 				34ECC0E025BE199F00881175 /* Device.swift */,
 				36EC9FF42D50C166009750C9 /* DeviceListView.swift */,
 				34ECC0E225BE199F00881175 /* DeviceManager.swift */,
+				AA2222222026011100222222 /* ScanFilters.swift */,
 				50E1A94720377CB70090CE1A /* Plugin.swift */,
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
 				50ADFFA72020EE4F00D50D53 /* Plugin.m */,
@@ -124,6 +129,7 @@
 				50ADFF96201F53D600D50D53 /* PluginTests.swift */,
 				50ADFF98201F53D600D50D53 /* Info.plist */,
 				34ECC2D625C0BAEC00881175 /* ConversionTests.swift */,
+				AA6666662026011100666666 /* ScanFiltersTests.swift */,
 			);
 			path = PluginTests;
 			sourceTree = "<group>";
@@ -327,6 +333,7 @@
 				34ECC0E325BE199F00881175 /* Device.swift in Sources */,
 				34E541D62962E2EA007544B1 /* Logging.swift in Sources */,
 				34ECC0E425BE199F00881175 /* Conversion.swift in Sources */,
+				AA1111112026011100111111 /* ScanFilters.swift in Sources */,
 				50E1A94820377CB70090CE1A /* Plugin.swift in Sources */,
 				34ECC0E525BE199F00881175 /* DeviceManager.swift in Sources */,
 				36EC9FF52D50C166009750C9 /* DeviceListView.swift in Sources */,
@@ -340,6 +347,7 @@
 			files = (
 				50ADFF97201F53D600D50D53 /* PluginTests.swift in Sources */,
 				34ECC2D725C0BAEC00881175 /* ConversionTests.swift in Sources */,
+				AA5555552026011100555555 /* ScanFiltersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
