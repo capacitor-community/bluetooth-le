@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.3.1](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.0...v7.3.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* **ios:** Use proper indices when comparing payload in manufacturer data ([#797](https://github.com/capacitor-community/bluetooth-le/issues/797)) ([d42b408](https://github.com/capacitor-community/bluetooth-le/commit/d42b408c2f3ec2d3b3f73db7e434d6da0442af34))
+
 ## [7.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.2.0...v7.3.0) (2025-12-06)
 
 
