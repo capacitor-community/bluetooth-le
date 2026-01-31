@@ -173,7 +173,11 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                         call.reject("Device not found.")
                         return
                     }
-                    let storedDevice = self.deviceMap.getOrInsert(key: device.getId()) { device }.value
+                    let storedDevice = self.deviceMap.getOrInsert(
+                        key: device.getId(),
+                        create: { device },
+                        update: { $0.updatePeripheral(device.getPeripheral()) }
+                    ).value
                     let bleDevice: BleDevice = self.getBleDevice(storedDevice)
                     call.resolve(bleDevice)
                 } else {
@@ -210,7 +214,11 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                     call.reject(message)
                 }
             }, { (device, advertisementData, rssi) in
-                let storedDevice = self.deviceMap.getOrInsert(key: device.getId()) { device }.value
+                let storedDevice = self.deviceMap.getOrInsert(
+                    key: device.getId(),
+                    create: { device },
+                    update: { $0.updatePeripheral(device.getPeripheral()) }
+                ).value
                 let data = self.getScanResult(storedDevice, advertisementData, rssi)
                 self.notifyListeners("onScanResult", data: data)
             }
@@ -235,9 +243,11 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
         let peripherals = deviceManager.getDevices(deviceUUIDs)
         let bleDevices: [BleDevice] = peripherals.map({peripheral in
             let deviceId = peripheral.identifier.uuidString
-            let device = self.deviceMap.getOrInsert(key: deviceId) {
-                Device(peripheral)
-            }.value
+            let device = self.deviceMap.getOrInsert(
+                key: deviceId,
+                create: { Device(peripheral) },
+                update: { $0.updatePeripheral(peripheral) }
+            ).value
             return self.getBleDevice(device)
         })
         call.resolve(["devices": bleDevices])
@@ -255,9 +265,11 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
         let peripherals = deviceManager.getConnectedDevices(serviceUUIDs)
         let bleDevices: [BleDevice] = peripherals.map({peripheral in
             let deviceId = peripheral.identifier.uuidString
-            let device = self.deviceMap.getOrInsert(key: deviceId) {
-                Device(peripheral)
-            }.value
+            let device = self.deviceMap.getOrInsert(
+                key: deviceId,
+                create: { Device(peripheral) },
+                update: { $0.updatePeripheral(peripheral) }
+            ).value
             return self.getBleDevice(device)
         })
         call.resolve(["devices": bleDevices])

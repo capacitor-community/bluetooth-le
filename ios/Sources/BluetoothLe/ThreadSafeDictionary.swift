@@ -42,4 +42,20 @@ class ThreadSafeDictionary<K: Hashable, T> {
             return (newValue, true)
         }
     }
+
+    /// Atomically gets existing value (calling update on it) or inserts new value
+    /// The create closure is only called if the key doesn't exist
+    /// The update closure is called on existing values before returning
+    /// Returns tuple of (value, wasInserted) where wasInserted indicates if a new value was created
+    func getOrInsert(key: K, create: () -> T, update: (T) -> Void) -> (value: T, wasInserted: Bool) {
+        return queue.sync(flags: .barrier) {
+            if let existing = dictionary[key] {
+                update(existing)
+                return (existing, false)
+            }
+            let newValue = create()
+            dictionary[key] = newValue
+            return (newValue, true)
+        }
+    }
 }
