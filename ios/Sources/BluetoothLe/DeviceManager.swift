@@ -14,17 +14,17 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias ScanResultCallback = (_ device: Device, _ advertisementData: [String: Any], _ rssi: NSNumber) -> Void
 
     private var centralManager: CBCentralManager!
-    private var viewController: UIViewController?
+    private let viewController: UIViewController?
     private var displayStrings: [String: String]!
-    private var callbackMap = [String: Callback]()
+    private let callbackMap = ThreadSafeDictionary<String, Callback>()
     private var scanResultCallback: ScanResultCallback?
     private var stateReceiver: StateReceiver?
-    private var timeoutMap = [String: DispatchWorkItem]()
+    private let timeoutMap = ThreadSafeDictionary<String, DispatchWorkItem>()
     private var stopScanWorkItem: DispatchWorkItem?
     private var alertController: UIAlertController?
     private var deviceListView: DeviceListView?
     private var popoverController: UIPopoverPresentationController?
-    private var discoveredDevices = [String: Device]()
+    private let discoveredDevices = ThreadSafeDictionary<String, Device>()
     private var deviceNameFilter: String?
     private var deviceNamePrefixFilter: String?
     private var deviceListMode: DeviceListMode = .none
@@ -33,8 +33,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var serviceDataFilters: [ServiceDataFilter]?
 
     init(_ viewController: UIViewController?, _ displayStrings: [String: String], _ callback: @escaping Callback) {
-        super.init()
         self.viewController = viewController
+        super.init()
         self.displayStrings = displayStrings
         self.callbackMap["initialize"] = callback
         self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
@@ -102,7 +102,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.scanResultCallback = scanResultCallback
 
         if self.centralManager.isScanning == false {
-            self.discoveredDevices = [String: Device]()
+            self.discoveredDevices.removeAll()
             self.deviceListMode = deviceListMode
             self.allowDuplicates = allowDuplicates
             self.deviceNameFilter = name
@@ -114,11 +114,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
                 self.showDeviceList()
             }
 
-            if scanDuration != nil {
-                self.stopScanWorkItem = DispatchWorkItem {
+            if let scanDuration = scanDuration {
+                let workItem = DispatchWorkItem {
                     self.stopScan()
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + scanDuration!, execute: self.stopScanWorkItem!)
+                self.stopScanWorkItem = workItem
+                DispatchQueue.main.asyncAfter(deadline: .now() + scanDuration, execute: workItem)
             }
             self.centralManager.scanForPeripherals(
                 withServices: serviceUUIDs,
@@ -174,43 +175,42 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             return
         }
 
-        let isNew = self.discoveredDevices[peripheral.identifier.uuidString] == nil
-        guard isNew || self.allowDuplicates else { return }
-
         guard self.passesNameFilter(peripheralName: peripheral.name) else { return }
         guard self.passesNamePrefixFilter(peripheralName: peripheral.name) else { return }
         guard ScanFilterUtils.passesManufacturerDataFilter(advertisementData, filters: self.manufacturerDataFilters) else { return }
         guard ScanFilterUtils.passesServiceDataFilter(advertisementData, filters: self.serviceDataFilters) else { return }
 
-        let device: Device
-        if self.allowDuplicates, let knownDevice = discoveredDevices.first(where: { $0.key == peripheral.identifier.uuidString })?.value {
-            device = knownDevice
-        } else {
-            device = Device(peripheral)
-            self.discoveredDevices[device.getId()] = device
+        let deviceId = peripheral.identifier.uuidString
+        let result = self.discoveredDevices.getOrInsert(key: deviceId) {
+            Device(peripheral)
         }
-        log("New device found: ", device.getName() ?? "Unknown")
+        let device = result.value
+        let isNew = result.wasInserted
 
-        switch deviceListMode {
-        case .none:
-            if self.scanResultCallback != nil {
-                self.scanResultCallback!(device, advertisementData, RSSI)
-            }
-        case .alert:
-            DispatchQueue.main.async { [weak self] in
-                self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
-                    log("Selected device")
-                    self?.stopScan()
-                    self?.resolve("startScanning", device.getId())
-                }))
-            }
-        case .list:
-            DispatchQueue.main.async { [weak self] in
-                self?.deviceListView?.addItem(device.getName() ?? "Unknown", action: {
-                    log("Selected device")
-                    self?.stopScan()
-                    self?.resolve("startScanning", device.getId())
-                })
+        if isNew || self.allowDuplicates {
+            log("New device found: ", device.getName() ?? "Unknown")
+
+            switch deviceListMode {
+            case .none:
+                if let callback = self.scanResultCallback {
+                    callback(device, advertisementData, RSSI)
+                }
+            case .alert:
+                DispatchQueue.main.async { [weak self] in
+                    self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
+                        log("Selected device")
+                        self?.stopScan()
+                        self?.resolve("startScanning", device.getId())
+                    }))
+                }
+            case .list:
+                DispatchQueue.main.async { [weak self] in
+                    self?.deviceListView?.addItem(device.getName() ?? "Unknown", action: {
+                        log("Selected device")
+                        self?.stopScan()
+                        self?.resolve("startScanning", device.getId())
+                    })
+                }
             }
         }
     }
@@ -297,8 +297,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         error: Error?
     ) {
         let key = "connect|\(peripheral.identifier.uuidString)"
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         self.reject(key, "Failed to connect.")
@@ -337,9 +337,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         let key = "disconnect|\(peripheral.identifier.uuidString)"
         let keyOnDisconnected = "onDisconnected|\(peripheral.identifier.uuidString)"
         self.resolve(keyOnDisconnected, "Disconnected.")
-        if error != nil {
-            log(error!.localizedDescription)
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            log(error.localizedDescription)
+            self.reject(key, error.localizedDescription)
             return
         }
         self.resolve(key, "Successfully disconnected.")
@@ -363,25 +363,17 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
 
 
     private func resolve(_ key: String, _ value: String) {
-        let callback = self.callbackMap[key]
-        if callback != nil {
-            log("Resolve", key, value)
-            callback!(true, value)
-            self.callbackMap[key] = nil
-            self.timeoutMap[key]?.cancel()
-            self.timeoutMap[key] = nil
-        }
+        guard let callback = self.callbackMap.removeValue(forKey: key) else { return }
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
+        log("Resolve", key, value)
+        callback(true, value)
     }
 
     private func reject(_ key: String, _ value: String) {
-        let callback = self.callbackMap[key]
-        if callback != nil {
-            log("Reject", key, value)
-            callback!(false, value)
-            self.callbackMap[key] = nil
-            self.timeoutMap[key]?.cancel()
-            self.timeoutMap[key] = nil
-        }
+        guard let callback = self.callbackMap.removeValue(forKey: key) else { return }
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
+        log("Reject", key, value)
+        callback(false, value)
     }
 
     private func setTimeout(
