@@ -37,6 +37,15 @@ class Device: NSObject, CBPeripheralDelegate {
         return self.peripheral
     }
 
+    func updatePeripheral(_ newPeripheral: CBPeripheral) {
+        guard newPeripheral.identifier == self.peripheral.identifier else {
+            log("Warning: Attempted to update peripheral with different UUID")
+            return
+        }
+        self.peripheral = newPeripheral
+        self.peripheral.delegate = self
+    }
+
     func setOnConnected(
         _ connectionTimeout: Double,
         _ callback: @escaping Callback

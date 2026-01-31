@@ -181,9 +181,11 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard ScanFilterUtils.passesServiceDataFilter(advertisementData, filters: self.serviceDataFilters) else { return }
 
         let deviceId = peripheral.identifier.uuidString
-        let result = self.discoveredDevices.getOrInsert(key: deviceId) {
-            Device(peripheral)
-        }
+        let result = self.discoveredDevices.getOrInsert(
+            key: deviceId,
+            create: { Device(peripheral) },
+            update: { $0.updatePeripheral(peripheral) }
+        )
         let device = result.value
         let isNew = result.wasInserted
 
