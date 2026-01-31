@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.2](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.1...v8.0.2) (2026-01-31)
+
+
+### Bug Fixes
+
+* **ios:** Avoid "ghost" peripherals on iOS ([2c75ff4](https://github.com/capacitor-community/bluetooth-le/commit/2c75ff475380c2b7bab625387de8fdf1ba21e923))
+* **ios:** Change deviceMap to use ThreadSafeDictionary ([3fa8a9e](https://github.com/capacitor-community/bluetooth-le/commit/3fa8a9e7f077d70aef598e1303a4bd3dc86b303e))
+* **ios:** Improve thread-safety on iOS ([#779](https://github.com/capacitor-community/bluetooth-le/issues/779)) ([9bb35ad](https://github.com/capacitor-community/bluetooth-le/commit/9bb35ad0fcb2f2da3467dbab26372de121cc8213))
+
 ### [8.0.1](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.0...v8.0.1) (2026-01-29)
 
 
