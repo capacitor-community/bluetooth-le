@@ -6,8 +6,8 @@ class Device: NSObject, CBPeripheralDelegate {
     typealias Callback = (_ success: Bool, _ value: String) -> Void
 
     private var peripheral: CBPeripheral!
-    private var callbackMap = ThreadSafeDictionary<String, Callback>()
-    private var timeoutMap = [String: DispatchWorkItem]()
+    private let callbackMap = ThreadSafeDictionary<String, Callback>()
+    private let timeoutMap = ThreadSafeDictionary<String, DispatchWorkItem>()
     private var servicesCount = 0
     private var servicesDiscovered = 0
     private var characteristicsCount = 0
@@ -51,8 +51,8 @@ class Device: NSObject, CBPeripheralDelegate {
         didDiscoverServices error: Error?
     ) {
         log("didDiscoverServices")
-        if error != nil {
-            log("Error", error!.localizedDescription)
+        if let error = error {
+            log("Error", error.localizedDescription)
             return
         }
         self.servicesCount = peripheral.services?.count ?? 0
@@ -130,8 +130,8 @@ class Device: NSObject, CBPeripheralDelegate {
         error: Error?
     ) {
         let key = "readRssi"
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         self.resolve(key, RSSI.stringValue)
@@ -193,8 +193,8 @@ class Device: NSObject, CBPeripheralDelegate {
     ) {
         let key = self.getKey("read", characteristic)
         let notifyKey = self.getKey("notification", characteristic)
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         if characteristic.value == nil {
@@ -206,9 +206,8 @@ class Device: NSObject, CBPeripheralDelegate {
         self.resolve(key, valueString)
 
         // notifications
-        let callback = self.callbackMap[notifyKey]
-        if callback != nil {
-            callback!(true, valueString)
+        if let callback = self.callbackMap[notifyKey] {
+            callback(true, valueString)
         }
     }
 
@@ -236,8 +235,8 @@ class Device: NSObject, CBPeripheralDelegate {
         error: Error?
     ) {
         let key = self.getKey("readDescriptor", descriptor)
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         if descriptor.value == nil {
@@ -277,8 +276,8 @@ class Device: NSObject, CBPeripheralDelegate {
         error: Error?
     ) {
         let key = self.getKey("write", characteristic)
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         self.resolve(key, "Successfully written value.")
@@ -309,8 +308,8 @@ class Device: NSObject, CBPeripheralDelegate {
         error: Error?
     ) {
         let key = self.getKey("writeDescriptor", descriptor)
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         self.resolve(key, "Successfully written descriptor value.")
@@ -327,7 +326,7 @@ class Device: NSObject, CBPeripheralDelegate {
         let key = "setNotifications|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         let notifyKey = "notification|\(serviceUUID.uuidString)|\(characteristicUUID.uuidString)"
         self.callbackMap[key] = callback
-        if notifyCallback != nil {
+        if let notifyCallback = notifyCallback {
             self.callbackMap[notifyKey] = notifyCallback
         }
         guard let characteristic = self.getCharacteristic(serviceUUID, characteristicUUID) else {
@@ -345,8 +344,8 @@ class Device: NSObject, CBPeripheralDelegate {
         error: Error?
     ) {
         let key = self.getKey("setNotifications", characteristic)
-        if error != nil {
-            self.reject(key, error!.localizedDescription)
+        if let error = error {
+            self.reject(key, error.localizedDescription)
             return
         }
         self.resolve(key, "Successfully set notifications.")
@@ -357,15 +356,14 @@ class Device: NSObject, CBPeripheralDelegate {
         _ characteristic: CBCharacteristic?
     ) -> String {
         let serviceUUIDString: String
-        let service: CBService? = characteristic?.service
-        if service != nil {
-            serviceUUIDString = cbuuidToStringUppercase(service!.uuid)
+        if let service = characteristic?.service {
+            serviceUUIDString = cbuuidToStringUppercase(service.uuid)
         } else {
             serviceUUIDString = "UNKNOWN-SERVICE"
         }
         let characteristicUUIDString: String
-        if characteristic != nil {
-            characteristicUUIDString = cbuuidToStringUppercase(characteristic!.uuid)
+        if let characteristic = characteristic {
+            characteristicUUIDString = cbuuidToStringUppercase(characteristic.uuid)
         } else {
             characteristicUUIDString = "UNKNOWN-CHARACTERISTIC"
         }
@@ -385,28 +383,20 @@ class Device: NSObject, CBPeripheralDelegate {
         _ key: String,
         _ value: String
     ) {
-        let callback = self.callbackMap[key]
-        if callback != nil {
-            log("Resolve", key, value)
-            callback!(true, value)
-            self.callbackMap[key] = nil
-            self.timeoutMap[key]?.cancel()
-            self.timeoutMap[key] = nil
-        }
+        guard let callback = self.callbackMap.removeValue(forKey: key) else { return }
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
+        log("Resolve", key, value)
+        callback(true, value)
     }
 
     private func reject(
         _ key: String,
         _ value: String
     ) {
-        let callback = self.callbackMap[key]
-        if callback != nil {
-            log("Reject", key, value)
-            callback!(false, value)
-            self.callbackMap[key] = nil
-            self.timeoutMap[key]?.cancel()
-            self.timeoutMap[key] = nil
-        }
+        guard let callback = self.callbackMap.removeValue(forKey: key) else { return }
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
+        log("Reject", key, value)
+        callback(false, value)
     }
 
     private func setTimeout(
