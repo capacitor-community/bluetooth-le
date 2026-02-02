@@ -712,6 +712,7 @@ class BleClientClass implements BleClientInterface {
   }
 
   private validateRequestBleDeviceOptions(options: RequestBleDeviceOptions): RequestBleDeviceOptions {
+    options = { ...options };
     if (options.services) {
       options.services = options.services.map(parseUUID);
     }
