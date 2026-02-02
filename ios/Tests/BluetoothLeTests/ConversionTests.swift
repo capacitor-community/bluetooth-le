@@ -1,7 +1,7 @@
 import Foundation
 import CoreBluetooth
 import XCTest
-@testable import Plugin
+@testable import BluetoothLe
 
 class ConversionTests: XCTestCase {
 

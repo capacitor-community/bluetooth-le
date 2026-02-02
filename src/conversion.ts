@@ -126,3 +126,21 @@ export function toHexString(value: DataView | Uint8Array | undefined): string | 
   // Uint8Array
   return dataViewToHexString(new DataView(value.buffer, value.byteOffset, value.byteLength));
 }
+
+/**
+ * Convert a DataView to a DataView backed by an ArrayBuffer.
+ * If the DataView is backed by a SharedArrayBuffer, this creates a copy.
+ * Otherwise, returns the original DataView.
+ * @param value DataView to convert
+ * @return DataView backed by ArrayBuffer
+ */
+export function toArrayBufferDataView(value: DataView): DataView & { buffer: ArrayBuffer } {
+  if (value.buffer instanceof SharedArrayBuffer) {
+    // Need to copy to a regular ArrayBuffer
+    const uint8Array = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+    const buffer = uint8Array.slice().buffer;
+    return new DataView(buffer) as DataView & { buffer: ArrayBuffer };
+  }
+  // Already an ArrayBuffer, use directly
+  return value as DataView & { buffer: ArrayBuffer };
+}

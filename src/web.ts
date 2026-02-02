@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import { hexStringToDataView, mapToObject, webUUIDToString } from './conversion';
+import { hexStringToDataView, mapToObject, toArrayBufferDataView, webUUIDToString } from './conversion';
 import type {
   BleCharacteristic,
   BleCharacteristicProperties,
@@ -314,7 +314,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     } else {
       dataView = options.value;
     }
-    await characteristic?.writeValueWithResponse(dataView);
+    await characteristic?.writeValueWithResponse(toArrayBufferDataView(dataView));
   }
 
   async writeWithoutResponse(options: WriteOptions): Promise<void> {
@@ -325,7 +325,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     } else {
       dataView = options.value;
     }
-    await characteristic?.writeValueWithoutResponse(dataView);
+    await characteristic?.writeValueWithoutResponse(toArrayBufferDataView(dataView));
   }
 
   async readDescriptor(options: ReadDescriptorOptions): Promise<ReadResult> {
@@ -342,7 +342,7 @@ export class BluetoothLeWeb extends WebPlugin implements BluetoothLePlugin {
     } else {
       dataView = options.value;
     }
-    await descriptor?.writeValue(dataView);
+    await descriptor?.writeValue(toArrayBufferDataView(dataView));
   }
 
   async startNotifications(options: ReadOptions): Promise<void> {

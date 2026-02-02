@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/bluetooth-le",
-  "version": "7.3.0",
+  "version": "8.0.3",
   "description": "Capacitor plugin for Bluetooth Low Energy ",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -8,7 +8,7 @@
   "unpkg": "dist/plugin.js",
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
-    "verify:ios": "set -o pipefail && cd ios && pod install && xcodebuild clean build test -workspace Plugin.xcworkspace -scheme Plugin -destination \"platform=iOS Simulator,name=iPhone 16\" | xcpretty && cd ..",
+    "verify:ios": "xcodebuild clean build test -scheme CapacitorCommunityBluetoothLe -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run test:coverage && npm run build",
     "lint": "npm run eslint && npm run prettier -- --check && npm run lint:ios",
@@ -38,34 +38,37 @@
     "@types/web-bluetooth": "^0.0.20"
   },
   "devDependencies": {
-    "@capacitor/android": "^7.0.0",
-    "@capacitor/cli": "^7.0.0",
-    "@capacitor/core": "^7.0.0",
-    "@capacitor/docgen": "^0.3.0",
-    "@capacitor/ios": "^7.0.0",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/docgen": "^0.3.1",
+    "@capacitor/ios": "^8.0.0",
     "@ionic/eslint-config": "^0.4.0",
     "@ionic/prettier-config": "^4.0.0",
     "@ionic/swiftlint-config": "^2.0.0",
     "@types/jest": "^29.2.5",
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
-    "prettier": "^3.4.2",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.30.1",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.1.0",
+    "rollup": "^4.53.2",
     "standard-version": "^9.5.0",
     "swiftlint": "^2.0.0",
     "ts-jest": "^29.0.3",
-    "typescript": "~4.9.4"
+    "typescript": "^5.9.3",
+    "prettier-plugin-java": "^2.7.7"
   },
   "peerDependencies": {
-    "@capacitor/core": ">=7.0.0"
+    "@capacitor/core": ">=8.0.0"
   },
   "files": [
     "android/src/main/",
     "android/build.gradle",
     "dist/",
-    "ios/Plugin/",
+    "ios/Sources",
+    "ios/Tests",
+    "Package.swift",
     "CapacitorCommunityBluetoothLe.podspec"
   ],
   "keywords": [

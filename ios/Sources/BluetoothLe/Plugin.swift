@@ -7,26 +7,52 @@ import CoreBluetooth
 let CONNECTION_TIMEOUT: Double = 10
 let DEFAULT_TIMEOUT: Double = 5
 
-struct ManufacturerDataFilter {
-    let companyIdentifier: UInt16
-    let dataPrefix: Data?
-    let mask: Data?
-}
-
-struct ServiceDataFilter {
-    let serviceUuid: CBUUID
-    let dataPrefix: Data?
-    let mask: Data?
-}
-
 @objc(BluetoothLe)
-public class BluetoothLe: CAPPlugin {
+public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "BluetoothLe"
+    public let jsName = "BluetoothLe"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "initialize", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestEnable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "enable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "disable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startEnabledNotifications", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopEnabledNotifications", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isLocationEnabled", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openLocationSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openBluetoothSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openAppSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setDisplayStrings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestDevice", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestLEScan", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopLEScan", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "discoverServices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getConnectedDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "createBond", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isBonded", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getBondedDevices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getServices", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getMtu", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestConnectionPriority", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "readRssi", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "read", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "write", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "writeWithoutResponse", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "readDescriptor", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "writeDescriptor", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startNotifications", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopNotifications", returnType: CAPPluginReturnPromise)
+    ]
     typealias BleDevice = [String: Any]
     typealias BleService = [String: Any]
     typealias BleCharacteristic = [String: Any]
     typealias BleDescriptor = [String: Any]
     private var deviceManager: DeviceManager?
-    private var deviceMap = [String: Device]()
+    private let deviceMap = ThreadSafeDictionary<String, Device>()
     private var displayStrings = [String: String]()
 
     override public func load() {
@@ -108,8 +134,8 @@ public class BluetoothLe: CAPPlugin {
 
     @objc func setDisplayStrings(_ call: CAPPluginCall) {
         for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {
-            if call.getString(key) != nil {
-                self.displayStrings[key] = call.getString(key)
+            if let value = call.getString(key) {
+                self.displayStrings[key] = value
             }
         }
         call.resolve()
@@ -147,8 +173,12 @@ public class BluetoothLe: CAPPlugin {
                         call.reject("Device not found.")
                         return
                     }
-                    self.deviceMap[device.getId()] = device
-                    let bleDevice: BleDevice = self.getBleDevice(device)
+                    let storedDevice = self.deviceMap.getOrInsert(
+                        key: device.getId(),
+                        create: { device },
+                        update: { $0.updatePeripheral(device.getPeripheral()) }
+                    ).value
+                    let bleDevice: BleDevice = self.getBleDevice(storedDevice)
                     call.resolve(bleDevice)
                 } else {
                     call.reject(message)
@@ -184,8 +214,12 @@ public class BluetoothLe: CAPPlugin {
                     call.reject(message)
                 }
             }, { (device, advertisementData, rssi) in
-                self.deviceMap[device.getId()] = device
-                let data = self.getScanResult(device, advertisementData, rssi)
+                let storedDevice = self.deviceMap.getOrInsert(
+                    key: device.getId(),
+                    create: { device },
+                    update: { $0.updatePeripheral(device.getPeripheral()) }
+                ).value
+                let data = self.getScanResult(storedDevice, advertisementData, rssi)
                 self.notifyListeners("onScanResult", data: data)
             }
         )
@@ -209,11 +243,11 @@ public class BluetoothLe: CAPPlugin {
         let peripherals = deviceManager.getDevices(deviceUUIDs)
         let bleDevices: [BleDevice] = peripherals.map({peripheral in
             let deviceId = peripheral.identifier.uuidString
-            guard let device = self.deviceMap[deviceId] else {
-                let newDevice = Device(peripheral)
-                self.deviceMap[newDevice.getId()] = newDevice
-                return self.getBleDevice(newDevice)
-            }
+            let device = self.deviceMap.getOrInsert(
+                key: deviceId,
+                create: { Device(peripheral) },
+                update: { $0.updatePeripheral(peripheral) }
+            ).value
             return self.getBleDevice(device)
         })
         call.resolve(["devices": bleDevices])
@@ -231,11 +265,11 @@ public class BluetoothLe: CAPPlugin {
         let peripherals = deviceManager.getConnectedDevices(serviceUUIDs)
         let bleDevices: [BleDevice] = peripherals.map({peripheral in
             let deviceId = peripheral.identifier.uuidString
-            guard let device = self.deviceMap[deviceId] else {
-                let newDevice = Device(peripheral)
-                self.deviceMap[newDevice.getId()] = newDevice
-                return self.getBleDevice(newDevice)
-            }
+            let device = self.deviceMap.getOrInsert(
+                key: deviceId,
+                create: { Device(peripheral) },
+                update: { $0.updatePeripheral(peripheral) }
+            ).value
             return self.getBleDevice(device)
         })
         call.resolve(["devices": bleDevices])
@@ -680,8 +714,8 @@ public class BluetoothLe: CAPPlugin {
         var bleDevice = [
             "deviceId": device.getId()
         ]
-        if device.getName() != nil {
-            bleDevice["name"] = device.getName()
+        if let name = device.getName() {
+            bleDevice["name"] = name
         }
         return bleDevice
     }
@@ -696,19 +730,16 @@ public class BluetoothLe: CAPPlugin {
             })
         ]
 
-        let localName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
-        if localName != nil {
+        if let localName = advertisementData[CBAdvertisementDataLocalNameKey] as? String {
             data["localName"] = localName
         }
 
-        let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
-        if manufacturerData != nil {
-            data["manufacturerData"] = self.getManufacturerData(data: manufacturerData!)
+        if let manufacturerData = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data {
+            data["manufacturerData"] = self.getManufacturerData(data: manufacturerData)
         }
 
-        let serviceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data]
-        if serviceData != nil {
-            data["serviceData"] = self.getServiceData(data: serviceData!)
+        if let serviceData = advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data] {
+            data["serviceData"] = self.getServiceData(data: serviceData)
         }
         return data
     }

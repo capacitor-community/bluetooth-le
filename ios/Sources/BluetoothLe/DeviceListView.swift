@@ -29,7 +29,7 @@ class DeviceListView: UIViewController, UITableViewDelegate, UITableViewDataSour
         devices.append((name, action))
         tableView.reloadData()
     }
-    
+
     private func addBlurBackground() {
         let blurEffect = UIBlurEffect(style: .systemChromeMaterial)
         let blurView = UIVisualEffectView(effect: blurEffect)

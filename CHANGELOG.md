@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.3](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.2...v8.0.3) (2026-02-02)
+
+
+### Bug Fixes
+
+* Avoid mutating scan options object ([#799](https://github.com/capacitor-community/bluetooth-le/issues/799), [#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([3134a26](https://github.com/capacitor-community/bluetooth-le/commit/3134a26879af3ef4716d02673b5e002a469a1b86))
+
+### [8.0.2](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.1...v8.0.2) (2026-01-31)
+
+
+### Bug Fixes
+
+* **ios:** Avoid "ghost" peripherals on iOS ([2c75ff4](https://github.com/capacitor-community/bluetooth-le/commit/2c75ff475380c2b7bab625387de8fdf1ba21e923))
+* **ios:** Change deviceMap to use ThreadSafeDictionary ([3fa8a9e](https://github.com/capacitor-community/bluetooth-le/commit/3fa8a9e7f077d70aef598e1303a4bd3dc86b303e))
+* **ios:** Improve thread-safety on iOS ([#779](https://github.com/capacitor-community/bluetooth-le/issues/779)) ([9bb35ad](https://github.com/capacitor-community/bluetooth-le/commit/9bb35ad0fcb2f2da3467dbab26372de121cc8213))
+
+### [8.0.1](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.0...v8.0.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* **ios:** Use proper indices when comparing payload in manufacturer data ([#797](https://github.com/capacitor-community/bluetooth-le/issues/797)) ([e68926b](https://github.com/capacitor-community/bluetooth-le/commit/e68926bd4ab53ad012897370b71fb4f3e53ebe8c))
+
+## [8.0.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.0...v8.0.0) (2026-01-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* convert iOS plugin to SPM
+* update plugin to capacitor 8
+
+### Features
+
+* convert iOS plugin to SPM ([b63068f](https://github.com/capacitor-community/bluetooth-le/commit/b63068fbdf1f811b4ba96de2ad34353f4ad07b5a))
+* update plugin to capacitor 8 ([26f2155](https://github.com/capacitor-community/bluetooth-le/commit/26f2155d9fbaf0d883d2129d3d5c584b3abb1c7d))
+
+### [7.3.2](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.1...v7.3.2) (2026-02-02)
+
+
+### Bug Fixes
+
+* Avoid mutating scan options object ([#799](https://github.com/capacitor-community/bluetooth-le/issues/799), [#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([6232eac](https://github.com/capacitor-community/bluetooth-le/commit/6232eac5ad043f403b33bc470653922aa5834096))
+
+### [7.3.1](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.0...v7.3.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* **ios:** Use proper indices when comparing payload in manufacturer data ([#797](https://github.com/capacitor-community/bluetooth-le/issues/797)) ([d42b408](https://github.com/capacitor-community/bluetooth-le/commit/d42b408c2f3ec2d3b3f73db7e434d6da0442af34))
+
 ## [7.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v7.2.0...v7.3.0) (2025-12-06)
 
 
