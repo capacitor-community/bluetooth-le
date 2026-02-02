@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.3](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.2...v8.0.3) (2026-02-02)
+
+
+### Bug Fixes
+
+* Avoid mutating scan options object ([#799](https://github.com/capacitor-community/bluetooth-le/issues/799), [#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([3134a26](https://github.com/capacitor-community/bluetooth-le/commit/3134a26879af3ef4716d02673b5e002a469a1b86))
+
 ### [8.0.2](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.1...v8.0.2) (2026-01-31)
 
 
@@ -30,6 +37,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 * convert iOS plugin to SPM ([b63068f](https://github.com/capacitor-community/bluetooth-le/commit/b63068fbdf1f811b4ba96de2ad34353f4ad07b5a))
 * update plugin to capacitor 8 ([26f2155](https://github.com/capacitor-community/bluetooth-le/commit/26f2155d9fbaf0d883d2129d3d5c584b3abb1c7d))
+
+### [7.3.2](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.1...v7.3.2) (2026-02-02)
+
+
+### Bug Fixes
+
+* Avoid mutating scan options object ([#799](https://github.com/capacitor-community/bluetooth-le/issues/799), [#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([6232eac](https://github.com/capacitor-community/bluetooth-le/commit/6232eac5ad043f403b33bc470653922aa5834096))
 
 ### [7.3.1](https://github.com/capacitor-community/bluetooth-le/compare/v7.3.0...v7.3.1) (2026-01-29)
 
