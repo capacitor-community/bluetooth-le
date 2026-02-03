@@ -313,6 +313,15 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         let key = "onDisconnected|\(device.getId())"
         self.callbackMap[key] = callback
     }
+    
+    func cancelConnect(
+        _ device: Device
+    ) {
+        // do not call onDisconnnected, which is triggered by cancelPeripheralConnection
+        let onDisconnectedKey = "onDisconnected|\(device.getId())"
+        self.callbackMap[onDisconnectedKey] = nil
+        self.centralManager.cancelPeripheralConnection(device.getPeripheral())
+    }
 
     func disconnect(
         _ device: Device,
@@ -397,10 +406,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ connectionTimeout: Double
     ) {
         let workItem = DispatchWorkItem {
-            // do not call onDisconnnected, which is triggered by cancelPeripheralConnection
-            let onDisconnectedKey = "onDisconnected|\(device.getId())"
-            self.callbackMap[onDisconnectedKey] = nil
-            self.centralManager.cancelPeripheralConnection(device.getPeripheral())
+            self.cancelConnect(device)
             self.reject(connectionKey, message)
         }
         self.timeoutMap[connectionKey] = workItem

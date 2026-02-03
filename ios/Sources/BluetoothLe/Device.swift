@@ -62,7 +62,7 @@ class Device: NSObject, CBPeripheralDelegate {
         _ peripheral: CBPeripheral,
         didDiscoverServices error: Error?
     ) {
-        log("didDiscoverServices")
+        log("didDiscoverServices", peripheral.services?.count ?? -1)
         if let error = error {
             log("Error", error.localizedDescription)
             return
@@ -81,10 +81,21 @@ class Device: NSObject, CBPeripheralDelegate {
         didDiscoverCharacteristicsFor service: CBService,
         error: Error?
     ) {
+        if let error = error {
+            log("didDiscoverCharacteristicsFor",
+                self.servicesDiscovered, self.servicesCount,
+                self.characteristicsDiscovered, self.characteristicsCount)
+            log("Error", error.localizedDescription)
+            return
+        }
+        
         self.servicesDiscovered += 1
-        log("didDiscoverCharacteristicsFor", self.servicesDiscovered, self.servicesCount)
         self.characteristicsCount += service.characteristics?.count ?? 0
         
+        log("didDiscoverCharacteristicsFor",
+            self.servicesDiscovered, self.servicesCount,
+            self.characteristicsDiscovered, self.characteristicsCount)
+
         if !self.skipDescriptorDiscovery {
             for characteristic in service.characteristics ?? [] {
                 peripheral.discoverDescriptors(for: characteristic)
@@ -425,6 +436,9 @@ class Device: NSObject, CBPeripheralDelegate {
         _ timeout: Double
     ) {
         let workItem = DispatchWorkItem {
+            log("setTimeout",
+                self.servicesDiscovered, self.servicesCount,
+                self.characteristicsDiscovered, self.characteristicsCount)
             self.reject(key, message)
         }
         self.timeoutMap[key] = workItem

@@ -285,6 +285,7 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                 // only resolve after service discovery
                 call.resolve()
             } else {
+                self.deviceManager?.cancelConnect(device)
                 call.reject(message)
             }
         })
