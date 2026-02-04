@@ -135,7 +135,7 @@ export function toHexString(value: DataView | Uint8Array | undefined): string | 
  * @return DataView backed by ArrayBuffer
  */
 export function toArrayBufferDataView(value: DataView): DataView & { buffer: ArrayBuffer } {
-  if (value.buffer instanceof SharedArrayBuffer) {
+  if (typeof SharedArrayBuffer !== 'undefined' && value.buffer instanceof SharedArrayBuffer) {
     // Need to copy to a regular ArrayBuffer
     const uint8Array = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
     const buffer = uint8Array.slice().buffer;
