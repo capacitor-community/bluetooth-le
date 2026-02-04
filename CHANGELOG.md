@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.3...v8.1.0) (2026-02-04)
+
+
+### Features
+
+* add skipDescriptorDiscovery option to ConnectOptions ([f0e10c4](https://github.com/capacitor-community/bluetooth-le/commit/f0e10c4b7290a682a572d2fde0b583c1b05647a5))
+
+
+### Bug Fixes
+
+* check SharedArrayBuffer is defined before instanceof ([5282764](https://github.com/capacitor-community/bluetooth-le/commit/5282764c2b0904769b06f80790771228234eb9bd)), closes [#807](https://github.com/capacitor-community/bluetooth-le/issues/807)
+* **ios:** Disconnect from peripheral if service discovery fails during connect [#803](https://github.com/capacitor-community/bluetooth-le/issues/803) ([cf87930](https://github.com/capacitor-community/bluetooth-le/commit/cf87930e9b3aaa72fc117d7f74e816ddf622897f))
+
 ### [8.0.3](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.2...v8.0.3) (2026-02-02)
 
 
