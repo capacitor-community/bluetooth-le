@@ -52,10 +52,14 @@ class Device: NSObject, CBPeripheralDelegate {
         _ skipDescriptorDiscovery: Bool,
         _ callback: @escaping Callback
     ) {
-        let key = "connect"
-        self.skipDescriptorDiscovery = skipDescriptorDiscovery
-        self.callbackMap[key] = callback
-        self.setTimeout(key, "Connection timeout", connectionTimeout)
+        // Delegates run on the main queue; this is called from the bridge thread.
+        // Sync to main so writes are visible before any delegate fires.
+        DispatchQueue.main.sync {
+            let key = "connect"
+            self.skipDescriptorDiscovery = skipDescriptorDiscovery
+            self.callbackMap[key] = callback
+            self.setTimeout(key, "Connection timeout", connectionTimeout)
+        }
     }
 
     func peripheral(
