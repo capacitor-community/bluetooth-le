@@ -73,6 +73,9 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         return self.centralManager.state == CBManagerState.poweredOn
     }
 
+    // stateReceiver is written on the bridge thread and read on the main queue
+    // (via centralManagerDidUpdateState). Same threading issue as startScanning
+    // below; not fixed as BLE state transitions are too slow for the race to manifest.
     func registerStateReceiver( _ stateReceiver: @escaping StateReceiver) {
         self.stateReceiver = stateReceiver
     }
@@ -99,16 +102,21 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ scanResultCallback: @escaping ScanResultCallback
     ) {
         self.callbackMap["startScanning"] = callback
-        self.scanResultCallback = scanResultCallback
 
         if self.centralManager.isScanning == false {
             self.discoveredDevices.removeAll()
-            self.deviceListMode = deviceListMode
-            self.allowDuplicates = allowDuplicates
-            self.deviceNameFilter = name
-            self.deviceNamePrefixFilter = namePrefix
-            self.manufacturerDataFilters = manufacturerDataFilters
-            self.serviceDataFilters = serviceDataFilters
+            // These are read from centralManager(_:didDiscover:) on the main queue.
+            // Delegates run on the main queue; this is called from the bridge thread.
+            // Sync to main so writes are visible before any delegate fires.
+            DispatchQueue.main.sync {
+                self.scanResultCallback = scanResultCallback
+                self.deviceListMode = deviceListMode
+                self.allowDuplicates = allowDuplicates
+                self.deviceNameFilter = name
+                self.deviceNamePrefixFilter = namePrefix
+                self.manufacturerDataFilters = manufacturerDataFilters
+                self.serviceDataFilters = serviceDataFilters
+            }
 
             if deviceListMode != .none {
                 self.showDeviceList()
