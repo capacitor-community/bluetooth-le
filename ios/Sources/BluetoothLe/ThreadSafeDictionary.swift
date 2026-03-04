@@ -9,7 +9,7 @@ class ThreadSafeDictionary<K: Hashable, T> {
             return queue.sync { dictionary[key] }
         }
         set {
-            queue.async(flags: .barrier) { self.dictionary[key] = newValue }
+            queue.sync(flags: .barrier) { self.dictionary[key] = newValue }
         }
     }
 
@@ -24,7 +24,7 @@ class ThreadSafeDictionary<K: Hashable, T> {
     }
 
     func removeAll() {
-        queue.async(flags: .barrier) {
+        queue.sync(flags: .barrier) {
             self.dictionary.removeAll()
         }
     }
