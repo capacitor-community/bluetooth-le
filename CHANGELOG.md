@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.0...v8.1.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* **ios:** fix thread-safety race in skipDescriptorDiscovery on reconnect ([#809](https://github.com/capacitor-community/bluetooth-le/issues/809)) ([61365c6](https://github.com/capacitor-community/bluetooth-le/commit/61365c6f609227318d4af5943285d045b8bd4ab1))
+* **ios:** use synchronous barrier writes in ThreadSafeDictionary ([b6fb855](https://github.com/capacitor-community/bluetooth-le/commit/b6fb8550f5c9f3ade54354a6f9743072b9ddb769))
+
 ## [8.1.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.0.3...v8.1.0) (2026-02-04)
 
 
