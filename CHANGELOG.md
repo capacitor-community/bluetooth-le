@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.1.2](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.1...v8.1.2) (2026-03-06)
+
+
+### Bug Fixes
+
+* **android:** update ProGuard configuration to use optimized rules for compatibility with Gradle 9 ([7f31066](https://github.com/capacitor-community/bluetooth-le/commit/7f31066f6f1df48f0c96872018fbb7429ed3a056))
+
 ### [8.1.1](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.0...v8.1.1) (2026-03-05)
 
 
