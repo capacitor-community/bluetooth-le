@@ -6,8 +6,8 @@ class Device: NSObject, CBPeripheralDelegate {
     typealias Callback = (_ success: Bool, _ value: String) -> Void
 
     private var peripheral: CBPeripheral!
-    private let callbackMap = ThreadSafeDictionary<String, Callback>()
-    private let timeoutMap = ThreadSafeDictionary<String, DispatchWorkItem>()
+    private var callbackMap = [String: Callback]()
+    private var timeoutMap = [String: DispatchWorkItem]()
     private var servicesCount = 0
     private var servicesDiscovered = 0
     private var characteristicsCount = 0
@@ -52,14 +52,10 @@ class Device: NSObject, CBPeripheralDelegate {
         _ skipDescriptorDiscovery: Bool,
         _ callback: @escaping Callback
     ) {
-        // Delegates run on the main queue; this is called from the bridge thread.
-        // Sync to main so writes are visible before any delegate fires.
-        DispatchQueue.main.sync {
-            let key = "connect"
-            self.skipDescriptorDiscovery = skipDescriptorDiscovery
-            self.callbackMap[key] = callback
-            self.setTimeout(key, "Connection timeout", connectionTimeout)
-        }
+        let key = "connect"
+        self.skipDescriptorDiscovery = skipDescriptorDiscovery
+        self.callbackMap[key] = callback
+        self.setTimeout(key, "Connection timeout", connectionTimeout)
     }
 
     func peripheral(
@@ -69,6 +65,8 @@ class Device: NSObject, CBPeripheralDelegate {
         log("didDiscoverServices", peripheral.services?.count ?? -1)
         if let error = error {
             log("Error", error.localizedDescription)
+            self.reject("connect", "Service discovery failed: \(error.localizedDescription)")
+            self.reject("discoverServices", "Service discovery failed: \(error.localizedDescription)")
             return
         }
         self.servicesCount = peripheral.services?.count ?? 0
@@ -127,6 +125,12 @@ class Device: NSObject, CBPeripheralDelegate {
             self.resolve("connect", "Connection successful.")
             self.resolve("discoverServices", "Services discovered.")
         }
+    }
+
+    func cancelConnectTimeout() {
+        let key = "connect"
+        self.callbackMap.removeValue(forKey: key)
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
     }
 
     func getServices() -> [CBService] {
@@ -439,6 +443,7 @@ class Device: NSObject, CBPeripheralDelegate {
         _ message: String,
         _ timeout: Double
     ) {
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
         let workItem = DispatchWorkItem {
             log("setTimeout",
                 self.servicesDiscovered, self.servicesCount,

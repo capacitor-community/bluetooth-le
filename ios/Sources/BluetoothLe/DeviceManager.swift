@@ -11,20 +11,20 @@ enum DeviceListMode {
 class DeviceManager: NSObject, CBCentralManagerDelegate {
     typealias Callback = (_ success: Bool, _ message: String) -> Void
     typealias StateReceiver = (_ enabled: Bool) -> Void
-    typealias ScanResultCallback = (_ device: Device, _ advertisementData: [String: Any], _ rssi: NSNumber) -> Void
+    typealias ScanResultCallback = (_ peripheral: CBPeripheral, _ advertisementData: [String: Any], _ rssi: NSNumber) -> Void
 
     private var centralManager: CBCentralManager!
     private let viewController: UIViewController?
     private var displayStrings: [String: String]!
-    private let callbackMap = ThreadSafeDictionary<String, Callback>()
+    private var callbackMap = [String: Callback]()
     private var scanResultCallback: ScanResultCallback?
     private var stateReceiver: StateReceiver?
-    private let timeoutMap = ThreadSafeDictionary<String, DispatchWorkItem>()
+    private var timeoutMap = [String: DispatchWorkItem]()
     private var stopScanWorkItem: DispatchWorkItem?
     private var alertController: UIAlertController?
     private var deviceListView: DeviceListView?
     private var popoverController: UIPopoverPresentationController?
-    private let discoveredDevices = ThreadSafeDictionary<String, Device>()
+    private var discoveredPeripherals = [String: CBPeripheral]()
     private var deviceNameFilter: String?
     private var deviceNamePrefixFilter: String?
     private var deviceListMode: DeviceListMode = .none
@@ -73,9 +73,6 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         return self.centralManager.state == CBManagerState.poweredOn
     }
 
-    // stateReceiver is written on the bridge thread and read on the main queue
-    // (via centralManagerDidUpdateState). Same threading issue as startScanning
-    // below; not fixed as BLE state transitions are too slow for the race to manifest.
     func registerStateReceiver( _ stateReceiver: @escaping StateReceiver) {
         self.stateReceiver = stateReceiver
     }
@@ -104,19 +101,14 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.callbackMap["startScanning"] = callback
 
         if self.centralManager.isScanning == false {
-            self.discoveredDevices.removeAll()
-            // These are read from centralManager(_:didDiscover:) on the main queue.
-            // Delegates run on the main queue; this is called from the bridge thread.
-            // Sync to main so writes are visible before any delegate fires.
-            DispatchQueue.main.sync {
-                self.scanResultCallback = scanResultCallback
-                self.deviceListMode = deviceListMode
-                self.allowDuplicates = allowDuplicates
-                self.deviceNameFilter = name
-                self.deviceNamePrefixFilter = namePrefix
-                self.manufacturerDataFilters = manufacturerDataFilters
-                self.serviceDataFilters = serviceDataFilters
-            }
+            self.discoveredPeripherals.removeAll()
+            self.scanResultCallback = scanResultCallback
+            self.deviceListMode = deviceListMode
+            self.allowDuplicates = allowDuplicates
+            self.deviceNameFilter = name
+            self.deviceNamePrefixFilter = namePrefix
+            self.manufacturerDataFilters = manufacturerDataFilters
+            self.serviceDataFilters = serviceDataFilters
 
             if deviceListMode != .none {
                 self.showDeviceList()
@@ -152,13 +144,13 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
             guard let self = self else { return }
             switch self.deviceListMode {
             case .alert:
-                if self.discoveredDevices.count == 0 {
+                if self.discoveredPeripherals.count == 0 {
                     self.alertController?.title = self.displayStrings["noDeviceFound"]
                 } else {
                     self.alertController?.title = self.displayStrings["availableDevices"]
                 }
             case .list:
-                if self.discoveredDevices.count == 0 {
+                if self.discoveredPeripherals.count == 0 {
                     self.deviceListView?.setTitle(self.displayStrings["noDeviceFound"])
                 } else {
                     self.deviceListView?.setTitle(self.displayStrings["availableDevices"])
@@ -189,36 +181,31 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         guard ScanFilterUtils.passesServiceDataFilter(advertisementData, filters: self.serviceDataFilters) else { return }
 
         let deviceId = peripheral.identifier.uuidString
-        let result = self.discoveredDevices.getOrInsert(
-            key: deviceId,
-            create: { Device(peripheral) },
-            update: { $0.updatePeripheral(peripheral) }
-        )
-        let device = result.value
-        let isNew = result.wasInserted
+        let isNew = self.discoveredPeripherals[deviceId] == nil
+        self.discoveredPeripherals[deviceId] = peripheral
 
         if isNew || self.allowDuplicates {
-            log("New device found: ", device.getName() ?? "Unknown")
+            log("New device found: ", peripheral.name ?? "Unknown")
 
             switch deviceListMode {
             case .none:
                 if let callback = self.scanResultCallback {
-                    callback(device, advertisementData, RSSI)
+                    callback(peripheral, advertisementData, RSSI)
                 }
             case .alert:
                 DispatchQueue.main.async { [weak self] in
-                    self?.alertController?.addAction(UIAlertAction(title: device.getName() ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
+                    self?.alertController?.addAction(UIAlertAction(title: peripheral.name ?? "Unknown", style: UIAlertAction.Style.default, handler: { (_) in
                         log("Selected device")
                         self?.stopScan()
-                        self?.resolve("startScanning", device.getId())
+                        self?.resolve("startScanning", deviceId)
                     }))
                 }
             case .list:
                 DispatchQueue.main.async { [weak self] in
-                    self?.deviceListView?.addItem(device.getName() ?? "Unknown", action: {
+                    self?.deviceListView?.addItem(peripheral.name ?? "Unknown", action: {
                         log("Selected device")
                         self?.stopScan()
-                        self?.resolve("startScanning", device.getId())
+                        self?.resolve("startScanning", deviceId)
                     })
                 }
             }
@@ -364,8 +351,8 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         self.resolve(key, "Successfully disconnected.")
     }
 
-    func getDevice(_ deviceId: String) -> Device? {
-        return self.discoveredDevices[deviceId]
+    func getPeripheral(_ deviceId: String) -> CBPeripheral? {
+        return self.discoveredPeripherals[deviceId]
     }
 
     private func passesNameFilter(peripheralName: String?) -> Bool {
@@ -400,6 +387,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ message: String,
         _ timeout: Double
     ) {
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
         let workItem = DispatchWorkItem {
             self.reject(key, message)
         }
@@ -413,6 +401,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ device: Device,
         _ connectionTimeout: Double
     ) {
+        self.timeoutMap.removeValue(forKey: connectionKey)?.cancel()
         let workItem = DispatchWorkItem {
             self.cancelConnect(device)
             self.reject(connectionKey, message)
