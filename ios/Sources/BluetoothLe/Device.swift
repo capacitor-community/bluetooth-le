@@ -6,8 +6,8 @@ class Device: NSObject, CBPeripheralDelegate {
     typealias Callback = (_ success: Bool, _ value: String) -> Void
 
     private var peripheral: CBPeripheral!
-    private let callbackMap = ThreadSafeDictionary<String, Callback>()
-    private let timeoutMap = ThreadSafeDictionary<String, DispatchWorkItem>()
+    private var callbackMap = [String: Callback]()
+    private var timeoutMap = [String: DispatchWorkItem]()
     private var servicesCount = 0
     private var servicesDiscovered = 0
     private var characteristicsCount = 0
@@ -52,14 +52,10 @@ class Device: NSObject, CBPeripheralDelegate {
         _ skipDescriptorDiscovery: Bool,
         _ callback: @escaping Callback
     ) {
-        // Delegates run on the main queue; this is called from the bridge thread.
-        // Sync to main so writes are visible before any delegate fires.
-        DispatchQueue.main.sync {
-            let key = "connect"
-            self.skipDescriptorDiscovery = skipDescriptorDiscovery
-            self.callbackMap[key] = callback
-            self.setTimeout(key, "Connection timeout", connectionTimeout)
-        }
+        let key = "connect"
+        self.skipDescriptorDiscovery = skipDescriptorDiscovery
+        self.callbackMap[key] = callback
+        self.setTimeout(key, "Connection timeout", connectionTimeout)
     }
 
     func peripheral(

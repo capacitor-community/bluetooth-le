@@ -52,7 +52,7 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     typealias BleCharacteristic = [String: Any]
     typealias BleDescriptor = [String: Any]
     private var deviceManager: DeviceManager?
-    private let deviceMap = ThreadSafeDictionary<String, Device>()
+    private var deviceMap = [String: Device]()
     private var displayStrings = [String: String]()
 
     override public func load() {
@@ -60,19 +60,23 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func initialize(_ call: CAPPluginCall) {
-        self.deviceManager = DeviceManager(self.bridge?.viewController, self.displayStrings, {(success, message) in
-            if success {
-                call.resolve()
-            } else {
-                call.reject(message)
-            }
-        })
+        DispatchQueue.main.async {
+            self.deviceManager = DeviceManager(self.bridge?.viewController, self.displayStrings, {(success, message) in
+                if success {
+                    call.resolve()
+                } else {
+                    call.reject(message)
+                }
+            })
+        }
     }
 
     @objc func isEnabled(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        let enabled: Bool = deviceManager.isEnabled()
-        call.resolve(["value": enabled])
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            let enabled: Bool = deviceManager.isEnabled()
+            call.resolve(["value": enabled])
+        }
     }
 
     @objc func requestEnable(_ call: CAPPluginCall) {
@@ -88,17 +92,21 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func startEnabledNotifications(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        deviceManager.registerStateReceiver({(enabled) in
-            self.notifyListeners("onEnabledChanged", data: ["value": enabled])
-        })
-        call.resolve()
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            deviceManager.registerStateReceiver({(enabled) in
+                self.notifyListeners("onEnabledChanged", data: ["value": enabled])
+            })
+            call.resolve()
+        }
     }
 
     @objc func stopEnabledNotifications(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        deviceManager.unregisterStateReceiver()
-        call.resolve()
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            deviceManager.unregisterStateReceiver()
+            call.resolve()
+        }
     }
 
     @objc func isLocationEnabled(_ call: CAPPluginCall) {
@@ -133,174 +141,168 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func setDisplayStrings(_ call: CAPPluginCall) {
-        for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {
-            if let value = call.getString(key) {
-                self.displayStrings[key] = value
+        DispatchQueue.main.async {
+            for key in ["noDeviceFound", "availableDevices", "scanning", "cancel"] {
+                if let value = call.getString(key) {
+                    self.displayStrings[key] = value
+                }
             }
+            call.resolve()
         }
-        call.resolve()
     }
 
     @objc func requestDevice(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        deviceManager.setDisplayStrings(self.displayStrings)
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            deviceManager.setDisplayStrings(self.displayStrings)
 
-        let serviceUUIDs = self.getServiceUUIDs(call)
-        let name = call.getString("name")
-        let namePrefix = call.getString("namePrefix")
-        let manufacturerDataFilters = self.getManufacturerDataFilters(call)
-        let serviceDataFilters = self.getServiceDataFilters(call)
+            let serviceUUIDs = self.getServiceUUIDs(call)
+            let name = call.getString("name")
+            let namePrefix = call.getString("namePrefix")
+            let manufacturerDataFilters = self.getManufacturerDataFilters(call)
+            let serviceDataFilters = self.getServiceDataFilters(call)
 
-        let displayModeString = (call.getString("displayMode") ?? "alert").lowercased()
-        guard ["alert", "list"].contains(displayModeString) else {
-            call.reject("Invalid displayMode '\(call.getString("displayMode") ?? "")'. Use 'alert' or 'list'.")
-            return
-        }
-        let deviceListMode: DeviceListMode = displayModeString == "list" ? .list : .alert
+            let displayModeString = (call.getString("displayMode") ?? "alert").lowercased()
+            guard ["alert", "list"].contains(displayModeString) else {
+                call.reject("Invalid displayMode '\(call.getString("displayMode") ?? "")'. Use 'alert' or 'list'.")
+                return
+            }
+            let deviceListMode: DeviceListMode = displayModeString == "list" ? .list : .alert
 
-        deviceManager.startScanning(
-            serviceUUIDs,
-            name,
-            namePrefix,
-            manufacturerDataFilters,
-            serviceDataFilters,
-            false,
-            deviceListMode,
-            30,
-            {(success, message) in
-                if success {
-                    guard let device = deviceManager.getDevice(message) else {
-                        call.reject("Device not found.")
-                        return
+            deviceManager.startScanning(
+                serviceUUIDs,
+                name,
+                namePrefix,
+                manufacturerDataFilters,
+                serviceDataFilters,
+                false,
+                deviceListMode,
+                30,
+                {(success, message) in
+                    if success {
+                        guard let device = deviceManager.getDevice(message) else {
+                            call.reject("Device not found.")
+                            return
+                        }
+                        let storedDevice = self.getOrCreateDevice(device.getPeripheral())
+                        let bleDevice: BleDevice = self.getBleDevice(storedDevice)
+                        call.resolve(bleDevice)
+                    } else {
+                        call.reject(message)
                     }
-                    let storedDevice = self.deviceMap.getOrInsert(
-                        key: device.getId(),
-                        create: { device },
-                        update: { $0.updatePeripheral(device.getPeripheral()) }
-                    ).value
-                    let bleDevice: BleDevice = self.getBleDevice(storedDevice)
-                    call.resolve(bleDevice)
-                } else {
-                    call.reject(message)
-                }
-            },
-            { (_, _, _) in }
-        )
+                },
+                { (_, _, _) in }
+            )
+        }
     }
 
     @objc func requestLEScan(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
 
-        let serviceUUIDs = self.getServiceUUIDs(call)
-        let name = call.getString("name")
-        let namePrefix = call.getString("namePrefix")
-        let allowDuplicates = call.getBool("allowDuplicates", false)
-        let manufacturerDataFilters = self.getManufacturerDataFilters(call)
-        let serviceDataFilters = self.getServiceDataFilters(call)
+            let serviceUUIDs = self.getServiceUUIDs(call)
+            let name = call.getString("name")
+            let namePrefix = call.getString("namePrefix")
+            let allowDuplicates = call.getBool("allowDuplicates", false)
+            let manufacturerDataFilters = self.getManufacturerDataFilters(call)
+            let serviceDataFilters = self.getServiceDataFilters(call)
 
-        deviceManager.startScanning(
-            serviceUUIDs,
-            name,
-            namePrefix,
-            manufacturerDataFilters,
-            serviceDataFilters,
-            allowDuplicates,
-            .none,
-            nil,
-            { (success, message) in
-                if success {
-                    call.resolve()
-                } else {
-                    call.reject(message)
+            deviceManager.startScanning(
+                serviceUUIDs,
+                name,
+                namePrefix,
+                manufacturerDataFilters,
+                serviceDataFilters,
+                allowDuplicates,
+                .none,
+                nil,
+                { (success, message) in
+                    if success {
+                        call.resolve()
+                    } else {
+                        call.reject(message)
+                    }
+                }, { (device, advertisementData, rssi) in
+                    let storedDevice = self.getOrCreateDevice(device.getPeripheral())
+                    let data = self.getScanResult(storedDevice, advertisementData, rssi)
+                    self.notifyListeners("onScanResult", data: data)
                 }
-            }, { (device, advertisementData, rssi) in
-                let storedDevice = self.deviceMap.getOrInsert(
-                    key: device.getId(),
-                    create: { device },
-                    update: { $0.updatePeripheral(device.getPeripheral()) }
-                ).value
-                let data = self.getScanResult(storedDevice, advertisementData, rssi)
-                self.notifyListeners("onScanResult", data: data)
-            }
-        )
+            )
+        }
     }
 
     @objc func stopLEScan(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        deviceManager.stopScan()
-        call.resolve()
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            deviceManager.stopScan()
+            call.resolve()
+        }
     }
 
     @objc func getDevices(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        guard let deviceIds = call.getArray("deviceIds", String.self) else {
-            call.reject("deviceIds must be provided")
-            return
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            guard let deviceIds = call.getArray("deviceIds", String.self) else {
+                call.reject("deviceIds must be provided")
+                return
+            }
+            let deviceUUIDs: [UUID] = deviceIds.compactMap({ deviceId in
+                return UUID(uuidString: deviceId)
+            })
+            let peripherals = deviceManager.getDevices(deviceUUIDs)
+            let bleDevices: [BleDevice] = peripherals.map({peripheral in
+                let device = self.getOrCreateDevice(peripheral)
+                return self.getBleDevice(device)
+            })
+            call.resolve(["devices": bleDevices])
         }
-        let deviceUUIDs: [UUID] = deviceIds.compactMap({ deviceId in
-            return UUID(uuidString: deviceId)
-        })
-        let peripherals = deviceManager.getDevices(deviceUUIDs)
-        let bleDevices: [BleDevice] = peripherals.map({peripheral in
-            let deviceId = peripheral.identifier.uuidString
-            let device = self.deviceMap.getOrInsert(
-                key: deviceId,
-                create: { Device(peripheral) },
-                update: { $0.updatePeripheral(peripheral) }
-            ).value
-            return self.getBleDevice(device)
-        })
-        call.resolve(["devices": bleDevices])
     }
 
     @objc func getConnectedDevices(_ call: CAPPluginCall) {
-        guard let deviceManager = self.getDeviceManager(call) else { return }
-        guard let services = call.getArray("services", String.self) else {
-            call.reject("services must be provided")
-            return
+        DispatchQueue.main.async {
+            guard let deviceManager = self.getDeviceManager(call) else { return }
+            guard let services = call.getArray("services", String.self) else {
+                call.reject("services must be provided")
+                return
+            }
+            let serviceUUIDs: [CBUUID] = services.compactMap({ service in
+                return CBUUID(string: service)
+            })
+            let peripherals = deviceManager.getConnectedDevices(serviceUUIDs)
+            let bleDevices: [BleDevice] = peripherals.map({peripheral in
+                let device = self.getOrCreateDevice(peripheral)
+                return self.getBleDevice(device)
+            })
+            call.resolve(["devices": bleDevices])
         }
-        let serviceUUIDs: [CBUUID] = services.compactMap({ service in
-            return CBUUID(string: service)
-        })
-        let peripherals = deviceManager.getConnectedDevices(serviceUUIDs)
-        let bleDevices: [BleDevice] = peripherals.map({peripheral in
-            let deviceId = peripheral.identifier.uuidString
-            let device = self.deviceMap.getOrInsert(
-                key: deviceId,
-                create: { Device(peripheral) },
-                update: { $0.updatePeripheral(peripheral) }
-            ).value
-            return self.getBleDevice(device)
-        })
-        call.resolve(["devices": bleDevices])
     }
 
     @objc func connect(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call, checkConnection: false) else { return }
-        let timeout = self.getTimeout(call, defaultTimeout: CONNECTION_TIMEOUT)
-        let skipDescriptorDiscovery = call.getBool("skipDescriptorDiscovery") ?? false
-        device.setOnConnected(timeout, skipDescriptorDiscovery, {(success, message) in
-            if success {
-                // only resolve after service discovery
-                call.resolve()
-            } else {
-                self.deviceManager?.cancelConnect(device)
-                call.reject(message)
-            }
-        })
-        self.deviceManager?.setOnDisconnected(device, {(_, _) in
-            let key = "disconnected|\(device.getId())"
-            self.notifyListeners(key, data: nil)
-        })
-        self.deviceManager?.connect(device, timeout, {(success, message) in
-            if success {
-                log("Connected to peripheral. Waiting for service discovery.")
-            } else {
-                call.reject(message)
-            }
-        })
-
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call, checkConnection: false) else { return }
+            let timeout = self.getTimeout(call, defaultTimeout: CONNECTION_TIMEOUT)
+            let skipDescriptorDiscovery = call.getBool("skipDescriptorDiscovery") ?? false
+            device.setOnConnected(timeout, skipDescriptorDiscovery, {(success, message) in
+                if success {
+                    call.resolve()
+                } else {
+                    self.deviceManager?.cancelConnect(device)
+                    call.reject(message)
+                }
+            })
+            self.deviceManager?.setOnDisconnected(device, {(_, _) in
+                let key = "disconnected|\(device.getId())"
+                self.notifyListeners(key, data: nil)
+            })
+            self.deviceManager?.connect(device, timeout, {(success, message) in
+                if success {
+                    log("Connected to peripheral. Waiting for service discovery.")
+                } else {
+                    call.reject(message)
+                }
+            })
+        }
     }
 
     @objc func createBond(_ call: CAPPluginCall) {
@@ -316,44 +318,48 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func disconnect(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call, checkConnection: false) else { return }
-        let timeout = self.getTimeout(call)
-        self.deviceManager?.disconnect(device, timeout, {(success, message) in
-            if success {
-                call.resolve()
-            } else {
-                call.reject(message)
-            }
-        })
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call, checkConnection: false) else { return }
+            let timeout = self.getTimeout(call)
+            self.deviceManager?.disconnect(device, timeout, {(success, message) in
+                if success {
+                    call.resolve()
+                } else {
+                    call.reject(message)
+                }
+            })
+        }
     }
 
     @objc func getServices(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        let services = device.getServices()
-        var bleServices = [BleService]()
-        for service in services {
-            var bleCharacteristics = [BleCharacteristic]()
-            for characteristic in service.characteristics ?? [] {
-                var bleDescriptors = [BleDescriptor]()
-                for descriptor in characteristic.descriptors ?? [] {
-                    bleDescriptors.append([
-                        "uuid": cbuuidToString(descriptor.uuid)
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            let services = device.getServices()
+            var bleServices = [BleService]()
+            for service in services {
+                var bleCharacteristics = [BleCharacteristic]()
+                for characteristic in service.characteristics ?? [] {
+                    var bleDescriptors = [BleDescriptor]()
+                    for descriptor in characteristic.descriptors ?? [] {
+                        bleDescriptors.append([
+                            "uuid": cbuuidToString(descriptor.uuid)
+                        ])
+                    }
+                    bleCharacteristics.append([
+                        "uuid": cbuuidToString(characteristic.uuid),
+                        "properties": self.getProperties(characteristic),
+                        "descriptors": bleDescriptors
                     ])
                 }
-                bleCharacteristics.append([
-                    "uuid": cbuuidToString(characteristic.uuid),
-                    "properties": getProperties(characteristic),
-                    "descriptors": bleDescriptors
+                bleServices.append([
+                    "uuid": cbuuidToString(service.uuid),
+                    "characteristics": bleCharacteristics
                 ])
             }
-            bleServices.append([
-                "uuid": cbuuidToString(service.uuid),
-                "characteristics": bleCharacteristics
-            ])
+            call.resolve(["services": bleServices])
         }
-        call.resolve(["services": bleServices])
     }
 
     private func getProperties(_ characteristic: CBCharacteristic) -> [String: Bool] {
@@ -372,24 +378,28 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func discoverServices(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        let timeout = self.getTimeout(call)
-        device.discoverServices(timeout, {(success, value) in
-            if success {
-                call.resolve()
-            } else {
-                call.reject(value)
-            }
-        })
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            let timeout = self.getTimeout(call)
+            device.discoverServices(timeout, {(success, value) in
+                if success {
+                    call.resolve()
+                } else {
+                    call.reject(value)
+                }
+            })
+        }
     }
 
     @objc func getMtu(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        call.resolve([
-            "value": device.getMtu()
-        ])
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            call.resolve([
+                "value": device.getMtu()
+            ])
+        }
     }
 
     @objc func requestConnectionPriority(_ call: CAPPluginCall) {
@@ -397,94 +407,11 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func readRssi(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        let timeout = self.getTimeout(call)
-        device.readRssi(timeout, {(success, value) in
-            if success {
-                call.resolve([
-                    "value": value
-                ])
-            } else {
-                call.reject(value)
-            }
-        })
-    }
-
-    @objc func read(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let characteristic = self.getCharacteristic(call) else { return }
-        let timeout = self.getTimeout(call)
-        device.read(characteristic.0, characteristic.1, timeout, {(success, value) in
-            if success {
-                call.resolve([
-                    "value": value
-                ])
-            } else {
-                call.reject(value)
-            }
-        })
-    }
-
-    @objc func write(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let characteristic = self.getCharacteristic(call) else { return }
-        guard let value = call.getString("value") else {
-            call.reject("value must be provided")
-            return
-        }
-        let writeType = CBCharacteristicWriteType.withResponse
-        let timeout = self.getTimeout(call)
-        device.write(
-            characteristic.0,
-            characteristic.1,
-            value,
-            writeType,
-            timeout, {(success, value) in
-                if success {
-                    call.resolve()
-                } else {
-                    call.reject(value)
-                }
-            })
-    }
-
-    @objc func writeWithoutResponse(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let characteristic = self.getCharacteristic(call) else { return }
-        guard let value = call.getString("value") else {
-            call.reject("value must be provided")
-            return
-        }
-        let writeType = CBCharacteristicWriteType.withoutResponse
-        let timeout = self.getTimeout(call)
-        device.write(
-            characteristic.0,
-            characteristic.1,
-            value,
-            writeType,
-            timeout, {(success, value) in
-                if success {
-                    call.resolve()
-                } else {
-                    call.reject(value)
-                }
-            })
-    }
-
-    @objc func readDescriptor(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let descriptor = self.getDescriptor(call) else { return }
-        let timeout = self.getTimeout(call)
-        device.readDescriptor(
-            descriptor.0,
-            descriptor.1,
-            descriptor.2,
-            timeout, {(success, value) in
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            let timeout = self.getTimeout(call)
+            device.readRssi(timeout, {(success, value) in
                 if success {
                     call.resolve([
                         "value": value
@@ -493,69 +420,168 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                     call.reject(value)
                 }
             })
+        }
+    }
+
+    @objc func read(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let characteristic = self.getCharacteristic(call) else { return }
+            let timeout = self.getTimeout(call)
+            device.read(characteristic.0, characteristic.1, timeout, {(success, value) in
+                if success {
+                    call.resolve([
+                        "value": value
+                    ])
+                } else {
+                    call.reject(value)
+                }
+            })
+        }
+    }
+
+    @objc func write(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let characteristic = self.getCharacteristic(call) else { return }
+            guard let value = call.getString("value") else {
+                call.reject("value must be provided")
+                return
+            }
+            let writeType = CBCharacteristicWriteType.withResponse
+            let timeout = self.getTimeout(call)
+            device.write(
+                characteristic.0,
+                characteristic.1,
+                value,
+                writeType,
+                timeout, {(success, value) in
+                    if success {
+                        call.resolve()
+                    } else {
+                        call.reject(value)
+                    }
+                })
+        }
+    }
+
+    @objc func writeWithoutResponse(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let characteristic = self.getCharacteristic(call) else { return }
+            guard let value = call.getString("value") else {
+                call.reject("value must be provided")
+                return
+            }
+            let writeType = CBCharacteristicWriteType.withoutResponse
+            let timeout = self.getTimeout(call)
+            device.write(
+                characteristic.0,
+                characteristic.1,
+                value,
+                writeType,
+                timeout, {(success, value) in
+                    if success {
+                        call.resolve()
+                    } else {
+                        call.reject(value)
+                    }
+                })
+        }
+    }
+
+    @objc func readDescriptor(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let descriptor = self.getDescriptor(call) else { return }
+            let timeout = self.getTimeout(call)
+            device.readDescriptor(
+                descriptor.0,
+                descriptor.1,
+                descriptor.2,
+                timeout, {(success, value) in
+                    if success {
+                        call.resolve([
+                            "value": value
+                        ])
+                    } else {
+                        call.reject(value)
+                    }
+                })
+        }
     }
 
     @objc func writeDescriptor(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let descriptor = self.getDescriptor(call) else { return }
-        guard let value = call.getString("value") else {
-            call.reject("value must be provided")
-            return
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let descriptor = self.getDescriptor(call) else { return }
+            guard let value = call.getString("value") else {
+                call.reject("value must be provided")
+                return
+            }
+            let timeout = self.getTimeout(call)
+            device.writeDescriptor(
+                descriptor.0,
+                descriptor.1,
+                descriptor.2,
+                value,
+                timeout, {(success, value) in
+                    if success {
+                        call.resolve()
+                    } else {
+                        call.reject(value)
+                    }
+                })
         }
-        let timeout = self.getTimeout(call)
-        device.writeDescriptor(
-            descriptor.0,
-            descriptor.1,
-            descriptor.2,
-            value,
-            timeout, {(success, value) in
-                if success {
-                    call.resolve()
-                } else {
-                    call.reject(value)
-                }
-            })
     }
 
     @objc func startNotifications(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let characteristic = self.getCharacteristic(call) else { return }
-        let timeout = self.getTimeout(call)
-        device.setNotifications(
-            characteristic.0,
-            characteristic.1,
-            true, {(_, value) in
-                let key = "notification|\(device.getId())|\(characteristic.0.uuidString.lowercased())|\(characteristic.1.uuidString.lowercased())"
-                self.notifyListeners(key, data: ["value": value])
-            },
-            timeout, {(success, value) in
-                if success {
-                    call.resolve()
-                } else {
-                    call.reject(value)
-                }
-            })
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let characteristic = self.getCharacteristic(call) else { return }
+            let timeout = self.getTimeout(call)
+            device.setNotifications(
+                characteristic.0,
+                characteristic.1,
+                true, {(_, value) in
+                    let key = "notification|\(device.getId())|\(characteristic.0.uuidString.lowercased())|\(characteristic.1.uuidString.lowercased())"
+                    self.notifyListeners(key, data: ["value": value])
+                },
+                timeout, {(success, value) in
+                    if success {
+                        call.resolve()
+                    } else {
+                        call.reject(value)
+                    }
+                })
+        }
     }
 
     @objc func stopNotifications(_ call: CAPPluginCall) {
-        guard self.getDeviceManager(call) != nil else { return }
-        guard let device = self.getDevice(call) else { return }
-        guard let characteristic = self.getCharacteristic(call) else { return }
-        let timeout = self.getTimeout(call)
-        device.setNotifications(
-            characteristic.0,
-            characteristic.1,
-            false,
-            nil,
-            timeout, {(success, value) in
-                if success {
-                    call.resolve()
-                } else {
-                    call.reject(value)
-                }
-            })
+        DispatchQueue.main.async {
+            guard self.getDeviceManager(call) != nil else { return }
+            guard let device = self.getDevice(call) else { return }
+            guard let characteristic = self.getCharacteristic(call) else { return }
+            let timeout = self.getTimeout(call)
+            device.setNotifications(
+                characteristic.0,
+                characteristic.1,
+                false,
+                nil,
+                timeout, {(success, value) in
+                    if success {
+                        call.resolve()
+                    } else {
+                        call.reject(value)
+                    }
+                })
+        }
     }
 
     private func getDisplayStrings() -> [String: String] {
@@ -594,7 +620,6 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
         for index in 0..<manufacturerDataArray.count {
             guard let dataObject = manufacturerDataArray[index] as? JSObject,
                   let companyIdentifier = dataObject["companyIdentifier"] as? UInt16 else {
-                // Invalid or missing company identifier
                 return nil
             }
 
@@ -630,7 +655,6 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
         for index in 0..<serviceDataArray.count {
             guard let dataObject = serviceDataArray[index] as? JSObject,
                   let serviceUuidString = dataObject["serviceUuid"] as? String else {
-                // Invalid or missing service UUID
                 return nil
             }
 
@@ -709,6 +733,17 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
         let descriptorUUID = CBUUID(string: descriptor)
 
         return (characteristic.0, characteristic.1, descriptorUUID)
+    }
+
+    private func getOrCreateDevice(_ peripheral: CBPeripheral) -> Device {
+        let key = peripheral.identifier.uuidString
+        if let existing = self.deviceMap[key] {
+            existing.updatePeripheral(peripheral)
+            return existing
+        }
+        let device = Device(peripheral)
+        self.deviceMap[key] = device
+        return device
     }
 
     private func getBleDevice(_ device: Device) -> BleDevice {
