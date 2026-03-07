@@ -435,6 +435,7 @@ class Device: NSObject, CBPeripheralDelegate {
         _ message: String,
         _ timeout: Double
     ) {
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
         let workItem = DispatchWorkItem {
             log("setTimeout",
                 self.servicesDiscovered, self.servicesCount,
