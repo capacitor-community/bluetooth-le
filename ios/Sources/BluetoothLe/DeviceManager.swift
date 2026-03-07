@@ -396,6 +396,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ message: String,
         _ timeout: Double
     ) {
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
         let workItem = DispatchWorkItem {
             self.reject(key, message)
         }
@@ -409,6 +410,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
         _ device: Device,
         _ connectionTimeout: Double
     ) {
+        self.timeoutMap.removeValue(forKey: connectionKey)?.cancel()
         let workItem = DispatchWorkItem {
             self.cancelConnect(device)
             self.reject(connectionKey, message)
