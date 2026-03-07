@@ -180,11 +180,11 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                 30,
                 {(success, message) in
                     if success {
-                        guard let device = deviceManager.getDevice(message) else {
+                        guard let peripheral = deviceManager.getPeripheral(message) else {
                             call.reject("Device not found.")
                             return
                         }
-                        let storedDevice = self.getOrCreateDevice(device.getPeripheral())
+                        let storedDevice = self.getOrCreateDevice(peripheral)
                         let bleDevice: BleDevice = self.getBleDevice(storedDevice)
                         call.resolve(bleDevice)
                     } else {
@@ -222,8 +222,8 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                     } else {
                         call.reject(message)
                     }
-                }, { (device, advertisementData, rssi) in
-                    let storedDevice = self.getOrCreateDevice(device.getPeripheral())
+                }, { (peripheral, advertisementData, rssi) in
+                    let storedDevice = self.getOrCreateDevice(peripheral)
                     let data = self.getScanResult(storedDevice, advertisementData, rssi)
                     self.notifyListeners("onScanResult", data: data)
                 }
