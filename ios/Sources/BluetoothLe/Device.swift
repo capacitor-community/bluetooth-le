@@ -65,6 +65,8 @@ class Device: NSObject, CBPeripheralDelegate {
         log("didDiscoverServices", peripheral.services?.count ?? -1)
         if let error = error {
             log("Error", error.localizedDescription)
+            self.reject("connect", "Service discovery failed: \(error.localizedDescription)")
+            self.reject("discoverServices", "Service discovery failed: \(error.localizedDescription)")
             return
         }
         self.servicesCount = peripheral.services?.count ?? 0
