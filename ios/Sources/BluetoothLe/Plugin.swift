@@ -299,6 +299,7 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                 if success {
                     log("Connected to peripheral. Waiting for service discovery.")
                 } else {
+                    device.cancelConnectTimeout()
                     call.reject(message)
                 }
             })

@@ -125,6 +125,12 @@ class Device: NSObject, CBPeripheralDelegate {
         }
     }
 
+    func cancelConnectTimeout() {
+        let key = "connect"
+        self.callbackMap.removeValue(forKey: key)
+        self.timeoutMap.removeValue(forKey: key)?.cancel()
+    }
+
     func getServices() -> [CBService] {
         return self.peripheral.services ?? []
     }
