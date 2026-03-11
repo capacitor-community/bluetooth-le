@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.1.3](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.2...v8.1.3) (2026-03-11)
+
+
+### Bug Fixes
+
+* **ios:** cancel stale timeout work items before scheduling new ones ([#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([17eceda](https://github.com/capacitor-community/bluetooth-le/commit/17ecedadeb97f5bf5ba52322765c3eca233882d7))
+* **ios:** eliminate peripheral.delegate hijacking during concurrent scan + connect ([#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([bf338ff](https://github.com/capacitor-community/bluetooth-le/commit/bf338ff9ecd4c1633590fc0c390956e6be45af50))
+* **ios:** prevent double-reject of CAPPluginCall during connect ([#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([ad222e0](https://github.com/capacitor-community/bluetooth-le/commit/ad222e0dcce38211bb964460d9882e928c2b7ed5))
+* **ios:** reject connect callback immediately on service discovery error ([#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([1e6863f](https://github.com/capacitor-community/bluetooth-le/commit/1e6863f7bfa12292bb80fa1429001c003de96fc2))
+* **ios:** Simplify threading model ([#803](https://github.com/capacitor-community/bluetooth-le/issues/803)) ([c067b90](https://github.com/capacitor-community/bluetooth-le/commit/c067b90d0fcc8e9b4545eabf043cee329745b684))
+
 ### [8.1.2](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.1...v8.1.2) (2026-03-06)
 
 
