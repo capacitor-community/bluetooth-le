@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.3...v8.2.0) (2026-05-25)
+
+
+### Bug Fixes
+
+* **android:** Support AGP 9+ ([a8daed4](https://github.com/capacitor-community/bluetooth-le/commit/a8daed4754d269318fefd36395ea54fb72b23f60)), closes [#815](https://github.com/capacitor-community/bluetooth-le/issues/815)
+
 ### [8.1.3](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.2...v8.1.3) (2026-03-11)
 
 
