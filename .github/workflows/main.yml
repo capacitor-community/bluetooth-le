@@ -38,6 +38,15 @@ jobs:
 
   verify-android:
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - agp: '8.13.0'
+            gradle: '8.14.3'
+          - agp: '9.1.1'
+            gradle: '9.3.1'
+    name: verify-android (AGP ${{ matrix.agp }} / Gradle ${{ matrix.gradle }})
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
@@ -48,7 +57,12 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
       - run: npm ci
-      - run: npm run verify:android
+      - name: Update Gradle wrapper to ${{ matrix.gradle }}
+        working-directory: android
+        run: ./gradlew wrapper --gradle-version=${{ matrix.gradle }} --distribution-type=all
+      - name: Build & test with AGP ${{ matrix.agp }}
+        working-directory: android
+        run: ./gradlew clean build test -PagpVersion=${{ matrix.agp }}
 
   verify-ios:
     runs-on: macos-15
