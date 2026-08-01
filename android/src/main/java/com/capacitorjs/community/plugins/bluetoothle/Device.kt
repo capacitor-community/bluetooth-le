@@ -33,8 +33,35 @@ class CallbackResponse(
 
 class TimeoutHandler(
     val key: String,
-    val handler: Handler
-)
+    private val timeoutQueue: ConcurrentLinkedQueue<TimeoutHandler>,
+    private val onTimeout: () -> Unit,
+) : Runnable {
+    lateinit var handler: Handler
+
+    override fun run() {
+        timeoutQueue.remove(this)
+        onTimeout()
+    }
+
+    fun cancel() {
+        handler.removeCallbacks(this)
+    }
+}
+
+/** Names the common GATT statuses reported by onConnectionStateChange. */
+fun gattStatusName(status: Int): String {
+    return when (status) {
+        0 -> "GATT_SUCCESS"
+        8 -> "GATT_CONN_TIMEOUT"
+        19 -> "GATT_CONN_TERMINATE_PEER_USER"
+        22 -> "GATT_CONN_TERMINATE_LOCAL_HOST"
+        34 -> "GATT_CONN_LMP_TIMEOUT"
+        62 -> "GATT_CONN_FAIL_ESTABLISH"
+        133 -> "GATT_ERROR"
+        257 -> "GATT_FAILURE"
+        else -> "unnamed"
+    }
+}
 
 fun <T> ConcurrentLinkedQueue<T>.popFirstMatch(predicate: (T) -> Boolean): T? {
     synchronized(this) {
@@ -115,6 +142,8 @@ class Device(
         override fun onConnectionStateChange(
             gatt: BluetoothGatt, status: Int, newState: Int
         ) {
+            val statusText = "status $status (${gattStatusName(status)})"
+            Logger.debug(TAG, "onConnectionStateChange: newState $newState, $statusText")
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 connectionState = STATE_CONNECTED
                 // service discovery is required to use services
@@ -128,9 +157,12 @@ class Device(
                 onDisconnect()
                 bluetoothGatt?.close()
                 bluetoothGatt = null
-                Logger.debug(TAG, "Disconnected from GATT server.")
+                Logger.debug(TAG, "Disconnected from GATT server: $statusText")
                 cleanup()
-                resolve("disconnect", "Disconnected.")
+                // A connect still in flight has failed. Reject it with the
+                // platform status instead of waiting for its timeout.
+                reject("connect", "Connection failed with $statusText.")
+                resolve("disconnect", "Disconnected with $statusText.")
             }
         }
 
@@ -734,7 +766,7 @@ class Device(
         pendingBondKeys.remove(key)
         callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "resolve: $key $value")
-            timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
+            timeoutQueue.popFirstMatch { it.key == key }?.cancel()
             callback?.invoke(CallbackResponse(true, value))
         }
     }
@@ -743,19 +775,23 @@ class Device(
         pendingBondKeys.remove(key)
         callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "reject: $key $value")
-            timeoutQueue.popFirstMatch { it.key == key }?.handler?.removeCallbacksAndMessages(null)
+            timeoutQueue.popFirstMatch { it.key == key }?.cancel()
             callback?.invoke(CallbackResponse(false, value))
         }
     }
 
+    // TimeoutHandler removes itself before running so a fired handler cannot
+    // remain in the queue and hide a later handler with the same key.
     private fun setTimeout(
         key: String, message: String, timeout: Long
     ) {
         val handler = Handler(Looper.getMainLooper())
-        timeoutQueue.add(TimeoutHandler(key, handler))
-        handler.postDelayed({
+        val timeoutHandler = TimeoutHandler(key, timeoutQueue) {
             reject(key, message)
-        }, timeout)
+        }
+        timeoutHandler.handler = handler
+        timeoutQueue.add(timeoutHandler)
+        handler.postDelayed(timeoutHandler, timeout)
     }
 
     private fun setConnectionTimeout(
@@ -765,13 +801,15 @@ class Device(
         timeout: Long,
     ) {
         val handler = Handler(Looper.getMainLooper())
-        timeoutQueue.add(TimeoutHandler(key, handler))
-        handler.postDelayed({
+        val timeoutHandler = TimeoutHandler(key, timeoutQueue) {
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
             cleanup()
             reject(key, message)
-        }, timeout)
+        }
+        timeoutHandler.handler = handler
+        timeoutQueue.add(timeoutHandler)
+        handler.postDelayed(timeoutHandler, timeout)
     }
 }
