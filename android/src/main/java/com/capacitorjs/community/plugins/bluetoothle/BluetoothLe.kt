@@ -930,6 +930,19 @@ class BluetoothLe : Plugin() {
             call.reject("Invalid scan mode.")
             return null
         }
+
+        // Bluetooth 5 advertising extensions are only reported when legacy mode is switched off.
+        // setLegacy(false) reports both legacy and extended advertisements
+        // The API was added in API level 26, below that extended advertisements cannot be received.
+        val allowExtendedAdvertising = call.getBoolean("allowExtendedAdvertising", false) as Boolean
+        if (allowExtendedAdvertising) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                scanSettings.setLegacy(false)
+            } else {
+                Logger.warn(TAG, "allowExtendedAdvertising requires Android 8.0 (API level 26) and will be ignored.")
+            }
+        }
+
         return scanSettings.build()
     }
 

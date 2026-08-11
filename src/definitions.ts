@@ -47,6 +47,16 @@ export interface RequestBleDeviceOptions {
    */
   scanMode?: ScanMode;
   /**
+   * Report Bluetooth 5 advertising extensions in addition to legacy advertisements (Android only).
+   * Android only reports legacy advertisements by default, so a device that advertises more than the
+   * 31 bytes of a legacy advertisement is not discovered at all. Enabling this reports both legacy
+   * and extended advertisements, so nothing is lost.
+   * Requires Android 8.0 (API level 26) and a chipset that supports extended scanning.
+   * It is ignored on older Android versions and has no effect on iOS or web.
+   * (default: false)
+   */
+  allowExtendedAdvertising?: boolean;
+  /**
    * Allow scanning for devices with a specific manufacturer data
    * https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#manufacturerdata
    */
