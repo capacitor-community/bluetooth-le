@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.2.0...v8.3.0) (2026-08-13)
+
+
+### Features
+
+* **android:** support Bluetooth 5 extended advertisements ([1f3236a](https://github.com/capacitor-community/bluetooth-le/commit/1f3236a09c43e7d6207b4ce45726eacb1f87031c))
+
+
+### Bug Fixes
+
+* **android:** report failed connects and clean up timeouts ([fe2c1f2](https://github.com/capacitor-community/bluetooth-le/commit/fe2c1f2769a36cbf479aedf9c8d94bffe9c6b191))
+* **android:** tie timeouts to their operations and harden callback maps ([69d6d58](https://github.com/capacitor-community/bluetooth-le/commit/69d6d58e90b128ac4fb5397d1cd3824c2b310ff9))
+
 ## [8.2.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.1.3...v8.2.0) (2026-05-25)
 
 
