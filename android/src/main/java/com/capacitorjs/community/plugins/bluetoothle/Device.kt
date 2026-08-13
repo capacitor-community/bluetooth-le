@@ -24,7 +24,6 @@ import com.getcapacitor.Logger
 import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class CallbackResponse(
     val success: Boolean,
@@ -33,14 +32,20 @@ class CallbackResponse(
 
 class TimeoutHandler(
     val key: String,
-    private val timeoutQueue: ConcurrentLinkedQueue<TimeoutHandler>,
+    private val timeoutMap: ConcurrentHashMap<String, TimeoutHandler>,
     private val onTimeout: () -> Unit,
 ) : Runnable {
+    // Assigned before the handler is registered or scheduled. Kept lateinit
+    // so unit tests can construct a TimeoutHandler without Android classes.
     lateinit var handler: Handler
 
     override fun run() {
-        timeoutQueue.remove(this)
-        onTimeout()
+        // Fire only while this handler is still the active timeout for its
+        // key. A handler that was settled or replaced after the looper
+        // dequeued it must not run against a newer operation.
+        if (timeoutMap.remove(key, this)) {
+            onTimeout()
+        }
     }
 
     fun cancel() {
@@ -63,20 +68,6 @@ fun gattStatusName(status: Int): String {
     }
 }
 
-fun <T> ConcurrentLinkedQueue<T>.popFirstMatch(predicate: (T) -> Boolean): T? {
-    synchronized(this) {
-        val iterator = this.iterator()
-        while (iterator.hasNext()) {
-            val nextItem = iterator.next()
-            if (predicate(nextItem)) {
-                iterator.remove()
-                return nextItem
-            }
-        }
-        return null
-    }
-}
-
 @SuppressLint("MissingPermission")
 class Device(
     private val context: Context,
@@ -96,8 +87,10 @@ class Device(
     private var connectionState = STATE_DISCONNECTED
     private var device: BluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
     private var bluetoothGatt: BluetoothGatt? = null
-    private var callbackMap = HashMap<String, ((CallbackResponse) -> Unit)>()
-    private val timeoutQueue = ConcurrentLinkedQueue<TimeoutHandler>()
+    // Accessed from the main thread, the callbacks handler thread and binder
+    // threads, so both maps must be thread safe.
+    private val callbackMap = ConcurrentHashMap<String, ((CallbackResponse) -> Unit)>()
+    private val timeoutMap = ConcurrentHashMap<String, TimeoutHandler>()
     private var bondStateReceiver: BroadcastReceiver? = null
     private val pendingBondKeys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
     private var currentMtu = -1
@@ -766,8 +759,8 @@ class Device(
         pendingBondKeys.remove(key)
         callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "resolve: $key $value")
-            timeoutQueue.popFirstMatch { it.key == key }?.cancel()
-            callback?.invoke(CallbackResponse(true, value))
+            timeoutMap.remove(key)?.cancel()
+            callback.invoke(CallbackResponse(true, value))
         }
     }
 
@@ -775,23 +768,28 @@ class Device(
         pendingBondKeys.remove(key)
         callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "reject: $key $value")
-            timeoutQueue.popFirstMatch { it.key == key }?.cancel()
-            callback?.invoke(CallbackResponse(false, value))
+            timeoutMap.remove(key)?.cancel()
+            callback.invoke(CallbackResponse(false, value))
         }
     }
 
-    // TimeoutHandler removes itself before running so a fired handler cannot
-    // remain in the queue and hide a later handler with the same key.
+    // Each operation owns exactly one entry in timeoutMap. Settling the
+    // operation removes its own handler, a repeated operation with the same
+    // key cancels the handler it replaces, and a handler that fires only
+    // runs while it is still the registered timeout for its key.
+    private fun register(timeoutHandler: TimeoutHandler, timeout: Long) {
+        timeoutHandler.handler = Handler(Looper.getMainLooper())
+        timeoutMap.put(timeoutHandler.key, timeoutHandler)?.cancel()
+        timeoutHandler.handler.postDelayed(timeoutHandler, timeout)
+    }
+
     private fun setTimeout(
         key: String, message: String, timeout: Long
     ) {
-        val handler = Handler(Looper.getMainLooper())
-        val timeoutHandler = TimeoutHandler(key, timeoutQueue) {
+        val timeoutHandler = TimeoutHandler(key, timeoutMap) {
             reject(key, message)
         }
-        timeoutHandler.handler = handler
-        timeoutQueue.add(timeoutHandler)
-        handler.postDelayed(timeoutHandler, timeout)
+        register(timeoutHandler, timeout)
     }
 
     private fun setConnectionTimeout(
@@ -800,16 +798,16 @@ class Device(
         gatt: BluetoothGatt?,
         timeout: Long,
     ) {
-        val handler = Handler(Looper.getMainLooper())
-        val timeoutHandler = TimeoutHandler(key, timeoutQueue) {
+        // The teardown is guarded by TimeoutHandler.run: once the connect
+        // settles or is superseded, a late-firing handler must not tear
+        // down a connection it no longer owns.
+        val timeoutHandler = TimeoutHandler(key, timeoutMap) {
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
             cleanup()
             reject(key, message)
         }
-        timeoutHandler.handler = handler
-        timeoutQueue.add(timeoutHandler)
-        handler.postDelayed(timeoutHandler, timeout)
+        register(timeoutHandler, timeout)
     }
 }
