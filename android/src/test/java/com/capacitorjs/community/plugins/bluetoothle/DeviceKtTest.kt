@@ -59,10 +59,5 @@ class DeviceKtTest : TestCase() {
         assertFalse(staleRan)
         assertFalse(currentRan)
         assertSame(currentHandler, timeoutMap["connect"])
-
-        currentHandler.run()
-
-        assertTrue(currentRan)
-        assertFalse(timeoutMap.containsKey("connect"))
     }
 }

@@ -30,15 +30,11 @@ class CallbackResponse(
     val value: String,
 )
 
-class TimeoutHandler(
+internal class TimeoutHandler(
     val key: String,
     private val timeoutMap: ConcurrentHashMap<String, TimeoutHandler>,
     private val onTimeout: () -> Unit,
 ) : Runnable {
-    // Assigned before the handler is registered or scheduled. Kept lateinit
-    // so unit tests can construct a TimeoutHandler without Android classes.
-    lateinit var handler: Handler
-
     override fun run() {
         // Fire only while this handler is still the active timeout for its
         // key. A handler that was settled or replaced after the looper
@@ -47,23 +43,19 @@ class TimeoutHandler(
             onTimeout()
         }
     }
-
-    fun cancel() {
-        handler.removeCallbacks(this)
-    }
 }
 
 /** Names the common GATT statuses reported by onConnectionStateChange. */
-fun gattStatusName(status: Int): String {
+internal fun gattStatusName(status: Int): String {
     return when (status) {
-        0 -> "GATT_SUCCESS"
+        BluetoothGatt.GATT_SUCCESS -> "GATT_SUCCESS"
         8 -> "GATT_CONN_TIMEOUT"
         19 -> "GATT_CONN_TERMINATE_PEER_USER"
         22 -> "GATT_CONN_TERMINATE_LOCAL_HOST"
         34 -> "GATT_CONN_LMP_TIMEOUT"
         62 -> "GATT_CONN_FAIL_ESTABLISH"
         133 -> "GATT_ERROR"
-        257 -> "GATT_FAILURE"
+        BluetoothGatt.GATT_FAILURE -> "GATT_FAILURE"
         else -> "unnamed"
     }
 }
@@ -91,6 +83,7 @@ class Device(
     // threads, so both maps must be thread safe.
     private val callbackMap = ConcurrentHashMap<String, ((CallbackResponse) -> Unit)>()
     private val timeoutMap = ConcurrentHashMap<String, TimeoutHandler>()
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var bondStateReceiver: BroadcastReceiver? = null
     private val pendingBondKeys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
     private var currentMtu = -1
@@ -150,10 +143,11 @@ class Device(
                 onDisconnect()
                 bluetoothGatt?.close()
                 bluetoothGatt = null
-                Logger.debug(TAG, "Disconnected from GATT server: $statusText")
+                Logger.debug(TAG, "Disconnected from GATT server.")
                 cleanup()
                 // A connect still in flight has failed. Reject it with the
-                // platform status instead of waiting for its timeout.
+                // platform status instead of waiting for its timeout. Other
+                // in-flight operations are still left to their own timeouts.
                 reject("connect", "Connection failed with $statusText.")
                 resolve("disconnect", "Disconnected with $statusText.")
             }
@@ -759,7 +753,7 @@ class Device(
         pendingBondKeys.remove(key)
         callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "resolve: $key $value")
-            timeoutMap.remove(key)?.cancel()
+            timeoutMap.remove(key)?.let { mainHandler.removeCallbacks(it) }
             callback.invoke(CallbackResponse(true, value))
         }
     }
@@ -768,28 +762,26 @@ class Device(
         pendingBondKeys.remove(key)
         callbackMap.remove(key)?.let { callback ->
             Logger.debug(TAG, "reject: $key $value")
-            timeoutMap.remove(key)?.cancel()
+            timeoutMap.remove(key)?.let { mainHandler.removeCallbacks(it) }
             callback.invoke(CallbackResponse(false, value))
         }
     }
 
-    // Each operation owns exactly one entry in timeoutMap. Settling the
-    // operation removes its own handler, a repeated operation with the same
-    // key cancels the handler it replaces, and a handler that fires only
-    // runs while it is still the registered timeout for its key.
-    private fun register(timeoutHandler: TimeoutHandler, timeout: Long) {
-        timeoutHandler.handler = Handler(Looper.getMainLooper())
-        timeoutMap.put(timeoutHandler.key, timeoutHandler)?.cancel()
-        timeoutHandler.handler.postDelayed(timeoutHandler, timeout)
+    // Each operation owns at most one entry in timeoutMap: settling removes
+    // its own handler, and a repeated operation with the same key unschedules
+    // the handler it replaces.
+    private fun startTimeout(key: String, timeout: Long, onTimeout: () -> Unit) {
+        val timeoutHandler = TimeoutHandler(key, timeoutMap, onTimeout)
+        timeoutMap.put(key, timeoutHandler)?.let { mainHandler.removeCallbacks(it) }
+        mainHandler.postDelayed(timeoutHandler, timeout)
     }
 
     private fun setTimeout(
         key: String, message: String, timeout: Long
     ) {
-        val timeoutHandler = TimeoutHandler(key, timeoutMap) {
+        startTimeout(key, timeout) {
             reject(key, message)
         }
-        register(timeoutHandler, timeout)
     }
 
     private fun setConnectionTimeout(
@@ -798,16 +790,12 @@ class Device(
         gatt: BluetoothGatt?,
         timeout: Long,
     ) {
-        // The teardown is guarded by TimeoutHandler.run: once the connect
-        // settles or is superseded, a late-firing handler must not tear
-        // down a connection it no longer owns.
-        val timeoutHandler = TimeoutHandler(key, timeoutMap) {
+        startTimeout(key, timeout) {
             connectionState = STATE_DISCONNECTED
             gatt?.disconnect()
             gatt?.close()
             cleanup()
             reject(key, message)
         }
-        register(timeoutHandler, timeout)
     }
 }
