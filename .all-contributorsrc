@@ -269,6 +269,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "aznel-claude-code",
+      "name": "aznel-claude-code",
+      "avatar_url": "https://avatars.githubusercontent.com/u/285471095?v=4",
+      "profile": "https://github.com/aznel-claude-code",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
