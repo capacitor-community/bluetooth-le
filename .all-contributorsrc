@@ -260,6 +260,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "TiloBuechsenschuss",
+      "name": "TiloBuechsenschuss",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31003682?v=4",
+      "profile": "https://github.com/TiloBuechsenschuss",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
