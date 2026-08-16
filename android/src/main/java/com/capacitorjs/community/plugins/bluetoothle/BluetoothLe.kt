@@ -938,6 +938,8 @@ class BluetoothLe : Plugin() {
         if (allowExtendedAdvertising) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 scanSettings.setLegacy(false)
+                val scanPhy = call.getInt("scanPhy", BluetoothDevice.PHY_LE_1M) as Int
+                scanSettings.setPhy(scanPhy)
             } else {
                 Logger.warn(TAG, "allowExtendedAdvertising requires Android 8.0 (API level 26) and will be ignored.")
             }
