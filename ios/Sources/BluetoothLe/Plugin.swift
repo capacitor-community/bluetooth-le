@@ -283,6 +283,10 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
             guard let device = self.getDevice(call, checkConnection: false) else { return }
             let timeout = self.getTimeout(call, defaultTimeout: CONNECTION_TIMEOUT)
             let skipDescriptorDiscovery = call.getBool("skipDescriptorDiscovery") ?? false
+            let serviceFilter: [CBUUID]? = call.getArray("services", String.self)?
+                .compactMap({ service in
+                    return CBUUID(string: service)
+                })
             device.setOnConnected(timeout, skipDescriptorDiscovery, {(success, message) in
                 if success {
                     call.resolve()
@@ -295,7 +299,7 @@ public class BluetoothLe: CAPPlugin, CAPBridgedPlugin {
                 let key = "disconnected|\(device.getId())"
                 self.notifyListeners(key, data: nil)
             })
-            self.deviceManager?.connect(device, timeout, {(success, message) in
+            self.deviceManager?.connect(device, timeout, serviceFilter, {(success, message) in
                 if success {
                     log("Connected to peripheral. Waiting for service discovery.")
                 } else {

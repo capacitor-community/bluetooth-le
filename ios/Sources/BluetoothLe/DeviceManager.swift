@@ -25,6 +25,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     private var deviceListView: DeviceListView?
     private var popoverController: UIPopoverPresentationController?
     private var discoveredPeripherals = [String: CBPeripheral]()
+    private var serviceFilters = [String: [CBUUID]]()
     private var deviceNameFilter: String?
     private var deviceNamePrefixFilter: String?
     private var deviceListMode: DeviceListMode = .none
@@ -266,10 +267,12 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     func connect(
         _ device: Device,
         _ connectionTimeout: Double,
+        _ serviceFilter: [CBUUID]?,
         _ callback: @escaping Callback
     ) {
         let key = "connect|\(device.getId())"
         self.callbackMap[key] = callback
+        self.serviceFilters[device.getId()] = serviceFilter
         log("Connecting to peripheral", device.getPeripheral())
         self.centralManager.connect(device.getPeripheral(), options: nil)
         self.setConnectionTimeout(key, "Connection timeout.", device, connectionTimeout)
@@ -282,7 +285,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     ) {
         log("Connected to device", peripheral)
         let key = "connect|\(peripheral.identifier.uuidString)"
-        peripheral.discoverServices(nil)
+        peripheral.discoverServices(self.serviceFilters[peripheral.identifier.uuidString] ?? nil)
         self.resolve(key, "Successfully connected.")
         // will wait for services in plugin call
     }
@@ -342,6 +345,7 @@ class DeviceManager: NSObject, CBCentralManagerDelegate {
     ) {
         let key = "disconnect|\(peripheral.identifier.uuidString)"
         let keyOnDisconnected = "onDisconnected|\(peripheral.identifier.uuidString)"
+        self.serviceFilters.removeValue(forKey: peripheral.identifier.uuidString)
         self.resolve(keyOnDisconnected, "Disconnected.")
         if let error = error {
             log(error.localizedDescription)

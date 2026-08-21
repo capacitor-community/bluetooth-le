@@ -220,6 +220,12 @@ describe('BleClient', () => {
     expect(BluetoothLe.connect).toHaveBeenCalledWith({ deviceId: mockDevice.deviceId, timeout: 20000 });
   });
 
+  it('should run connect with a service filter', async () => {
+    const services = ['0000180d-0000-1000-8000-00805f9b34fb'];
+    await BleClient.connect(mockDevice.deviceId, () => undefined, { services });
+    expect(BluetoothLe.connect).toHaveBeenCalledWith({ deviceId: mockDevice.deviceId, services });
+  });
+
   it('should run createBond', async () => {
     await BleClient.createBond(mockDevice.deviceId);
     expect(BluetoothLe.createBond).toHaveBeenCalledWith({ deviceId: mockDevice.deviceId });
