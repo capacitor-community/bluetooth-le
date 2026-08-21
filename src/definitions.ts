@@ -198,6 +198,17 @@ export interface ConnectClientOptions extends TimeoutOptions {
    * @default false
    */
   skipDescriptorDiscovery?: boolean;
+  /**
+   * Only discover these services during connection, instead of all of them.
+   * On iOS, connecting does not resolve until every service and characteristic
+   * has been discovered, which dominates connection time for a device that
+   * exposes many — so narrowing it to the services you use can save seconds.
+   * When set, other services will not be available in the services structure.
+   * It has no effect on Android, which discovers the whole GATT database in a
+   * single operation that takes no filter, nor on web, which discovers lazily.
+   * @default undefined
+   */
+  services?: string[];
 }
 
 export interface ConnectOptions extends DeviceIdOptions, ConnectClientOptions {}
