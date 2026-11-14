@@ -91,6 +91,7 @@ class BluetoothLe : Plugin() {
 
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var stateReceiver: BroadcastReceiver? = null
+    private var adapterStateReceiver: BroadcastReceiver? = null
     private var deviceMap = HashMap<String, Device>()
     private var deviceScanner: DeviceScanner? = null
     private var displayStrings: DisplayStrings? = null
@@ -98,6 +99,53 @@ class BluetoothLe : Plugin() {
 
     override fun load() {
         displayStrings = getDisplayStrings()
+        adapterStateReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                // On the plugin's thread, like the calls that use deviceMap.
+                when (state) {
+                    BluetoothAdapter.STATE_TURNING_OFF, BluetoothAdapter.STATE_OFF -> bridge.execute {
+                        closeDevices("Bluetooth turned off.") { true }
+                    }
+                    // In case the phone didn't report Bluetooth turning off: no connection
+                    // survives it, so a device still marked connected is stale.
+                    BluetoothAdapter.STATE_ON -> bridge.execute {
+                        closeDevices("Bluetooth restarted.") { it.isConnected() }
+                    }
+                }
+            }
+        }
+        context.registerReceiver(
+            adapterStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        )
+    }
+
+    override fun handleOnDestroy() {
+        adapterStateReceiver?.let { receiver ->
+            try {
+                context.unregisterReceiver(receiver)
+            } catch (e: IllegalArgumentException) {
+                Logger.debug(TAG, "Adapter state receiver already unregistered")
+            }
+        }
+        adapterStateReceiver = null
+        super.handleOnDestroy()
+    }
+
+    /**
+     * Bluetooth turning off (or its stack restarting) ends every connection, but Android doesn't
+     * always report it through onConnectionStateChange, so close the devices here.
+     */
+    private fun closeDevices(reason: String, shouldClose: (Device) -> Boolean) {
+        val devices = deviceMap.values.filter(shouldClose)
+        if (devices.isEmpty()) {
+            return
+        }
+        Logger.debug(TAG, "$reason Closing ${devices.size} device(s).")
+        for (device in devices) {
+            deviceMap.remove(device.getId())
+            device.close(reason)
+        }
     }
 
     @PluginMethod
