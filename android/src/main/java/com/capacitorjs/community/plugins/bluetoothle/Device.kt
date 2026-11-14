@@ -124,6 +124,37 @@ class Device(
         }
     }
 
+    /**
+     * Drops the connection without waiting for the Bluetooth stack to confirm it. Use it when the
+     * stack can't answer: when Bluetooth turns off, its restart included, the stack forgets the
+     * connection without calling onConnectionStateChange, and every call on the old
+     * BluetoothGatt fails with a DeadObjectException. Without this, isConnected() stays true and
+     * connect() keeps resolving "Already connected." until the app restarts.
+     */
+    fun close(reason: String) {
+        val gatt = bluetoothGatt
+        val wasConnected = gatt != null && connectionState != STATE_DISCONNECTED
+        bluetoothGatt = null
+        connectionState = STATE_DISCONNECTED
+        try {
+            gatt?.close()
+        } catch (e: Exception) {
+            Logger.debug(TAG, "close: ${e.localizedMessage}")
+        }
+        cleanup()
+        resolve("disconnect", "Disconnected.")
+        // Settle every pending operation now rather than leaving it to its timeout. Notification
+        // listeners share the map but aren't operations.
+        for (key in callbackMap.keys.toList()) {
+            if (!key.startsWith("notification|")) {
+                reject(key, reason)
+            }
+        }
+        if (wasConnected) {
+            onDisconnect()
+        }
+    }
+
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(
             gatt: BluetoothGatt, status: Int, newState: Int
