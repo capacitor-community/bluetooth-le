@@ -287,6 +287,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mikejpeters",
+      "name": "Mike Peters",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3334654?v=4",
+      "profile": "http://boundstatesoftware.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
