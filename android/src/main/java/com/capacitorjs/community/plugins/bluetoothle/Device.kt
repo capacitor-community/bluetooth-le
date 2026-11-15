@@ -24,6 +24,7 @@ import com.getcapacitor.Logger
 import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CallbackResponse(
     val success: Boolean,
@@ -42,6 +43,26 @@ internal class TimeoutHandler(
         if (timeoutMap.remove(key, this)) {
             onTimeout()
         }
+    }
+}
+
+/**
+ * Emits the disconnect event at most once per connection. close() and the GATT callback can
+ * report the same disconnect, and they arrive on different threads, so the order isn't
+ * guaranteed.
+ */
+internal class DisconnectNotifier {
+    private val notified = AtomicBoolean(false)
+
+    fun notify(action: () -> Unit) {
+        if (notified.compareAndSet(false, true)) {
+            action()
+        }
+    }
+
+    /** Arms the notifier for the next connection. */
+    fun reset() {
+        notified.set(false)
     }
 }
 
@@ -88,6 +109,8 @@ class Device(
     private val pendingBondKeys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
     private var currentMtu = -1
     private var skipDescriptorDiscovery = false
+    // Armed while a connection is live, so the disconnect event fires once per connection.
+    private val disconnectNotifier = DisconnectNotifier()
 
     private lateinit var callbacksHandlerThread: HandlerThread
     private lateinit var callbacksHandler: Handler
@@ -124,6 +147,10 @@ class Device(
         }
     }
 
+    private fun notifyDisconnect() {
+        disconnectNotifier.notify { onDisconnect() }
+    }
+
     /**
      * Drops the connection without waiting for the Bluetooth stack to confirm it. Use it when the
      * stack can't answer: when Bluetooth turns off, its restart included, the stack forgets the
@@ -133,7 +160,9 @@ class Device(
      */
     fun close(reason: String) {
         val gatt = bluetoothGatt
-        val wasConnected = gatt != null && connectionState != STATE_DISCONNECTED
+        // A device that was still connecting never reached a connected state, so it has no
+        // disconnect to report. Its pending connect call is rejected below.
+        val wasConnected = connectionState == STATE_CONNECTED
         bluetoothGatt = null
         connectionState = STATE_DISCONNECTED
         try {
@@ -151,7 +180,7 @@ class Device(
             }
         }
         if (wasConnected) {
-            onDisconnect()
+            notifyDisconnect()
         }
     }
 
@@ -171,7 +200,7 @@ class Device(
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectionState = STATE_DISCONNECTED
-                onDisconnect()
+                notifyDisconnect()
                 bluetoothGatt?.close()
                 bluetoothGatt = null
                 Logger.debug(TAG, "Disconnected from GATT server.")
@@ -378,6 +407,8 @@ class Device(
             resolve(key, "Already connected.")
             return
         }
+        // A new connection attempt: allow one disconnect event for it.
+        disconnectNotifier.reset()
         bluetoothGatt?.close()
         connectionState = STATE_CONNECTING
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

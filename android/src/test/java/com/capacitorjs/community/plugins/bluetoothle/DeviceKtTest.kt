@@ -60,4 +60,27 @@ class DeviceKtTest : TestCase() {
         assertFalse(currentRan)
         assertSame(currentHandler, timeoutMap["connect"])
     }
+
+    fun testDisconnectNotifierFiresOnce() {
+        // close() and the GATT callback can report the same disconnect.
+        var count = 0
+        val notifier = DisconnectNotifier()
+
+        notifier.notify { count++ }
+        notifier.notify { count++ }
+
+        assertEquals(1, count)
+    }
+
+    fun testDisconnectNotifierFiresAgainAfterReset() {
+        // A new connection attempt arms the notifier again.
+        var count = 0
+        val notifier = DisconnectNotifier()
+
+        notifier.notify { count++ }
+        notifier.reset()
+        notifier.notify { count++ }
+
+        assertEquals(2, count)
+    }
 }
