@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/dw/@capacitor-community/bluetooth-le?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/bluetooth-le"><img src="https://img.shields.io/npm/v/@capacitor-community/bluetooth-le?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-32-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-33-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -1146,6 +1146,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/aznel-claude-code"><img src="https://avatars.githubusercontent.com/u/285471095?v=4&size=100" width="100px" height="100px" alt="aznel-claude-code"/><br /><sub><b>aznel-claude-code</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=aznel-claude-code" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://o23.ch"><img src="https://avatars.githubusercontent.com/u/7030415?v=4&size=100" width="100px" height="100px" alt="Josua Hunziker"/><br /><sub><b>Josua Hunziker</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=jo23sh" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://boundstatesoftware.com"><img src="https://avatars.githubusercontent.com/u/3334654?v=4&size=100" width="100px" height="100px" alt="Mike Peters"/><br /><sub><b>Mike Peters</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=mikejpeters" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jadejr"><img src="https://avatars.githubusercontent.com/u/150508125?v=4&size=100" width="100px" height="100px" alt="jadejr"/><br /><sub><b>jadejr</b></sub></a><br /><a href="https://github.com/capacitor-community/bluetooth-le/commits?author=jadejr" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
