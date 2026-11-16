@@ -296,6 +296,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jadejr",
+      "name": "jadejr",
+      "avatar_url": "https://avatars.githubusercontent.com/u/150508125?v=4",
+      "profile": "https://github.com/jadejr",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
