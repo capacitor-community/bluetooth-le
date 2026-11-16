@@ -47,8 +47,11 @@ export interface RequestBleDeviceOptions {
    */
   scanMode?: ScanMode;
   /**
-   * Android scan phy (default: ScanPhy.PHY_LE_1M)
-   * Requires allowExtendedAdvertising to be true to have any effect.
+   * Selects which PHY the scanner uses when extended advertising is enabled (Android only).
+   * No effect on iOS or web.
+   * Requires allowExtendedAdvertising to be true; otherwise the value is ignored.
+   * When omitted, the Android default is kept, which scans on all PHYs the controller supports.
+   * A PHY that the Bluetooth controller does not support is rejected.
    */
   scanPhy?: ScanPhy;
   /**
@@ -103,7 +106,9 @@ export enum ScanMode {
 }
 
 /**
- * Android scan phy
+ * Android scan PHY. Mirrors `android.bluetooth.BluetoothDevice.PHY_LE_1M`, `PHY_LE_2M` and
+ * `PHY_LE_CODED`, plus `android.bluetooth.le.ScanSettings.PHY_LE_ALL_SUPPORTED`.
+ * https://developer.android.com/reference/android/bluetooth/BluetoothDevice
  */
 export enum ScanPhy {
   /**

@@ -87,6 +87,16 @@ class BluetoothLe : Plugin() {
         private const val MAX_SCAN_DURATION: Long = 30000
         private const val CONNECTION_TIMEOUT: Float = 10000.0F
         private const val DEFAULT_TIMEOUT: Float = 5000.0F
+
+        // PHYs accepted by ScanSettings.Builder.setPhy. PHY_LE_ALL_SUPPORTED is declared on
+        // ScanSettings, the remaining ones on BluetoothDevice.
+        private val SUPPORTED_SCAN_PHYS =
+            intArrayOf(
+                BluetoothDevice.PHY_LE_1M,
+                BluetoothDevice.PHY_LE_2M,
+                BluetoothDevice.PHY_LE_CODED,
+                ScanSettings.PHY_LE_ALL_SUPPORTED,
+            )
     }
 
     private var bluetoothAdapter: BluetoothAdapter? = null
@@ -986,8 +996,28 @@ class BluetoothLe : Plugin() {
         if (allowExtendedAdvertising) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 scanSettings.setLegacy(false)
-                val scanPhy = call.getInt("scanPhy", BluetoothDevice.PHY_LE_1M) as Int
-                scanSettings.setPhy(scanPhy)
+                // setPhy only applies while legacy scanning is disabled. The platform default is
+                // PHY_LE_ALL_SUPPORTED, so the scan PHY is only overridden when one is requested.
+                if (call.getData().has("scanPhy")) {
+                    val scanPhy = call.getInt("scanPhy")
+                    if (scanPhy == null || scanPhy !in SUPPORTED_SCAN_PHYS) {
+                        call.reject("Invalid scan PHY.")
+                        return null
+                    }
+                    // An unsupported PHY makes the scan fail to start, so it is checked upfront.
+                    val adapter = bluetoothAdapter
+                    val unsupported =
+                        when (scanPhy) {
+                            BluetoothDevice.PHY_LE_2M -> adapter?.isLe2MPhySupported == false
+                            BluetoothDevice.PHY_LE_CODED -> adapter?.isLeCodedPhySupported == false
+                            else -> false
+                        }
+                    if (unsupported) {
+                        call.reject("Requested scan PHY ($scanPhy) is not supported by the Bluetooth controller.")
+                        return null
+                    }
+                    scanSettings.setPhy(scanPhy)
+                }
             } else {
                 Logger.warn(TAG, "allowExtendedAdvertising requires Android 8.0 (API level 26) and will be ignored.")
             }
