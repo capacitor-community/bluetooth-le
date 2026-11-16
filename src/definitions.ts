@@ -47,6 +47,11 @@ export interface RequestBleDeviceOptions {
    */
   scanMode?: ScanMode;
   /**
+   * Android scan phy (default: ScanPhy.PHY_LE_1M)
+   * Requires allowExtendedAdvertising to be true to have any effect.
+   */
+  scanPhy?: ScanPhy;
+  /**
    * Report Bluetooth 5 advertising extensions in addition to legacy advertisements (Android only).
    * Android only reports legacy advertisements by default, so a device that advertises more than the
    * 31 bytes of a legacy advertisement is not discovered at all. Enabling this reports both legacy
@@ -95,6 +100,28 @@ export enum ScanMode {
    * https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY
    */
   SCAN_MODE_LOW_LATENCY = 2,
+}
+
+/**
+ * Android scan phy
+ */
+export enum ScanPhy {
+  /**
+   * Bluetooth LE 1M PHY.
+   */
+  PHY_LE_1M = 1,
+  /**
+   * Bluetooth LE 2M PHY.
+   */
+  PHY_LE_2M = 2,
+  /**
+   * Bluetooth LE Coded PHY.
+   */
+  PHY_LE_CODED = 3,
+  /**
+   * All supported PHYs.
+   */
+  PHY_LE_ALL_SUPPORTED = 255,
 }
 
 /**
