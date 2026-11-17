@@ -404,8 +404,16 @@ class Device(
         this.skipDescriptorDiscovery = skipDescriptorDiscovery
         callbackMap[key] = callback
         if (isConnected()) {
-            resolve(key, "Already connected.")
-            return
+            if (isGattBinderAlive()) {
+                resolve(key, "Already connected.")
+                return
+            }
+            // close() rejects every pending operation. Take this connect attempt
+            // out first so dropping the dead client does not fail it.
+            callbackMap.remove(key)
+            Logger.error(TAG, "Connected GATT client has a dead binder. Reconnecting.")
+            close("GATT binder is dead.")
+            callbackMap[key] = callback
         }
         // A new connection attempt: allow one disconnect event for it.
         disconnectNotifier.reset()
@@ -439,6 +447,33 @@ class Device(
 
     fun isConnected(): Boolean {
         return bluetoothGatt != null && connectionState == STATE_CONNECTED
+    }
+
+    /**
+     * isConnected() only looks at the local state. After the Bluetooth process dies, that state
+     * stays CONNECTED and the old BluetoothGatt throws DeadObjectException on every call.
+     * Returns true when the binder check itself is unavailable, so a healthy connection keeps the
+     * "Already connected." fast path.
+     */
+    private fun isGattBinderAlive(): Boolean {
+        val gatt = bluetoothGatt ?: return false
+        return try {
+            val serviceField = gatt.javaClass.getDeclaredField("mService")
+            serviceField.isAccessible = true
+            val service = serviceField.get(gatt) as? android.os.IInterface ?: return false
+            val binder = service.asBinder()
+            binder.isBinderAlive && binder.pingBinder()
+        } catch (e: android.os.DeadObjectException) {
+            false
+        } catch (e: Exception) {
+            Logger.debug(TAG, "GATT binder check unavailable: ${e.localizedMessage}")
+            try {
+                gatt.readRemoteRssi()
+            } catch (probeError: Exception) {
+                Logger.debug(TAG, "GATT client is not usable: ${probeError.localizedMessage}")
+                false
+            }
+        }
     }
 
     private fun requestMtu(mtu: Int) {
@@ -553,8 +588,15 @@ class Device(
             resolve(key, "Disconnected.")
             return
         }
-        bluetoothGatt?.disconnect()
-        setTimeout(key, "Disconnection timeout.", timeout)
+        try {
+            bluetoothGatt?.disconnect()
+            setTimeout(key, "Disconnection timeout.", timeout)
+        } catch (e: Exception) {
+            // DeadObjectException is thrown here, before any callback, so the device would
+            // otherwise stay in the map and the next connect() would report "Already connected."
+            Logger.error(TAG, "disconnect failed because the GATT binder is dead.", e)
+            close("GATT binder is dead.")
+        }
     }
 
     fun getServices(): MutableList<BluetoothGattService> {
@@ -687,7 +729,17 @@ class Device(
             return
         }
 
-        val result = bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
+        val result = try {
+            bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
+        } catch (e: Exception) {
+            Logger.error(
+                TAG,
+                "setCharacteristicNotification failed because the GATT binder is dead.",
+                e,
+            )
+            close("GATT binder is dead.")
+            return
+        }
         if (result != true) {
             reject(key, "Setting notification failed.")
             return
@@ -854,8 +906,12 @@ class Device(
     ) {
         startTimeout(key, timeout) {
             connectionState = STATE_DISCONNECTED
-            gatt?.disconnect()
-            gatt?.close()
+            try {
+                gatt?.disconnect()
+                gatt?.close()
+            } catch (e: Exception) {
+                Logger.debug(TAG, "Closing GATT after timeout failed: ${e.localizedMessage}")
+            }
             cleanup()
             reject(key, message)
         }
