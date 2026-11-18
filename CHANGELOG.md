@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.4.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.3.0...v8.4.0) (2026-11-18)
+
+
+### Features
+
+* **android:** Support setting the scanner PHY when ext advertising is enabled ([e23d5f5](https://github.com/capacitor-community/bluetooth-le/commit/e23d5f54e7e50642c31f736f99acb8c7244f7048))
+* **ios:** add a services option to connect to narrow service discovery ([860d767](https://github.com/capacitor-community/bluetooth-le/commit/860d767fac3b368eb9d9d7420c2449e318ae8b53))
+
+
+### Bug Fixes
+
+* **android:** drop connections when Bluetooth turns off ([e038d3a](https://github.com/capacitor-community/bluetooth-le/commit/e038d3a1c27b534dbf32ff240355ae2b8bfbb67b)), closes [#826](https://github.com/capacitor-community/bluetooth-le/issues/826)
+* **android:** emit the disconnect event once per connection ([ede65c3](https://github.com/capacitor-community/bluetooth-le/commit/ede65c313a1b19aec09e999b0c06885c9c52f526))
+* **android:** validate the scan PHY and keep the platform default ([6954343](https://github.com/capacitor-community/bluetooth-le/commit/695434345ddc1241b747237c3b90abd517b0324e))
+
 ## [8.3.0](https://github.com/capacitor-community/bluetooth-le/compare/v8.2.0...v8.3.0) (2026-08-13)
 
 
