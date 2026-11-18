@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
       - run: npm ci
       - run: npm run lint
 
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
       - run: rm package-lock.json
       - run: npm install
       - run: npm run verify:web
@@ -42,8 +42,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - agp: '8.13.0'
-            gradle: '8.14.3'
+          - agp: '9.4.1'
+            gradle: '9.8.2'
           - agp: '9.1.1'
             gradle: '9.3.1'
     name: verify-android (AGP ${{ matrix.agp }} / Gradle ${{ matrix.gradle }})
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -74,6 +74,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
       - run: npm ci
       - run: npm run verify:ios

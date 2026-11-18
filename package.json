@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/bluetooth-le",
-  "version": "8.4.0",
+  "version": "9.0.0",
   "description": "Capacitor plugin for Bluetooth Low Energy ",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -38,11 +38,11 @@
     "@types/web-bluetooth": "^0.0.20"
   },
   "devDependencies": {
-    "@capacitor/android": "^8.0.0",
-    "@capacitor/cli": "^8.0.0",
-    "@capacitor/core": "^8.0.0",
+    "@capacitor/android": "^9.0.0-rc.0",
+    "@capacitor/cli": "^9.0.0-rc.0",
+    "@capacitor/core": "^9.0.0-rc.0",
     "@capacitor/docgen": "^0.3.1",
-    "@capacitor/ios": "^8.0.0",
+    "@capacitor/ios": "^9.0.0-rc.0",
     "@ionic/eslint-config": "^0.4.0",
     "@ionic/prettier-config": "^4.0.0",
     "@ionic/swiftlint-config": "^2.0.0",
@@ -60,7 +60,7 @@
     "prettier-plugin-java": "^2.7.7"
   },
   "peerDependencies": {
-    "@capacitor/core": ">=8.0.0"
+    "@capacitor/core": ">=9.0.0-0"
   },
   "files": [
     "android/src/main/",
@@ -108,7 +108,7 @@
     "url": "https://github.com/capacitor-community/bluetooth-le/issues"
   },
   "volta": {
-    "node": "22.13.1",
-    "npm": "11.0.0"
+    "node": "24.11.1",
+    "npm": "11.6.2"
   }
 }
