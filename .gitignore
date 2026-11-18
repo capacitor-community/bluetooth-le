@@ -77,3 +77,4 @@ DerivedData/
 .netrc
 Package.resolved
 /.build
+/.worktrees/
